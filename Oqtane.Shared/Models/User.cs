@@ -37,6 +37,11 @@ namespace Oqtane.Models
         public string TimeZoneId { get; set; }
 
         /// <summary>
+        /// The default culture for the user (ie. en-US)
+        /// </summary>
+        public string CultureCode { get; set; }
+
+        /// <summary>
         /// Reference to a <see cref="File"/> containing the users photo.
         /// </summary>
         public int? PhotoFileId { get; set; }
@@ -140,6 +145,7 @@ namespace Oqtane.Models
                 DisplayName = DisplayName,
                 Email = Email,
                 TimeZoneId = TimeZoneId,
+                CultureCode = CultureCode,
                 PhotoFileId = PhotoFileId,
                 LastLoginOn = LastLoginOn,
                 LastIPAddress = LastIPAddress,

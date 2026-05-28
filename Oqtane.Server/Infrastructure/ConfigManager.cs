@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Shared;
 
@@ -34,8 +35,9 @@ namespace Oqtane.Infrastructure
         private static string appsettingsPath = Directory.GetCurrentDirectory();
         private const string appsettingsOverrideFilename = "appsettings.override.json";
         private readonly IConfigurationRoot _config;
+        private readonly IWebHostEnvironment _environment;
 
-        public ConfigManager(IConfigurationRoot config)
+        public ConfigManager(IConfigurationRoot config, IWebHostEnvironment environment)
         {
             _config = config;
             appsettingsPath = GetAdditionalAppsettingFilePath() ?? appsettingsPath;
@@ -100,6 +102,16 @@ namespace Oqtane.Infrastructure
                 settings.Add(kvp.Key, kvp.Value);
             }
             return settings;
+        }
+
+        private string GetConfigFile()
+        {
+            var filename = $"appsettings.{_environment.EnvironmentName}.json";
+            if (_environment.EnvironmentName == "Development" || !File.Exists(Path.Combine(Directory.GetCurrentDirectory(), filename)))
+            {
+                filename = "appsettings.json";
+            }
+            return filename;
         }
 
         public void AddOrUpdateSetting<T>(string key, T value, bool reload)

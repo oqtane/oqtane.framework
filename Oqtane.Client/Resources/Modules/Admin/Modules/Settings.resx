@@ -130,7 +130,7 @@
     <value>Indicate if this module should be displayed on all pages</value>
   </data>
   <data name="Page.HelpText" xml:space="preserve">
-    <value>The page that the module is located on</value>
+    <value>The page that the module is located on. Please note that shared modules cannot be moved to other pages.</value>
   </data>
   <data name="Title.Text" xml:space="preserve">
     <value>Title: </value>

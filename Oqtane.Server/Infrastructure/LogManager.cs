@@ -84,6 +84,14 @@ namespace Oqtane.Infrastructure
             log.Url = "";
             if (_accessor.HttpContext != null)
             {
+                if (string.IsNullOrEmpty(log.RemoteIPAddress))
+                {
+                    log.RemoteIPAddress = _accessor.HttpContext.Connection.RemoteIpAddress?.ToString();
+                    if (log.RemoteIPAddress == "::1")
+                    {
+                        log.RemoteIPAddress = "127.0.0.1";
+                    }
+                }
                 HttpRequest request = _accessor.HttpContext.Request;
                 if (request != null)
                 {
@@ -134,6 +142,7 @@ namespace Oqtane.Infrastructure
             {
                 log.LogDate = DateTime.UtcNow;
                 log.Server = Environment.MachineName;
+                log.Instance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "";
                 log.MessageTemplate = log.Message;
                 log = ProcessStructuredLog(log);
                 try

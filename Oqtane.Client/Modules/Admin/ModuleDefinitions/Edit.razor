@@ -46,7 +46,8 @@
                     </div>
                 </div>
 			</form>
-			<Section Name="Information" ResourceKey="Information">
+            <br />
+            <Section Name="Information" ResourceKey="Information">
 				<div class="container">
 					<div class="row mb-1 align-items-center">
 						<Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
@@ -97,7 +98,13 @@
                             }
 						</div>
 					</div>
-				</div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="fingerprint" HelpText="A unique identifier for the module's static resources. This value can be changed by clicking the Save option below (ie. cache busting)." ResourceKey="Fingerprint">Fingerprint: </Label>
+                        <div class="col-sm-9">
+                            <input id="fingerprint" class="form-control" @bind="@_fingerprint" disabled />
+                        </div>
+                    </div>
+                </div>
 			</Section>
 			<br />
 			<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
@@ -231,6 +238,7 @@
     private string _url = "";
     private string _contact = "";
     private string _license = "";
+    private string _fingerprint = "";
     private List<Permission> _permissions = null;
     private string _createdby;
     private DateTime _createdon;
@@ -266,6 +274,7 @@
                 _url = moduleDefinition.Url;
                 _contact = moduleDefinition.Contact;
                 _license = moduleDefinition.License;
+                _fingerprint = moduleDefinition.Fingerprint;
                 _permissions = moduleDefinition.PermissionList;
                 _createdby = moduleDefinition.CreatedBy;
                 _createdon = moduleDefinition.CreatedOn;

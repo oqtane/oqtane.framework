@@ -33,11 +33,11 @@ namespace Oqtane.Infrastructure
             var visitorRepository = provider.GetRequiredService<IVisitorRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
             var urlMappingRepository = provider.GetRequiredService<IUrlMappingRepository>();
-            var installationManager = provider.GetRequiredService<IInstallationManager>();
+            var siteTaskRepository = provider.GetRequiredService<ISiteTaskRepository>();
 
             // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
-            foreach (Site site in sites)
+            foreach (Site site in sites.Where(item => !item.IsDeleted))
             {
                 log += "<br />Processing Site: " + site.Name + "<br />";
                 int count;
@@ -95,17 +95,18 @@ namespace Oqtane.Infrastructure
                 {
                     log += $"Error Purging Broken Urls - {ex.Message}<br />";
                 }
-            }
 
-            // register assemblies
-            try
-            {
-                var assemblies = installationManager.RegisterAssemblies();
-                log += "<br />" + assemblies.ToString() + " Assemblies Registered<br />";
-            }
-            catch (Exception ex)
-            {
-                log += $"<br />Error Registering Assemblies - {ex.Message}<br />";
+                // purge completed site tasks
+                retention = 30; // 30 day default
+                try
+                {
+                    count = siteTaskRepository.DeleteSiteTasks(site.SiteId, retention);
+                    log += count.ToString() + " Completed Tasks Purged<br />";
+                }
+                catch (Exception ex)
+                {
+                    log += $"Error Purging Completed Site Tasks - {ex.Message}<br />";
+                }
             }
 
             return log;

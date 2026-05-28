@@ -40,7 +40,7 @@ namespace Oqtane.Infrastructure
             var searchService = provider.GetRequiredService<ISearchService>();
 
             var sites = siteRepository.GetSites().ToList();
-            foreach (var site in sites)
+            foreach (var site in sites.Where(item => !item.IsDeleted))
             {
                 log += $"Indexing Site: {site.Name}<br />";
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -17,16 +16,16 @@ namespace Oqtane.Modules.HtmlText.Services
     [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class ServerHtmlTextService : IHtmlTextService, ITransientService
     {
-        private readonly IHtmlTextRepository _htmlText;
+        private readonly IHtmlTextRepository _htmlTextRepository;
         private readonly IUserPermissions _userPermissions;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
         private readonly Alias _alias;
 
-        public ServerHtmlTextService(IHtmlTextRepository htmlText, IUserPermissions userPermissions, IMemoryCache cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerHtmlTextService(IHtmlTextRepository htmlTextRepository, IUserPermissions userPermissions, ICacheManager cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
         {
-            _htmlText = htmlText;
+            _htmlTextRepository = htmlTextRepository;
             _userPermissions = userPermissions;
             _cache = cache;
             _logger = logger;
@@ -38,7 +37,7 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_accessor.HttpContext.User.IsInRole(RoleNames.Registered))
             {
-                return Task.FromResult(GetCachedHtmlTexts(moduleId));
+                return Task.FromResult(_htmlTextRepository.GetHtmlTexts(moduleId).ToList());
             }
             else
             {
@@ -51,7 +50,10 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                return Task.FromResult(GetCachedHtmlTexts(moduleId)?.OrderByDescending(item => item.CreatedOn).FirstOrDefault());
+                return Task.FromResult(_cache.GetCache(_alias, $"HtmlText:{moduleId}", entry =>
+                {
+                    return _htmlTextRepository.GetHtmlText(moduleId);
+                }));
             }
             else
             {
@@ -60,24 +62,11 @@ namespace Oqtane.Modules.HtmlText.Services
             }
         }
 
-        public Task<Models.HtmlText> GetHtmlTextAsync(int htmlTextId, int moduleId)
-        {
-            if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
-            {
-                return Task.FromResult(GetCachedHtmlTexts(moduleId)?.FirstOrDefault(item => item.HtmlTextId == htmlTextId));
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Get Attempt {HtmlTextId} {ModuleId}", htmlTextId, moduleId);
-                return null;
-            }
-        }
-
         public Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, htmlText.ModuleId, PermissionNames.Edit))
             {
-                htmlText = _htmlText.AddHtmlText(htmlText);
+                htmlText = _htmlTextRepository.AddHtmlText(htmlText);
                 ClearCache(htmlText.ModuleId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
             }
@@ -93,7 +82,7 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.Edit))
             {
-                _htmlText.DeleteHtmlText(htmlTextId);
+                _htmlTextRepository.DeleteHtmlText(htmlTextId);
                 ClearCache(moduleId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", htmlTextId);
             }
@@ -104,18 +93,9 @@ namespace Oqtane.Modules.HtmlText.Services
             return Task.CompletedTask;
         }
 
-        private List<Models.HtmlText> GetCachedHtmlTexts(int moduleId)
-        {
-            return _cache.GetOrCreate($"HtmlText:{_alias.SiteKey}:{moduleId}", entry =>
-            {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return _htmlText.GetHtmlTexts(moduleId).ToList();
-            });
-        }
-
         private void ClearCache(int moduleId)
         {
-            _cache.Remove($"HtmlText:{_alias.SiteKey}:{moduleId}");
+            _cache.RemoveCache(_alias, $"HtmlText:{moduleId}");
         }
     }
 }

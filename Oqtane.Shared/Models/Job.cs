@@ -3,7 +3,7 @@ using System;
 namespace Oqtane.Models
 {
     /// <summary>
-    /// Definition of a Job / Task which is run on the server.
+    /// Definition of a Job which is run on the server
     /// When Jobs run, they create a <see cref="JobLog"/>
     /// </summary>
     public class Job : ModelBase
@@ -19,7 +19,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// What kind of Job this is 
+        /// The fully qualified type name of the job
         /// </summary>
         public string JobType { get; set; }
 
@@ -65,8 +65,13 @@ namespace Oqtane.Models
         public DateTime? NextExecution { get; set; }
 
         /// <summary>
-        /// Todo: todoc - unsure what this does
+        /// The number of log entries to retain for this job
         /// </summary>
         public int RetentionHistory { get; set; }
+
+        /// <summary>
+        /// The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically.
+        /// </summary>
+        public int MaximumDuration { get; set; }
     }
 }

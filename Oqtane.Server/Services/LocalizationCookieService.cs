@@ -16,9 +16,9 @@ namespace Oqtane.Services
             _accessor = accessor;
         }
 
-        public Task SetLocalizationCookieAsync(string culture)
+        public Task SetLocalizationCookieAsync(string culture, string uiCulture)
         {
-            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture, uiCulture));
 
             _accessor.HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, new CookieOptions
             {

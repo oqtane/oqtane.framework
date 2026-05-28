@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using Oqtane.Documentation;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -21,6 +20,8 @@ namespace Oqtane.Services
     public class ServerSiteService : ISiteService
     {
         private readonly ISiteRepository _sites;
+        private readonly ISiteGroupMemberRepository _siteGroupMembers;
+        private readonly IAliasRepository _aliases;
         private readonly IPageRepository _pages;
         private readonly IThemeRepository _themes;
         private readonly IPageModuleRepository _pageModules;
@@ -33,13 +34,15 @@ namespace Oqtane.Services
         private readonly ISyncManager _syncManager;
         private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly string _private = "[PRIVATE]";
 
-        public ServerSiteService(ISiteRepository sites, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, IMemoryCache cache, IHttpContextAccessor accessor)
+        public ServerSiteService(ISiteRepository sites, ISiteGroupMemberRepository siteGroupMembers, IAliasRepository aliases, IPageRepository pages, IThemeRepository themes, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, ILanguageRepository languages, IUserManager userManager, IUserPermissions userPermissions, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, IConfigManager configManager, ILogManager logger, ICacheManager cache, IHttpContextAccessor accessor)
         {
             _sites = sites;
+            _siteGroupMembers = siteGroupMembers;
+            _aliases = aliases;
             _pages = pages;
             _themes = themes;
             _pageModules = pageModules;
@@ -69,9 +72,8 @@ namespace Oqtane.Services
         public Task<Site> GetSiteAsync(int siteId)
         {
             var alias = _tenantManager.GetAlias();
-            var site = _cache.GetOrCreate($"site:{alias.SiteKey}", entry =>
+            var site = _cache.GetCache(alias, "Site", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetSite(siteId);
             });
 
@@ -145,12 +147,7 @@ namespace Oqtane.Services
                 site.Settings.Add(Constants.PageManagementModule, modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule).ModuleId.ToString());
 
                 // languages
-                site.Languages = _languages.GetLanguages(site.SiteId).ToList();
-                var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
-                if (!site.Languages.Exists(item => item.Code == defaultCulture.Name))
-                {
-                    site.Languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !site.Languages.Any(l => l.IsDefault) });
-                }
+                site.Languages = GetLanguages(site.SiteId, alias.TenantId);
 
                 // themes
                 site.Themes = _themes.FilterThemes(_themes.GetThemes(site.SiteId).ToList());
@@ -158,6 +155,7 @@ namespace Oqtane.Services
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
 
+                // set tenant
                 site.TenantId = alias.TenantId;
             }
             else
@@ -195,13 +193,24 @@ namespace Oqtane.Services
                 if (site.SiteId == alias.SiteId && current != null)
                 {
                     site = _sites.UpdateSite(site);
+
                     _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, SyncEventActions.Update);
-                    string action = SyncEventActions.Refresh;
-                    if (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime)
+
+                    string action = (current.RenderMode != site.RenderMode || current.Runtime != site.Runtime) ? SyncEventActions.Reload : SyncEventActions.Refresh;
+                    if (current.CultureCode != site.CultureCode)
                     {
-                        action = SyncEventActions.Reload;
+                        // when a culture code changes, all sites in the tenant need to be refreshed
+                        foreach (var siteId in _sites.GetSites().Select(item => item.SiteId))
+                        {
+                            _syncManager.AddSyncEvent(alias, EntityNames.Site, siteId, action);
+                        }
                     }
-                    _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    else
+                    {
+                        // refresh current site
+                        _syncManager.AddSyncEvent(alias, EntityNames.Site, site.SiteId, action);
+                    }
+
                     _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
                 }
                 else
@@ -241,9 +250,8 @@ namespace Oqtane.Services
         public Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             var alias = _tenantManager.GetAlias();
-            var modules = _cache.GetOrCreate($"modules:{alias.SiteKey}", entry =>
+            var modules = _cache.GetCache(alias, "Modules", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return GetPageModules(siteId);
             });
 
@@ -310,6 +318,47 @@ namespace Oqtane.Services
 
             return modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
         }
+
+        private List<Language> GetLanguages(int siteId, int tenantId)
+        {
+            var languages = new List<Language>();
+
+            var siteGroupMembers = _siteGroupMembers.GetSiteGroupMembers();
+            if (siteGroupMembers.Any(item => item.SiteId == siteId && item.SiteGroup.Type == SiteGroupTypes.Localization))
+            {
+                // site is part of a localized site group - get all languages from the site group
+                var sites = _sites.GetSites().ToList();
+                var aliases = _aliases.GetAliases().ToList();
+
+                foreach (var siteGroupId in siteGroupMembers.Where(item => item.SiteId == siteId && item.SiteGroup.Type == SiteGroupTypes.Localization).Select(item => item.SiteGroupId).Distinct().ToList())
+                {
+                    foreach (var siteGroupMember in siteGroupMembers.Where(item => item.SiteGroupId == siteGroupId))
+                    {
+                        var site = sites.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId);
+                        if (site != null && !string.IsNullOrEmpty(site.CultureCode))
+                        {
+                            var alias = aliases.FirstOrDefault(item => item.SiteId == siteGroupMember.SiteId && item.TenantId == tenantId && item.IsDefault);
+                            if (alias != null)
+                            {
+                                languages.Add(new Language { Code = site.CultureCode, Name = "", AliasName = alias.Name, IsDefault = false });
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // use site languages
+                languages = _languages.GetLanguages(siteId).ToList();
+                var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
+                if (!languages.Exists(item => item.Code == defaultCulture.Name))
+                {
+                    languages.Add(new Language { Code = defaultCulture.Name, Name = "", Version = Constants.Version, IsDefault = !languages.Any(l => l.IsDefault) });
+                }
+            }
+
+            return languages;
+        } 
 
         [Obsolete("This method is deprecated.", false)]
         public void SetAlias(Alias alias)

@@ -319,16 +319,16 @@
     <value>The default alias for the site. Requests for non-default aliases will be redirected to the default alias.</value>
   </data>
   <data name="DefaultAlias.Text" xml:space="preserve">
-    <value>Default Alias: </value>
+    <value>Default?</value>
   </data>
   <data name="Aliases.Heading" xml:space="preserve">
     <value>Site Urls</value>
   </data>
-  <data name="AliasName" xml:space="preserve">
-    <value>Url</value>
+  <data name="AliasName.Text" xml:space="preserve">
+    <value>Url:</value>
   </data>
-  <data name="AliasDefault" xml:space="preserve">
-    <value>Default?</value>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
   </data>
   <data name="Confirm.Alias.Delete" xml:space="preserve">
     <value>Are You Sure You Wish To Delete {0}?</value>
@@ -400,7 +400,7 @@
     <value>Hybrid Enabled?</value>
   </data>
   <data name="Runtime.HelpText" xml:space="preserve">
-    <value>The render mode for UI components which require interactivity</value>
+    <value>The hosting model for UI components which require interactivity</value>
   </data>
   <data name="Runtime.Text" xml:space="preserve">
     <value>Interactivity:</value>
@@ -494,5 +494,77 @@
   </data>
   <data name="StartTlsWhenAvailable" xml:space="preserve">
     <value>Use TLS When Available</value>
+  </data>
+  <data name="AliasName.HelpText" xml:space="preserve">
+    <value>A url for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder).</value>
+  </data>
+  <data name="SiteGroupMembers.Text" xml:space="preserve">
+    <value>Group:</value>
+  </data>
+  <data name="SiteGroupMembers.HelpText" xml:space="preserve">
+    <value>The site groups in this tenant (database)</value>
+  </data>
+  <data name="Primary.Text" xml:space="preserve">
+    <value>Primary?</value>
+  </data>
+  <data name="Primary.HelpText" xml:space="preserve">
+    <value>Indicates if the selected member is the primary site of the site group</value>
+  </data>
+  <data name="GroupName.Text" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="GroupName.HelpText" xml:space="preserve">
+    <value>Name of the site group</value>
+  </data>
+  <data name="Primary" xml:space="preserve">
+    <value>Primary</value>
+  </data>
+  <data name="Secondary" xml:space="preserve">
+    <value>Secondary</value>
+  </data>
+  <data name="Compare" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="DeleteSiteGroupMember.Header" xml:space="preserve">
+    <value>Delete Site Group Member</value>
+  </data>
+  <data name="Confirm.SiteGroupMember.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Delete This Member From The Site Group?</value>
+  </data>
+  <data name="Message.Required.GroupName" xml:space="preserve">
+    <value>Site Group Name Is Required</value>
+  </data>
+  <data name="Message.Site.Synchronize" xml:space="preserve">
+    <value>Site Submitted For Synchronization</value>
+  </data>
+  <data name="Site.Text" xml:space="preserve">
+    <value>Members:</value>
+  </data>
+  <data name="Site.HelpText" xml:space="preserve">
+    <value>The sites which are members of this site group</value>
+  </data>
+  <data name="Synchronized.Text" xml:space="preserve">
+    <value>Synchronized:</value>
+  </data>
+  <data name="GroupType.Text" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="GroupType.HelpText" xml:space="preserve">
+    <value>Defines the specific behavior of the site group</value>
+  </data>
+  <data name="Synchronized.HelpText" xml:space="preserve">
+    <value>The date/time when the site was last synchronized</value>
+  </data>
+  <data name="Synchronization" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
+  <data name="Localization" xml:space="preserve">
+    <value>Localization</value>
+  </data>
+  <data name="ChangeDetection" xml:space="preserve">
+    <value>Change Detection</value>
   </data>
 </root>

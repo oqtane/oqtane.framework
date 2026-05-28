@@ -164,6 +164,7 @@ namespace Oqtane.Controllers
             {
                 _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
                 _syncManager.AddSyncEvent(_alias, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh); // fingerprint changed
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", moduleDefinition);
             }
             else

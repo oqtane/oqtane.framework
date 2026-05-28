@@ -117,6 +117,7 @@ namespace Oqtane.Controllers
             {
                 _themes.UpdateTheme(theme);
                 _syncManager.AddSyncEvent(_alias, EntityNames.Theme, theme.ThemeId, SyncEventActions.Update);
+                _syncManager.AddSyncEvent(_alias, EntityNames.Site, _alias.SiteId, SyncEventActions.Refresh); // fingerprint changed
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Theme Updated {Theme}", theme);
             }
             else

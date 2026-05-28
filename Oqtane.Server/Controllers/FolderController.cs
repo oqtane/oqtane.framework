@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                var hierarchy = GetFoldersHierarchy(_folders.GetFolders(SiteId).ToList());
+                var hierarchy = _folders.GetFolders(SiteId).ToList();
                 foreach (Folder folder in hierarchy)
                 {
                     // note that Browse permission is used for this method
@@ -280,48 +280,6 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Delete Attempt {FolderId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
-        }
-
-        private static List<Folder> GetFoldersHierarchy(List<Folder> folders)
-        {
-            List<Folder> hierarchy = new List<Folder>();
-            Action<List<Folder>, Folder> getPath = null;
-            getPath = (folderList, folder) =>
-            {
-                IEnumerable<Folder> children;
-                int level;
-                if (folder == null)
-                {
-                    level = -1;
-                    children = folders.Where(item => item.ParentId == null);
-                }
-                else
-                {
-                    level = folder.Level;
-                    children = folders.Where(item => item.ParentId == folder.FolderId);
-                }
-
-                foreach (Folder child in children)
-                {
-                    child.Level = level + 1;
-                    child.HasChildren = folders.Any(item => item.ParentId == child.FolderId);
-                    hierarchy.Add(child);
-                    getPath(folderList, child);
-                }
-            };
-            folders = folders.OrderBy(item => item.Name).ToList();
-            getPath(folders, null);
-
-            // add any non-hierarchical items to the end of the list
-            foreach (Folder folder in folders)
-            {
-                if (hierarchy.Find(item => item.FolderId == folder.FolderId) == null)
-                {
-                    hierarchy.Add(folder);
-                }
-            }
-
-            return hierarchy;
         }
     }
 }

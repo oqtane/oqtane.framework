@@ -129,11 +129,8 @@
   <data name="Import" xml:space="preserve">
     <value>Import</value>
   </data>
-  <data name="Message.Import.Failure" xml:space="preserve">
-    <value>User Import Failed. Please Review Your Event Log For More Detailed Information.</value>
-  </data>
   <data name="Message.Import.Success" xml:space="preserve">
-    <value>User Import Successful. {0} Users Imported.</value>
+    <value>Your User Import Request Has Been Submitted And Will Be Executed Shortly. Please Be Patient.</value>
   </data>
   <data name="Message.Import.Validation" xml:space="preserve">
     <value>You Must Specify A User File For Import</value>

@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Modules;
 using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 
@@ -42,12 +41,14 @@ namespace Oqtane.Repository
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfigurationRoot _config;
         private readonly IServerStateManager _serverState;
+        private readonly ITenantManager _tenantManager;
+        private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
         private static readonly object _lock = new object();
 
         public SiteRepository(IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
             IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, ISettingRepository settingRepository,
-            IServiceProvider serviceProvider, IConfigurationRoot config, IServerStateManager serverState, ILogManager logger)
+            IServiceProvider serviceProvider, IConfigurationRoot config, IServerStateManager serverState, ITenantManager tenantManager, ICacheManager cache, ILogManager logger)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -62,13 +63,18 @@ namespace Oqtane.Repository
             _serviceProvider = serviceProvider;
             _config = config;
             _serverState = serverState;
+            _tenantManager = tenantManager;
+            _cache = cache;
             _logger = logger;
         }
 
         public IEnumerable<Site> GetSites()
         {
-            using var db = _factory.CreateDbContext();
-            return db.Site.OrderBy(item => item.Name).ToList();
+            return _cache.GetCache(GetCacheKey(), entry =>
+            {
+                using var db = _factory.CreateDbContext();
+                return db.Site.OrderBy(item => item.Name).ToList();
+            });
         }
 
         public Site AddSite(Site site)
@@ -78,6 +84,7 @@ namespace Oqtane.Repository
             db.Site.Add(site);
             db.SaveChanges();
             CreateSite(site);
+            _cache.RemoveCache(GetCacheKey());
             return site;
         }
 
@@ -86,6 +93,7 @@ namespace Oqtane.Repository
             using var db = _factory.CreateDbContext();
             db.Entry(site).State = EntityState.Modified;
             db.SaveChanges();
+            _cache.RemoveCache(GetCacheKey());
             return site;
         }
 
@@ -96,15 +104,8 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId, bool tracking)
         {
-            using var db = _factory.CreateDbContext();
-            if (tracking)
-            {
-                return db.Site.Find(siteId);
-            }
-            else
-            {
-                return db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
-            }
+            // note that tracking parameter is no longer relevant
+            return GetSites().FirstOrDefault(item => item.SiteId == siteId);
         }
 
         public void DeleteSite(int siteId)
@@ -118,6 +119,7 @@ namespace Oqtane.Repository
             var site = db.Site.Find(siteId);
             db.Site.Remove(site);
             db.SaveChanges();
+            _cache.RemoveCache(GetCacheKey());
         }
 
 
@@ -359,6 +361,7 @@ namespace Oqtane.Repository
                             }
                             pageTemplate.Path = (parent != null) ? parent.Path + "/" + pageTemplate.Name : pageTemplate.Name;
                         }
+                        // home page path can be specified with "home" or "/"
                         pageTemplate.Path = (pageTemplate.Path.ToLower() == "home") ? "" : pageTemplate.Path;
                         pageTemplate.Path = (pageTemplate.Path == "/") ? "" : pageTemplate.Path;
                         var page = pages.FirstOrDefault(item => item.Path.ToLower() == pageTemplate.Path.ToLower());
@@ -531,27 +534,14 @@ namespace Oqtane.Repository
                                         _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, ex, "Error Processing Page Module {PageModule}", pageModule);
                                     }
                                 }
-
-                                if (pageTemplateModule.Content != "" && moduleDefinition.ServerManagerType != "")
+                                if (!string.IsNullOrEmpty(pageTemplateModule.Content))
                                 {
-                                    Type moduletype = Type.GetType(moduleDefinition.ServerManagerType);
-                                    if (moduletype != null && moduletype.GetInterface(nameof(IPortable)) != null)
+                                    var module = _moduleRepository.GetModule(pageModule.ModuleId);
+                                    if (!_moduleRepository.ImportModule(module, pageTemplateModule.Content, "Site Template"))
                                     {
-                                        try
+                                        if (alias != null)
                                         {
-                                            var module = _moduleRepository.GetModule(pageModule.ModuleId);
-                                            if (module != null)
-                                            {
-                                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                                ((IPortable)moduleobject).ImportModule(module, pageTemplateModule.Content, moduleDefinition.Version);
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            if (alias != null)
-                                            {
-                                                _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, ex, "Error Importing Content For {ModuleDefinitionName}", pageTemplateModule.ModuleDefinitionName);
-                                            }
+                                            _logger.Log(LogLevel.Error, "Site Template", LogFunction.Other, "Error Importing Content For {ModuleDefinitionName}", pageTemplateModule.ModuleDefinitionName);
                                         }
                                     }
                                 }
@@ -587,6 +577,12 @@ namespace Oqtane.Repository
                     _settingRepository.UpdateSetting(setting);
                 }
             }
+        }
+
+        private string GetCacheKey()
+        {
+            var tenant = _tenantManager.GetTenant();
+            return $"Tenant:{tenant?.TenantId}:Sites";
         }
     }
 }

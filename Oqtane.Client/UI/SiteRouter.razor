@@ -233,15 +233,8 @@
 
             if (page == null && route.PagePath == "") // naked path refers to site home page
             {
-                if (site.HomePageId != null)
-                {
-                    page = site.Pages.FirstOrDefault(item => item.PageId == site.HomePageId);
-                }
-                if (page == null)
-                {
-                    // fallback to use the first page in the collection
-                    page = site.Pages.FirstOrDefault();
-                }
+                // fallback to use the first page in the collection
+                page = site.Pages.FirstOrDefault();
             }
             if (page == null)
             {
@@ -632,11 +625,11 @@
             {
                 if (resource.ResourceType == ResourceType.Stylesheet || resource.Level != ResourceLevel.Site)
                 {
-                    if (resource.Url.StartsWith("~"))
+                    if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                     {
                         resource.Url = resource.Url.Replace("~", "/" + type + "/" + name + "/").Replace("//", "/");
                     }
-                    if (!resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
+                    if (!string.IsNullOrEmpty(resource.Url) && !resource.Url.Contains("://") && alias.BaseUrl != "" && !resource.Url.StartsWith(alias.BaseUrl))
                     {
                         resource.Url = alias.BaseUrl + resource.Url;
                     }

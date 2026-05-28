@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -34,8 +33,8 @@ namespace Oqtane.Infrastructure
                     context.Items.Add(Constants.HttpContextAliasKey, alias);
 
                     // save site settings in HttpContext
-                    var cache = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
-                    var sitesettings = cache.GetOrCreate(Constants.HttpContextSiteSettingsKey + alias.SiteKey, entry =>
+                    var cache = context.RequestServices.GetService(typeof(ICacheManager)) as ICacheManager;
+                    var sitesettings = cache.GetCache(alias, Constants.HttpContextSiteSettingsKey, entry =>
                     {
                         var settingRepository = context.RequestServices.GetService(typeof(ISettingRepository)) as ISettingRepository;
                         return settingRepository.GetSettings(EntityNames.Site, alias.SiteId, EntityNames.Host, -1)

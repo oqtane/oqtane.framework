@@ -6,6 +6,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject ITimeZoneService TimeZoneService
+@inject ILanguageService LanguageService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
@@ -51,6 +52,18 @@
                                 @foreach (var timezone in _timezones)
                                 {
                                     <option value="@timezone.Id">@timezone.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="culture" HelpText="The user's preferred language. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Label>
+                        <div class="col-sm-9">
+                            <select id="culture" class="form-select" @bind="@_culturecode">
+                                <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                                @foreach (var language in _languages)
+                                {
+                                    <option value="@language.Code">@language.Name</option>
                                 }
                             </select>
                         </div>
@@ -129,12 +142,15 @@
 
 @code {
     private List<Models.TimeZone> _timezones;
+    private IEnumerable<Models.Language> _languages;
+
     private bool _initialized = false;
     private string _username = string.Empty;
     private string _email = string.Empty;
     private string _confirmed = "True";
     private string _displayname = string.Empty;
     private string _timezoneid = string.Empty;
+    private string _culturecode = string.Empty;
     private string _notify = "True";
     private List<Profile> _profiles;
     private Dictionary<string, string> _settings;
@@ -147,6 +163,11 @@
         try
         {
             _timezones = TimeZoneService.GetTimeZones();
+            _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+
+            _timezoneid = PageState.Site.TimeZoneId;
+            _culturecode = PageState.Site.CultureCode;
+
             _profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
             foreach (var profile in _profiles)
             {
@@ -157,8 +178,9 @@
                     profile.Options = string.Join(",", options.OrderBy(item => item.Value).Select(kvp => $"{kvp.Key}:{kvp.Value}"));
                 }
             }
+
             _settings = new Dictionary<string, string>();
-            _timezoneid = PageState.Site.TimeZoneId;
+
             _initialized = true;
         }
         catch (Exception ex)
@@ -194,6 +216,7 @@
                     user.EmailConfirmed = bool.Parse(_confirmed);
                     user.DisplayName = string.IsNullOrWhiteSpace(_displayname) ? _username : _displayname;
                     user.TimeZoneId = _timezoneid;
+                    user.CultureCode = _culturecode;
                     user.PhotoFileId = null;
                     user.SuppressNotification = !bool.Parse(_notify);
 

@@ -53,7 +53,7 @@ namespace Oqtane.Extensions
                 OnPrepareResponse = (ctx) =>
                 {
                     // static asset caching
-                    var cachecontrol = configuration.GetSection("CacheControl");
+                    var cachecontrol = configuration.GetSection("Caching:Cache-Control");
                     if (!string.IsNullOrEmpty(cachecontrol.Value))
                     {
                         ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, cachecontrol.Value);
@@ -72,8 +72,8 @@ namespace Oqtane.Extensions
             app.UseOutputCache();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseAntiforgery();
             app.UseNotFoundResponse();
+            app.UseAntiforgery();
 
             // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(environment);
@@ -159,28 +159,33 @@ namespace Oqtane.Extensions
 
         public static IApplicationBuilder UseNotFoundResponse(this IApplicationBuilder app)
         {
+            // set the route to be rendered on NavigationManager.NotFound()
             const string notFoundRoute = "/404";
             app.UseStatusCodePagesWithReExecute(notFoundRoute, createScopeForStatusCodePages: true);
 
+            // middleware to determine if status code pages should be skipped
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.Value ?? string.Empty;
-                if (string.IsNullOrEmpty(path) || ShouldSkipStatusCodeReExecution(path))
+                if (ShouldSkipStatusCodeReExecution(path))
                 {
-                    var feature = context.Features.Get<IStatusCodePagesFeature>();
-                    feature?.Enabled = false;
+                    var statusCodePagesFeature = context.Features.Get<IStatusCodePagesFeature>();
+                    if (statusCodePagesFeature != null)
+                    {
+                        statusCodePagesFeature.Enabled = false;
+                    }
                 }
 
                 await next();
             });
 
+            // middleware to rewrite the path for 404 status code responses on sites using subfolders
             app.Use(async (context, next) =>
             {
-                var feature = context.Features.Get<IStatusCodeReExecuteFeature>();
-                var handled = false;
-                if (feature != null
+                var statusCodeReExecuteFeature = context.Features.Get<IStatusCodeReExecuteFeature>();
+                if (statusCodeReExecuteFeature != null
                         && context.Response.StatusCode == (int)HttpStatusCode.NotFound
-                        && notFoundRoute.Equals(context.Request.Path.Value, StringComparison.OrdinalIgnoreCase))
+                        && string.Equals(context.Request.Path.Value, notFoundRoute, StringComparison.OrdinalIgnoreCase))
                 {
                     var alias = context.GetAlias();
                     if (!string.IsNullOrEmpty(alias?.Path))
@@ -189,20 +194,17 @@ namespace Oqtane.Extensions
                         context.Request.Path = new PathString($"/{alias.Path}{notFoundRoute}");
                         try
                         {
-                            handled = true;
                             await next();
                         }
                         finally
                         {
                             context.Request.Path = originalPath;
                         }
+                        return;
                     }
                 }
 
-                if (!handled)
-                {
-                    await next();
-                }
+                await next();
             });
 
             return app;
@@ -210,12 +212,16 @@ namespace Oqtane.Extensions
 
         static bool ShouldSkipStatusCodeReExecution(string path)
         {
-            return Constants.ReservedRoutes.Any(item => path.Contains("/" + item + "/")) || HasStaticFileExtension(path);
+            // skip requests for framework resources, reserved routes, and static files
+            return path.StartsWith("/_framework/", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/_content/", StringComparison.OrdinalIgnoreCase) ||
+                Constants.ReservedRoutes.Any(item => path.Contains("/" + item + "/")) ||
+                HasStaticFileExtension(path);
         }
 
         static bool HasStaticFileExtension(string path)
         {
-            return !string.IsNullOrEmpty(Path.GetExtension(path));
+            return !string.IsNullOrEmpty(Path.GetExtension(path)) && Path.GetExtension(path).Length != 1;
         }
     }
 }

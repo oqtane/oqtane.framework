@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -12,6 +12,7 @@ namespace Oqtane.Repository
         IEnumerable<Job> GetJobs();
         Job AddJob(Job job);
         Job UpdateJob(Job job);
+        Job GetJob(string jobType);
         Job GetJob(int jobId);
         Job GetJob(int jobId, bool tracking);
         void DeleteJob(int jobId);
@@ -20,9 +21,9 @@ namespace Oqtane.Repository
     public class JobRepository : IJobRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
 
-        public JobRepository(MasterDBContext context, IMemoryCache cache)
+        public JobRepository(MasterDBContext context, ICacheManager cache)
         {
             _db = context;
             _cache = cache;
@@ -30,7 +31,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Job> GetJobs()
         {
-            return _cache.GetOrCreate("jobs", entry =>
+            return _cache.GetCache("Jobs", entry =>
             {
                 // remove any jobs which have been uninstalled
                 foreach (var job in _db.Job.ToList())
@@ -40,7 +41,6 @@ namespace Oqtane.Repository
                         DeleteJob(job.JobId);
                     }
                 }
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 return _db.Job.ToList();
             });
         }
@@ -49,7 +49,7 @@ namespace Oqtane.Repository
         {
             _db.Job.Add(job);
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("Jobs");
             return job;
         }
 
@@ -57,8 +57,13 @@ namespace Oqtane.Repository
         {
             _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("Jobs");
             return job;
+        }
+
+        public Job GetJob(string jobType)
+        {
+            return GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
         }
 
         public Job GetJob(int jobId)
@@ -84,7 +89,7 @@ namespace Oqtane.Repository
             Job job = _db.Job.Find(jobId);
             _db.Job.Remove(job);
             _db.SaveChanges();
-            _cache.Remove("jobs");
+            _cache.RemoveCache("Jobs");
         }
     }
 }

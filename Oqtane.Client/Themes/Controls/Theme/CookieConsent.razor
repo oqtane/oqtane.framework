@@ -83,7 +83,10 @@
         get => "";
         set
         {
-            _showBanner = bool.Parse(value);
+            if (!bool.TryParse(value, out _showBanner))
+            {
+                _showBanner = false;
+            }
             _togglePostback = true;
         }
     }

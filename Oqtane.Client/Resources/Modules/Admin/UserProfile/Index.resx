@@ -288,4 +288,10 @@
   <data name="Error.Passkey.Fail" xml:space="preserve">
     <value>Passkey Could Not Be Created</value>
   </data>
+  <data name="CultureCode.Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="CultureCode.HelpText" xml:space="preserve">
+    <value>Your preferred language. Note that you will only be able to choose from languages supported on this site.</value>
+  </data>
 </root>

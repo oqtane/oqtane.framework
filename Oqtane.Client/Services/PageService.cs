@@ -71,6 +71,15 @@ namespace Oqtane.Services
         /// <param name="pageId"></param>
         /// <returns></returns>
         Task DeletePageAsync(int pageId);
+
+        /// <summary>
+        /// Copies the modules from one page to another
+        /// </summary>
+        /// <param name="fromPageId"></param>
+        /// <param name="toPageId"></param>
+        /// <param name="usePagePermissions"></param>
+        /// <returns></returns>
+        Task CopyPageAsync(int fromPageId, int toPageId, bool usePagePermissions);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -128,6 +137,11 @@ namespace Oqtane.Services
         public async Task DeletePageAsync(int pageId)
         {
             await DeleteAsync($"{Apiurl}/{pageId}");
+        }
+
+        public async Task CopyPageAsync(int fromPageId, int toPageId, bool usePagePermissions)
+        {
+            await PostAsync($"{Apiurl}/{fromPageId}/{toPageId}/{usePagePermissions}");
         }
     }
 }

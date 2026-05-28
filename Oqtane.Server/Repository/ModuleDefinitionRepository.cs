@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
@@ -26,14 +27,14 @@ namespace Oqtane.Repository
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ModuleDefinitionRepository(MasterDBContext context, ICacheManager cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -77,7 +78,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
@@ -86,7 +87,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
-            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
@@ -111,7 +112,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.Resources = moduleDefinition.Resources;
                 ModuleDefinition.IsEnabled = moduleDefinition.IsEnabled;
                 ModuleDefinition.PackageName = moduleDefinition.PackageName;
-                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduleDefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
+                ModuleDefinition.Fingerprint = moduleDefinition.Fingerprint;
             }
 
             return ModuleDefinition;
@@ -123,11 +124,10 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
+                moduleDefinitions = _cache.GetCache(_tenants.GetAlias(), "ModuleDefinitions", entry =>
                 {
-                    entry.Priority = CacheItemPriority.NeverRemove;
                     return ProcessModuleDefinitions(siteId);
-                });
+                }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload modules
             }
             else // called during startup
             {
@@ -184,6 +184,7 @@ namespace Oqtane.Repository
                 ModuleDefinition.CreatedOn = moduledefinition.CreatedOn;
                 ModuleDefinition.ModifiedBy = moduledefinition.ModifiedBy;
                 ModuleDefinition.ModifiedOn = moduledefinition.ModifiedOn;
+                ModuleDefinition.Fingerprint = Utilities.GenerateSimpleHash(moduledefinition.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             // any remaining module definitions are orphans
@@ -351,7 +352,7 @@ namespace Oqtane.Repository
                         moduledefinition = new ModuleDefinition
                         {
                             Name = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
-                            Description = "Manage " + Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
+                            Description = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
                             Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                         };
                     }
@@ -364,7 +365,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in moduledefinition.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Modules/" + Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "/").Replace("//", "/");
                             }
@@ -420,6 +421,7 @@ namespace Oqtane.Repository
                 }
 
                 moduledefinition = moduledefinitions[index];
+
                 // actions
                 var modulecontrolobject = Activator.CreateInstance(modulecontroltype) as IModuleControl;
                 string actions = modulecontrolobject.Actions;
@@ -428,6 +430,107 @@ namespace Oqtane.Repository
                     foreach (string action in actions.Split(','))
                     {
                         moduledefinition.ControlTypeRoutes += (action + "=" + modulecontroltype.FullName + ", " + modulecontroltype.Assembly.GetName().Name + ";");
+                    }
+                }
+                // module title
+                if (modulecontroltype.Name == Constants.DefaultAction && !string.IsNullOrEmpty(modulecontrolobject.Title))
+                {
+                    moduledefinition.Name = modulecontrolobject.Title;
+                    moduledefinition.Description = "Manage " + moduledefinition.Name;
+                }
+
+                // check for Page attribute
+                var routeAttributes = modulecontroltype.GetCustomAttributes(typeof(RouteAttribute), true).Cast<RouteAttribute>();
+                if (routeAttributes != null && routeAttributes.Any())
+                {
+                    var route = routeAttributes.First().Template;
+                    if (!string.IsNullOrEmpty(route))
+                    {
+                        // @page "/path" or @page "alias/path" (note that nested paths are not permitted)
+                        var pageTemplate = new PageTemplate();
+                        if (route.StartsWith("/"))
+                        {
+                            pageTemplate.AliasName = "*"; // all sites
+                            pageTemplate.Path = route.Substring(1);
+                        }
+                        else // route contains an alias name
+                        {
+                            var lastSlash = route.LastIndexOf('/');
+                            pageTemplate.AliasName = route.Substring(0, lastSlash);
+                            pageTemplate.Path = route.Substring(lastSlash + 1);
+                        }
+                        // path can contain a suffix indicating the page order "Path:1"
+                        if (pageTemplate.Path.Contains(":"))
+                        {
+                            pageTemplate.Order = int.Parse(pageTemplate.Path.Split(":")[1]);
+                            pageTemplate.Path = pageTemplate.Path.Split(":")[0];
+                        }
+                        pageTemplate.Version = "*";
+                        pageTemplate.Update = false;
+                        pageTemplate.PageTemplateModules = new List<PageTemplateModule>();
+
+                        // check for Authorize attributes
+                        var permissionList = new List<Permission>();
+                        var authorizeAttributes = modulecontroltype.GetCustomAttributes(typeof(AuthorizeAttribute), true).Cast<AuthorizeAttribute>();
+                        if (authorizeAttributes != null && authorizeAttributes.Any())
+                        {
+                            foreach (var authorizeAttribute in authorizeAttributes)
+                            {
+                                if (string.IsNullOrEmpty(authorizeAttribute.Roles))
+                                {
+                                    // [Authorize]
+                                    permissionList.Add(new Permission(PermissionNames.View, RoleNames.Registered, true));
+                                }
+                                else
+                                {
+                                    // [Authorize(Roles = "role1, permission:role2")]
+                                    foreach (var role in authorizeAttribute.Roles.Split(','))
+                                    {
+                                        var permissionName = PermissionNames.View;
+                                        var roleName = role.Trim();
+                                        if (roleName.Contains(":"))
+                                        {
+                                            permissionName = roleName.Substring(0, roleName.IndexOf(":") - 1);
+                                            roleName = roleName.Substring(roleName.IndexOf(":") + 1);
+                                        }
+                                        permissionList.Add(new Permission(permissionName, roleName, true));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // view permission 
+                            permissionList.Add(new Permission(PermissionNames.View, RoleNames.Everyone, true));
+                        }
+
+                        // assign page permissions
+                        foreach (var permission in permissionList)
+                        {
+                            if (!pageTemplate.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplate.PermissionList.Add(permission);
+                            }
+                        }
+
+                        // add module instance
+                        var pageTemplateModule = new PageTemplateModule();
+                        pageTemplateModule.Title = route.Substring(1);
+                        // assign module permissions
+                        foreach (var permission in permissionList)
+                        {
+                            if (!pageTemplateModule.PermissionList.Any(item => item.PermissionName == permission.PermissionName && item.RoleName == permission.RoleName))
+                            {
+                                pageTemplateModule.PermissionList.Add(permission.Clone());
+                            }
+                        }
+                        pageTemplate.PageTemplateModules.Add(pageTemplateModule);
+
+                        // if PageTemplates was not already defined in IModule
+                        if (moduledefinition.PageTemplates == null)
+                        {
+                            moduledefinition.PageTemplates = new List<PageTemplate> { pageTemplate };
+                        }
                     }
                 }
 

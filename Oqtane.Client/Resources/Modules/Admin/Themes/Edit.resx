@@ -186,4 +186,10 @@
   <data name="Permissions.Heading" xml:space="preserve">
     <value>Permissions</value>
   </data>
+  <data name="Fingerprint.Text" xml:space="preserve">
+    <value>Fingerprint:</value>
+  </data>
+  <data name="Fingerprint.HelpText" xml:space="preserve">
+    <value>A unique identifier for the theme's static resources. This value can be changed by clicking the Save option below (ie. cache busting).</value>
+  </data>
 </root>

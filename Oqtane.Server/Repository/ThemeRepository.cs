@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -25,14 +24,14 @@ namespace Oqtane.Repository
     public class ThemeRepository : IThemeRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ThemeRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ThemeRepository(MasterDBContext context, ICacheManager cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -71,7 +70,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "Themes");
         }
 
         public void DeleteTheme(int themeId)
@@ -80,7 +79,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.Theme, themeId);
             _db.Theme.Remove(theme);
             _db.SaveChanges();
-            _cache.Remove($"themes:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "Themes");
         }
 
         public List<Theme> FilterThemes(List<Theme> themes)
@@ -99,7 +98,7 @@ namespace Oqtane.Repository
                 Theme.ContainerSettingsType = theme.ContainerSettingsType;
                 Theme.PackageName = theme.PackageName;
                 Theme.PermissionList = theme.PermissionList;
-                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
+                Theme.Fingerprint = theme.Fingerprint;
                 Themes.Add(Theme);
             }
 
@@ -109,11 +108,10 @@ namespace Oqtane.Repository
         private List<Theme> LoadThemes(int siteId)
         {
             // get themes
-            List<Theme> themes = _cache.GetOrCreate($"themes:{_tenants.GetAlias().SiteKey}", entry =>
+            List<Theme> themes = _cache.GetCache(_tenants.GetAlias(), "Themes", entry =>
             {
-                entry.Priority = CacheItemPriority.NeverRemove;
                 return ProcessThemes(siteId);
-            });
+            }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload themes
 
             return themes;
         }
@@ -165,6 +163,7 @@ namespace Oqtane.Repository
                 Theme.CreatedOn = theme.CreatedOn;
                 Theme.ModifiedBy = theme.ModifiedBy;
                 Theme.ModifiedOn = theme.ModifiedOn;
+                Theme.Fingerprint = Utilities.GenerateSimpleHash(theme.ModifiedOn.ToString("yyyyMMddHHmm"));
             }
 
             // any remaining themes are orphans
@@ -329,7 +328,7 @@ namespace Oqtane.Repository
                     {
                         foreach (var resource in theme.Resources)
                         {
-                            if (resource.Url.StartsWith("~"))
+                            if (!string.IsNullOrEmpty(resource.Url) && resource.Url.StartsWith("~"))
                             {
                                 resource.Url = resource.Url.Replace("~", "/Themes/" + Utilities.GetTypeName(theme.ThemeName) + "/").Replace("//", "/");
                             }

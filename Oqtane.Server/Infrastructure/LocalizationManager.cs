@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -14,6 +13,7 @@ namespace Oqtane.Infrastructure
         string GetDefaultCulture();
         string[] GetSupportedCultures();
         string[] GetInstalledCultures();
+        string[] GetNeutralCultures();
     }
 
     public class LocalizationManager : ILocalizationManager
@@ -41,7 +41,8 @@ namespace Oqtane.Infrastructure
 
         public string[] GetSupportedCultures()
         {
-            return CultureInfo.GetCultures(CultureTypes.AllCultures).Select(item => item.Name).OrderBy(c => c).ToArray();
+            return CultureInfo.GetCultures(CultureTypes.AllCultures)
+                .Select(item => item.Name).OrderBy(c => c).ToArray();
         }
 
         public string[] GetInstalledCultures()
@@ -49,7 +50,14 @@ namespace Oqtane.Infrastructure
             return GetSatelliteAssemblyCultures();
         }
 
-        // method is static as it is called during startup
+        public string[] GetNeutralCultures()
+        {
+            return CultureInfo.GetCultures(CultureTypes.AllCultures)
+                .Where(item => item.IsNeutralCulture)
+                .Select(item => item.Name).OrderBy(c => c).ToArray();
+        }
+
+        // note: method is public and static as it is called during startup
         public static string[] GetSatelliteAssemblyCultures()
         {
             var cultures = new List<string>();

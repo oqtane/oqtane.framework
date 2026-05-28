@@ -11,7 +11,7 @@ namespace [Owner].Module.[Module].Startup
         {
             if (!services.Any(s => s.ServiceType == typeof(I[Module]Service)))
             {
-                services.AddScoped<I[Module]Service, [Module]Service>();
+                services.AddScoped<I[Module]Service, Client[Module]Service>();
             }
         }
     }

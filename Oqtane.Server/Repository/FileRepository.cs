@@ -121,7 +121,7 @@ namespace Oqtane.Repository
             var file = db.File.AsNoTracking()
             .Include(item => item.Folder)
             .FirstOrDefault(item => item.FolderId == folderId &&
-                item.Name.ToLower() == fileName);
+                item.Name.ToLower() == fileName.ToLower());
 
             if (file != null)
             {

@@ -144,4 +144,10 @@
   <data name="Message.File.Restricted" xml:space="preserve">
     <value>Files With Extension Of {0} Are Restricted From Upload. Please Contact Your Administrator For More Information.</value>
   </data>
+  <data name="File.MaxSize" xml:space="preserve">
+    <value>Maximum upload file size: {0} MB</value>
+  </data>
+  <data name="Message.File.TooLarge" xml:space="preserve">
+    <value>File(s) {0} exceed(s) the maximum upload size of {1} MB</value>
+  </data>
 </root>

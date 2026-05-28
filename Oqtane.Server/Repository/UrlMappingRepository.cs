@@ -89,19 +89,22 @@ namespace Oqtane.Repository
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
             var urlMapping = db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+
             if (urlMapping == null)
             {
                 var site = _sites.GetSite(siteId);
                 if (site.CaptureBrokenUrls)
                 {
-                    urlMapping = new UrlMapping();
-                    urlMapping.SiteId = siteId;
-                    urlMapping.Url = url;
-                    urlMapping.MappedUrl = "";
-                    urlMapping.Requests = 1;
-                    urlMapping.Referrer = referrer;
-                    urlMapping.CreatedOn = DateTime.UtcNow;
-                    urlMapping.RequestedOn = DateTime.UtcNow;
+                    urlMapping = new UrlMapping
+                    {
+                        SiteId = siteId,
+                        Url = url,
+                        MappedUrl = "",
+                        Requests = 1,
+                        Referrer = referrer,
+                        CreatedOn = DateTime.UtcNow,
+                        RequestedOn = DateTime.UtcNow
+                    };
                     try
                     {
                         urlMapping = AddUrlMapping(urlMapping);
