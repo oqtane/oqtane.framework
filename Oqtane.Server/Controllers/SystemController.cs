@@ -53,12 +53,13 @@ namespace Oqtane.Controllers
                     systeminfo.Add("DetailedErrors", _configManager.GetSetting("DetailedErrors", "false"));
                     systeminfo.Add("Logging:LogLevel:Default", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
+                    systeminfo.Add("Logging:LogLevel:Broadcast", _configManager.GetSetting("Logging:LogLevel:Broadcast", "None"));
                     systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "false"));
                     systeminfo.Add("Caching:Duration", _configManager.GetSetting("Caching:Duration", "10"));
-                    systeminfo.Add("Caching:FailSafe", _configManager.GetSetting("Caching:FailSafe", "True"));
-                    systeminfo.Add("Caching:Distributed", _configManager.GetSetting("Caching:Distributed", "False"));
+                    systeminfo.Add("Caching:FailSafe", _configManager.GetSetting("Caching:FailSafe", "true"));
+                    systeminfo.Add("Caching:Distributed", _configManager.GetSetting("Caching:Distributed", "false"));
                     systeminfo.Add("ConnectionStrings:DistributedCache", _configManager.GetSetting("ConnectionStrings:DistributedCache", ""));
-                    systeminfo.Add("Caching:ScaleOut", _configManager.GetSetting("Caching:ScaleOut", "False"));
+                    systeminfo.Add("Caching:ScaleOut", _configManager.GetSetting("Caching:ScaleOut", "false"));
                     systeminfo.Add("Caching:Cache-Control", _configManager.GetSetting("Caching:Cache-Control", ""));
                     systeminfo.Add("PackageRegistryUrl", _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl));
                     systeminfo.Add("PackageRegistryEmail", _configManager.GetSetting("PackageRegistryEmail", ""));
