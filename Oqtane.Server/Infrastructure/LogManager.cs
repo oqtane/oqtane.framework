@@ -31,8 +31,9 @@ namespace Oqtane.Infrastructure
         private readonly IUserRoleRepository _userRoles;
         private readonly INotificationRepository _notifications;
         private readonly ILogger<LogManager> _filelogger;
+        private readonly ILogger<LogManager> _logger;
 
-        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IUserRoleRepository userRoles, INotificationRepository notifications, ILogger<LogManager> filelogger)
+        public LogManager(ILogRepository logs, ITenantManager tenantManager, IConfigManager config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IUserRoleRepository userRoles, INotificationRepository notifications, ILogger<LogManager> filelogger, ILogger<LogManager> logger)
         {
             _logs = logs;
             _tenantManager = tenantManager;
@@ -42,6 +43,7 @@ namespace Oqtane.Infrastructure
             _userRoles = userRoles;
             _notifications = notifications;
             _filelogger = filelogger;
+            _logger = logger;
         }
 
         public void Log(Shared.LogLevel level, object @class, LogFunction function, string message, params object[] args)
@@ -161,6 +163,21 @@ namespace Oqtane.Infrastructure
                 {
                     // an error occurred writing the log
                 }
+            }
+
+            // use ILogger to broadcast the event to any registered providers (e.g. Application Insights, Serilog, etc...)
+            var broadcast = Shared.LogLevel.Information;
+            section = _config.GetSection("Logging:LogLevel:Broadcast");
+            if (section.Exists())
+            {
+                broadcast = Enum.Parse<Shared.LogLevel>(section.Value);
+            }
+            if (Enum.Parse<Shared.LogLevel>(log.Level) >= broadcast)
+            {
+                // the SiteId will be passed as an EventId which will provide context and allow the FileLogger to ignore the log item
+                var eventId = new EventId((log.SiteId.HasValue) ? log.SiteId.Value : -1, "SiteId");
+                var exception = (!string.IsNullOrEmpty(log.Exception) ? new Exception(log.Exception) : null);
+                _logger.Log(GetLogLevel(log.Level), eventId, exception, log.Message);
             }
         }
 

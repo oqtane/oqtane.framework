@@ -235,7 +235,7 @@
     <value>None</value>
   </data>
   <data name="NotificationLevel.HelpText" xml:space="preserve">
-    <value>The Minimum Logging Level For Which Notifications Should Be Sent To Host Users.</value>
+    <value>The Minimum Logging Level For Which Notifications Should Be Sent To Host Users</value>
   </data>
   <data name="NotificationLevel.Text" xml:space="preserve">
     <value>Notification Level:</value>
@@ -365,5 +365,11 @@
   </data>
   <data name="FailSafe.HelpText" xml:space="preserve">
     <value>Specify if you wish to temporarily reuse an expired value if a problem occurs when loading data</value>
+  </data>
+  <data name="Broadcast.Text" xml:space="preserve">
+    <value>Broadcast Level:</value>
+  </data>
+  <data name="Broadcast.HelpText" xml:space="preserve">
+    <value>The Minimum Logging Level For Which Events Should Be Broadcast To Registered Logging Providers</value>
   </data>
 </root>

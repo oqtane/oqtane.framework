@@ -30,6 +30,12 @@ namespace Oqtane.Infrastructure
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            // ignore log if it is being broadcasted from LogManager
+            if (eventId.Name == "SiteId")
+            {
+                return;
+            }
+
             if (_configManager.GetSetting("Logging:FileLogger:LogLevel:Default", "") == "")
             {
                 _configManager.AddOrUpdateSetting("Logging:FileLogger:LogLevel:Default", "Error", true);
