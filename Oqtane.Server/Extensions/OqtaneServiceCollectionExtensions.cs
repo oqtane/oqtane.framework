@@ -654,7 +654,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection TryAddSwagger(this IServiceCollection services, IConfigurationRoot configuration)
         {
-            if (configuration.GetSection("UseSwagger").Value != "false")
+            if (configuration.GetSection("UseSwagger").Value == "true")
             {
                 services.AddSwaggerGen(c =>
                 {
