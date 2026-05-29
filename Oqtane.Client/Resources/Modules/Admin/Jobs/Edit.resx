@@ -204,4 +204,10 @@
   <data name="JobNotEditable" xml:space="preserve">
     <value>The Job Cannot Be Modified As It Is Currently Enabled. You Must Disable The Job To Change Its Settings.</value>
   </data>
+  <data name="MaximumDuration.Text" xml:space="preserve">
+    <value>Maximum Duration:</value>
+  </data>
+  <data name="MaximumDuration.HelpText" xml:space="preserve">
+    <value>The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically.</value>
+  </data>
 </root>

@@ -374,7 +374,7 @@ namespace Oqtane.Services
 
         public async Task<bool> SendLoginLinkAsync(string email, string returnurl)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}/{WebUtility.UrlEncode(returnurl)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}?returnurl={WebUtility.UrlEncode(returnurl)}");
         }
     }
 }

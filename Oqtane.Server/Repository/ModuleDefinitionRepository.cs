@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
@@ -28,14 +27,14 @@ namespace Oqtane.Repository
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
         private MasterDBContext _db;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IPermissionRepository _permissions;
         private readonly ITenantManager _tenants;
         private readonly ISettingRepository _settings;
         private readonly IServerStateManager _serverState;
         private readonly string settingprefix = "SiteEnabled:";
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
+        public ModuleDefinitionRepository(MasterDBContext context, ICacheManager cache, IPermissionRepository permissions, ITenantManager tenants, ISettingRepository settings, IServerStateManager serverState)
         {
             _db = context;
             _cache = cache;
@@ -79,7 +78,7 @@ namespace Oqtane.Repository
                 _settings.UpdateSetting(setting);
             }
 
-            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public void DeleteModuleDefinition(int moduleDefinitionId)
@@ -88,7 +87,7 @@ namespace Oqtane.Repository
             _settings.DeleteSettings(EntityNames.ModuleDefinition, moduleDefinitionId);
             _db.ModuleDefinition.Remove(moduleDefinition);
             _db.SaveChanges();
-            _cache.Remove($"moduledefinitions:{_tenants.GetAlias().SiteKey}");
+            _cache.RemoveCache(_tenants.GetAlias(), "ModuleDefinitions");
         }
 
         public ModuleDefinition FilterModuleDefinition(ModuleDefinition moduleDefinition)
@@ -125,11 +124,10 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduleDefinitions;
             if (siteId != -1)
             {
-                moduleDefinitions = _cache.GetOrCreate($"moduledefinitions:{_tenants.GetAlias().SiteKey}", entry =>
+                moduleDefinitions = _cache.GetCache(_tenants.GetAlias(), "ModuleDefinitions", entry =>
                 {
-                    entry.Priority = CacheItemPriority.NeverRemove;
                     return ProcessModuleDefinitions(siteId);
-                });
+                }, TimeSpan.MaxValue, TimeSpan.MinValue); // skip distributed caching as app restart must reload modules
             }
             else // called during startup
             {
@@ -460,6 +458,12 @@ namespace Oqtane.Repository
                             var lastSlash = route.LastIndexOf('/');
                             pageTemplate.AliasName = route.Substring(0, lastSlash);
                             pageTemplate.Path = route.Substring(lastSlash + 1);
+                        }
+                        // path can contain a suffix indicating the page order "Path:1"
+                        if (pageTemplate.Path.Contains(":"))
+                        {
+                            pageTemplate.Order = int.Parse(pageTemplate.Path.Split(":")[1]);
+                            pageTemplate.Path = pageTemplate.Path.Split(":")[0];
                         }
                         pageTemplate.Version = "*";
                         pageTemplate.Update = false;

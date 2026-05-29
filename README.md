@@ -12,7 +12,7 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 # Latest Release
 
-[10.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v10.1.2) was released on March 26, 2026.
+[10.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.0) was released on May 29, 2026.
 
 # Try It Now!
 
@@ -110,6 +110,11 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 
 # Roadmap
 This project is open source, and therefore is a work in progress...
+
+[10.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.0) (May 29, 2026)
+- [x] Distributed Caching
+- [x] Scale-out Support
+- [x] Docker Support 
 
 [10.1.2](https://github.com/oqtane/oqtane.framework/releases/tag/v10.1.2) (Mar 26, 2026)
 - [x] Stabilization improvements

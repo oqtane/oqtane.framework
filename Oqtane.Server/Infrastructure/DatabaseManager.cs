@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Extensions;
@@ -34,11 +33,11 @@ namespace Oqtane.Infrastructure
     {
         private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
@@ -332,7 +331,7 @@ namespace Oqtane.Infrastructure
                             };
                             db.Tenant.Add(tenant);
                             db.SaveChanges();
-                            _cache.Remove("tenants");
+                            _cache.RemoveCache("Tenants");
                         }
                         else
                         {
@@ -362,7 +361,7 @@ namespace Oqtane.Infrastructure
                             db.SaveChanges();
                         }
 
-                        _cache.Remove("aliases");
+                        _cache.RemoveCache("Aliases");
                     }
             }
 
@@ -583,7 +582,7 @@ namespace Oqtane.Infrastructure
                                 PwaAppIconFileId = null,
                                 PwaSplashIconFileId = null,
                                 AllowRegistration = false,
-                                CaptureBrokenUrls = true,
+                                CaptureBrokenUrls = false,
                                 VisitorTracking = true,
                                 DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
                                 DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,

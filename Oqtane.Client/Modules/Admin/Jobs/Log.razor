@@ -19,15 +19,17 @@ else
             <th>@SharedLocalizer["Status"]</th>
             <th>@Localizer["Started"]</th>
             <th>@Localizer["Finished"]</th>
+            <th>@Localizer["Server"]</th>
         </Header>
         <Row>
             <td>@context.Job.Name</td>
             <td>@DisplayStatus(context.Job.IsExecuting, context.Succeeded)</td>
             <td>@UtcToLocal(context.StartDate)</td>
             <td>@UtcToLocal(context.FinishDate)</td>
+            <td>@((MarkupString)DisplayServer(context.Server, context.Instance))</td>
         </Row>
         <Detail>
-            <td colspan="4">@((MarkupString)context.Notes)</td>
+            <td colspan="5">@((MarkupString)context.Notes)</td>
         </Detail>
     </Pager>
 }
@@ -72,6 +74,15 @@ else
         }
 
         return status;
+    }
+
+    private string DisplayServer(string server, string instance)
+    {
+        if (!string.IsNullOrEmpty(instance))
+        {
+            server = server + "<br />" + instance;
+        }
+        return server;
     }
 
     private async Task Refresh()

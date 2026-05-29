@@ -36,6 +36,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("OSVersion", Environment.OSVersion.ToString());
                     systeminfo.Add("Process", (Environment.Is64BitProcess) ? "64 Bit" : "32 Bit");
                     systeminfo.Add("MachineName", Environment.MachineName);
+                    systeminfo.Add("Instance", Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "");
                     systeminfo.Add("WorkingSet", Environment.WorkingSet.ToString());
                     systeminfo.Add("TickCount", Environment.TickCount64.ToString());
                     systeminfo.Add("ContentRootPath", _environment.ContentRootPath);
@@ -52,8 +53,14 @@ namespace Oqtane.Controllers
                     systeminfo.Add("DetailedErrors", _configManager.GetSetting("DetailedErrors", "false"));
                     systeminfo.Add("Logging:LogLevel:Default", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
                     systeminfo.Add("Logging:LogLevel:Notify", _configManager.GetSetting("Logging:LogLevel:Notify", "Error"));
-                    systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "true"));
-                    systeminfo.Add("CacheControl", _configManager.GetSetting("CacheControl", ""));
+                    systeminfo.Add("Logging:LogLevel:Broadcast", _configManager.GetSetting("Logging:LogLevel:Broadcast", "None"));
+                    systeminfo.Add("UseSwagger", _configManager.GetSetting("UseSwagger", "false"));
+                    systeminfo.Add("Caching:Duration", _configManager.GetSetting("Caching:Duration", "10"));
+                    systeminfo.Add("Caching:FailSafe", _configManager.GetSetting("Caching:FailSafe", "true"));
+                    systeminfo.Add("Caching:Distributed", _configManager.GetSetting("Caching:Distributed", "false"));
+                    systeminfo.Add("ConnectionStrings:DistributedCache", _configManager.GetSetting("ConnectionStrings:DistributedCache", ""));
+                    systeminfo.Add("Caching:ScaleOut", _configManager.GetSetting("Caching:ScaleOut", "false"));
+                    systeminfo.Add("Caching:Cache-Control", _configManager.GetSetting("Caching:Cache-Control", ""));
                     systeminfo.Add("PackageRegistryUrl", _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl));
                     systeminfo.Add("PackageRegistryEmail", _configManager.GetSetting("PackageRegistryEmail", ""));
                     break;

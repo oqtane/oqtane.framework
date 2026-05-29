@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -24,9 +23,9 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
 
-        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, IMemoryCache cache)
+        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, ICacheManager cache)
         {
             _htmlTextRepository = htmlTextRepository;
             _DBContextDependencies = DBContextDependencies;
@@ -94,11 +93,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             _htmlTextRepository.AddHtmlText(htmlText);
 
             //clear the cache for the module
-            var alias = _tenantManager.GetAlias();
-            if (alias != null)
-            {
-                _cache.Remove($"HtmlText:{alias.SiteKey}:{module.ModuleId}");
-            }
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"HtmlText:{module.ModuleId}");
         }
 
         // ISearchable implementation

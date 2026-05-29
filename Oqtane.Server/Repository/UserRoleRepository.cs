@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -31,9 +30,9 @@ namespace Oqtane.Repository
         private readonly IRoleRepository _roles;
         private readonly ITenantManager _tenantManager;
         private readonly UserManager<IdentityUser> _identityUserManager;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
 
-        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, UserManager<IdentityUser> identityUserManager, IMemoryCache cache)
+        public UserRoleRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, UserManager<IdentityUser> identityUserManager, ICacheManager cache)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
@@ -53,10 +52,8 @@ namespace Oqtane.Repository
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
-            var alias = _tenantManager.GetAlias();
-            return _cache.GetOrCreate($"userroles:{userId}:{alias.SiteKey}", entry =>
+            return _cache.GetCache(_tenantManager.GetAlias(), $"UserRoles:{userId}", entry =>
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                 using var db = _dbContextFactory.CreateDbContext();
                 return db.UserRole
                     .Include(item => item.Role) // eager load roles
@@ -207,12 +204,8 @@ namespace Oqtane.Repository
 
         private void RefreshCache(int userId)
         {
-            var alias = _tenantManager.GetAlias();
-            if (alias != null)
-            {
-                _cache.Remove($"user:{userId}:{alias.SiteKey}");
-                _cache.Remove($"userroles:{userId}:{alias.SiteKey}");
-            }
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"User:{userId}");
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"UserRoles:{userId}");
         }
     }
 }

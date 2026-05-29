@@ -172,7 +172,7 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<TimeOnly>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
         }
 
-        // btye
+        // byte
         public void AddByteColumn(string name, bool nullable = false)
         {
             _migrationBuilder.AddColumn<byte>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
@@ -212,6 +212,27 @@ namespace Oqtane.Migrations.EntityBuilders
         protected OperationBuilder<AddColumnOperation> AddIntegerColumn(ColumnsBuilder table, string name, bool nullable, int defaultValue)
         {
             return table.Column<int>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
+        }
+
+        // long
+        public void AddLongColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<long>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, schema: Schema);
+        }
+
+        public void AddLongColumn(string name, bool nullable, long defaultValue)
+        {
+            _migrationBuilder.AddColumn<long>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddLongColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<long>(name: RewriteName(name), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddLongColumn(ColumnsBuilder table, string name, bool nullable, long defaultValue)
+        {
+            return table.Column<long>(name: RewriteName(name), nullable: nullable, defaultValue: defaultValue);
         }
 
 

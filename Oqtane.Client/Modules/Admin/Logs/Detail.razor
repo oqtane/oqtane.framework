@@ -37,12 +37,12 @@
 			</div>
 		</div>
 		<div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="category" HelpText="The fully qualified type type that was affected" ResourceKey="Category">Type Name: </Label>
+			<Label Class="col-sm-3" For="category" HelpText="The fully qualified type name that was affected" ResourceKey="Category">Type Name: </Label>
 			<div class="col-sm-9">
 				<input id="category" class="form-control" @bind="@_category" readonly />
 			</div>
 		</div>
-		@if (_pageName != string.Empty)
+        @if (_pageName != string.Empty)
 		{
 			<div class="row mb-1 align-items-center">
 				<Label Class="col-sm-3" For="page" HelpText="The page that was affected" ResourceKey="Page">Page: </Label>
@@ -75,7 +75,13 @@
 				<input id="url" class="form-control" @bind="@_url" readonly />
 			</div>
 		</div>
-		<div class="row mb-1 align-items-center">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="ipaddress" HelpText="The remote IP address for this log" ResourceKey="RemoteIpAddress">Remote IP Address: </Label>
+            <div class="col-sm-9">
+                <input id="ipaddress" class="form-control" @bind="@_remoteIPAddress" readonly />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
 			<Label Class="col-sm-3" For="template" HelpText="What the log is about" ResourceKey="Template">Template: </Label>
 			<div class="col-sm-9">
 				<input id="template" class="form-control" @bind="@_template" readonly />
@@ -108,6 +114,15 @@
                 <input id="server" class="form-control" @bind="@_server" readonly />
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(_instance))
+        {
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="instance" HelpText="The web instance on the server that was affected" ResourceKey="Instance">Instance: </Label>
+                <div class="col-sm-9">
+                    <input id="instance" class="form-control" @bind="@_instance" readonly />
+                </div>
+            </div>
+        }
     </div>
 }
 <NavLink class="btn btn-secondary" href="@CloseUrl()">@SharedLocalizer["Cancel"]</NavLink>
@@ -124,11 +139,13 @@
     private string _moduleTitle = string.Empty;
     private string _username = string.Empty;
     private string _url = string.Empty;
+    private string _remoteIPAddress = string.Empty;
     private string _template = string.Empty;
     private string _message = string.Empty;
     private string _exception = string.Empty;
     private string _properties = string.Empty;
     private string _server = string.Empty;
+    private string _instance = string.Empty;
 
 	public override string UrlParametersTemplate => "/{id}";
 	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -175,11 +192,13 @@
                 }
 
                 _url = log.Url;
+                _remoteIPAddress = log.RemoteIPAddress;
                 _template = log.MessageTemplate;
                 _message = log.Message;
                 _exception = log.Exception;
                 _properties = log.Properties;
                 _server = log.Server;
+                _instance = log.Instance;
 				_initialized = true;
             }
         }

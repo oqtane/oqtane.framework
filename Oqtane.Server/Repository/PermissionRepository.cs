@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Microsoft.Extensions.Caching.Memory;
-using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -26,40 +25,34 @@ namespace Oqtane.Repository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IRoleRepository _roles;
-        private readonly IMemoryCache _cache;
-        private readonly SiteState _siteState;
+        private readonly ITenantManager _tenantManager;
+        private readonly ICacheManager _cache;
 
-        public PermissionRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, IMemoryCache cache, SiteState siteState)
+        public PermissionRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, ITenantManager tenantManager, ICacheManager cache)
         {
             _dbContextFactory = dbContextFactory;
             _roles = roles;
+            _tenantManager = tenantManager;
             _cache = cache;
-            _siteState = siteState;
          }
 
         public IEnumerable<Permission> GetPermissions(int siteId, string entityName)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var alias = _siteState?.Alias;
-            if (alias != null)
+            return _cache.GetCache(_tenantManager.GetAlias(), $"Permissions:{entityName}", entry =>
             {
-                return _cache.GetOrCreate($"permissions:{alias.TenantId}:{siteId}:{entityName}", entry =>
+                var roles = _roles.GetRoles(siteId, true).ToList();
+                var permissions = db.Permission.Where(item => item.SiteId == siteId && item.EntityName == entityName).ToList();
+                foreach (var permission in permissions)
                 {
-                    var roles = _roles.GetRoles(siteId, true).ToList();
-                    var permissions = db.Permission.Where(item => item.SiteId == siteId).Where(item => item.EntityName == entityName).ToList();
-                    foreach (var permission in permissions)
+                    if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
                     {
-                        if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
-                        {
-                            permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId)?.Name;
-                        }
+                        permission.RoleName = roles.Find(item => item.RoleId == permission.RoleId)?.Name;
                     }
-                    permissions = permissions.Where(item => item.UserId != null || item.RoleName != null).ToList();
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return permissions;
-                });
-            }
-            return null;
+                }
+                permissions = permissions.Where(item => item.UserId != null || item.RoleName != null).ToList();
+                return permissions;
+            });
         }
 
         public IEnumerable<Permission> GetPermissions(int siteId, string entityName, string permissionName)
@@ -87,7 +80,7 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.Permission.Add(permission);
             db.SaveChanges();
-            ClearCache(permission.SiteId, permission.EntityName);
+            ClearCache(permission.EntityName);
             return permission;
         }
 
@@ -96,7 +89,7 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(permission).State = EntityState.Modified;
             db.SaveChanges();
-            ClearCache(permission.SiteId, permission.EntityName);
+            ClearCache(permission.EntityName);
             return permission;
         }
 
@@ -158,7 +151,7 @@ namespace Oqtane.Repository
                 db.SaveChanges();
                 foreach (var entityname in permissions.Select(item => item.EntityName).Distinct())
                 {
-                    ClearCache(siteId, entityname);
+                    ClearCache(entityname);
                 }
             }
         }
@@ -175,7 +168,7 @@ namespace Oqtane.Repository
             var permission = db.Permission.Find(permissionId);
             db.Permission.Remove(permission);
             db.SaveChanges();
-            ClearCache(permission.SiteId, permission.EntityName);
+            ClearCache(permission.EntityName);
         }
 
         public void DeletePermissions(int siteId, string entityName, int entityId)
@@ -190,16 +183,12 @@ namespace Oqtane.Repository
                 db.Permission.Remove(permission);
             }
             db.SaveChanges();
-            ClearCache(siteId, entityName);
+            ClearCache(entityName);
         }
 
-        private void ClearCache(int siteId, string entityName)
+        private void ClearCache(string entityName)
         {
-            var alias = _siteState?.Alias;
-            if (alias != null)
-            {
-                _cache.Remove($"permissions:{alias.TenantId}:{siteId}:{entityName}");
-            }
+            _cache.RemoveCache(_tenantManager.GetAlias(), $"Permissions:{entityName}");
         }
      }
 }

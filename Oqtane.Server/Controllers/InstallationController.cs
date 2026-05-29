@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +26,7 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly IAliasRepository _aliases;
         private readonly ISiteRepository _sites;
@@ -35,7 +34,7 @@ namespace Oqtane.Controllers
         private readonly ITenantManager _tenantManager;
         private readonly IServerStateManager _serverState;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ISiteRepository sites, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, ICacheManager cache, IHttpContextAccessor accessor, IAliasRepository aliases, ISiteRepository sites, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -113,8 +112,7 @@ namespace Oqtane.Controllers
         private List<ClientAssembly> GetAssemblyList()
         {
             var alias = _tenantManager.GetAlias();
-
-            return _cache.GetOrCreate($"assemblieslist:{alias.SiteKey}", entry =>
+            return _cache.GetCache(alias, "AssembliesList", entry =>
             {
                 var assemblyList = new List<ClientAssembly>();
 
@@ -185,10 +183,9 @@ namespace Oqtane.Controllers
         private byte[] GetAssemblies(string list)
         {
             var alias = _tenantManager.GetAlias();
-
             if (list == "*")
             {
-                return _cache.GetOrCreate($"assemblies:{alias.SiteKey}", entry =>
+                return _cache.GetCache(alias, "Assemblies", entry =>
                 {
                     return GetZIP(list, alias);
                 });

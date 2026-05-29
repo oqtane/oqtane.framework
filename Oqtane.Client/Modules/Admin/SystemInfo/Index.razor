@@ -37,11 +37,20 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="machinename" HelpText="Machine Name" ResourceKey="MachineName">Machine Name: </Label>
+                    <Label Class="col-sm-3" For="machinename" HelpText="Machine Name of the Server" ResourceKey="MachineName">Server: </Label>
                     <div class="col-sm-9">
                         <input id="machinename" class="form-control" @bind="@_machinename" readonly />
                     </div>
                 </div>
+                @if (!string.IsNullOrEmpty(_instance))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="instance" HelpText="Instance" ResourceKey="Instance">Instance: </Label>
+                        <div class="col-sm-9">
+                            <input id="instance" class="form-control" @bind="@_instance" readonly />
+                        </div>
+                    </div>
+                }
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="ipaddress" HelpText="Server IP Address" ResourceKey="IPAddress">IP Address: </Label>
                     <div class="col-sm-9">
@@ -114,9 +123,23 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="notificationlevel" HelpText="The Minimum Logging Level For Which Notifications Should Be Sent To Host Users." ResourceKey="NotificationLevel">Notification Level: </Label>
+                    <Label Class="col-sm-3" For="notificationlevel" HelpText="The Minimum Logging Level For Which Notifications Should Be Sent To Host Users" ResourceKey="NotificationLevel">Notification Level: </Label>
                     <div class="col-sm-9">
                         <select id="notificationlevel" class="form-select" @bind="@_notificationlevel">
+                            <option value="Trace">@Localizer["Trace"]</option>
+                            <option value="Debug">@Localizer["Debug"]</option>
+                            <option value="Information">@Localizer["Information"]</option>
+                            <option value="Warning">@Localizer["Warning"]</option>
+                            <option value="Error">@Localizer["Error"]</option>
+                            <option value="Critical">@Localizer["Critical"]</option>
+                            <option value="None">@Localizer["None"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="broadcast" HelpText="The Minimum Logging Level For Which Events Should Be Broadcast To Registered Logging Providers" ResourceKey="Broadcast">Broadcast Level: </Label>
+                    <div class="col-sm-9">
+                        <select id="broadcast" class="form-select" @bind="@_broadcast">
                             <option value="Trace">@Localizer["Trace"]</option>
                             <option value="Debug">@Localizer["Debug"]</option>
                             <option value="Information">@Localizer["Information"]</option>
@@ -136,24 +159,76 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="cachecontrol" HelpText="Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching is not enabled." ResourceKey="CacheControl">Static Asset Caching: </Label>
-                    <div class="col-sm-9">
-                        <input id="cachecontrol" class="form-control" @bind="@_cachecontrol" />
+                <br />
+                <Section Name="Caching" Heading="Caching" ResourceKey="Caching">
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="cacheduration" HelpText="The amount of time (in minutes) when a cache item is considered to be expired" ResourceKey="CacheDuration">Cache Duration: </Label>
+                            <div class="col-sm-9">
+                                <input id="cacheduration" class="form-control" @bind="@_cacheduration" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="failsafe" HelpText="Specify if you wish to temporarily reuse an expired value if a problem occurs when loading data" ResourceKey="FailSafe">Use Fail Safe? </Label>
+                            <div class="col-sm-9">
+                                <select id="failsafe" class="form-select" @bind="@_failsafe">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="distributedcache" HelpText="Specify if you are using a distributed cache service" ResourceKey="DistributedCache">Using Distributed Cache? </Label>
+                            <div class="col-sm-9">
+                                <select id="distributedcache" class="form-select" value="@_distributedcache" @onchange="(e => DistributedCacheChanged(e))">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="scaleout" HelpText="Specify if you are using a scale out approach which includes multiple web instances. A distributed cache service is required for synchronization in this scenario." ResourceKey="ScaleOut">Using Scale Out? </Label>
+                            <div class="col-sm-9">
+                                <select id="scaleout" class="form-select" value="@_scaleout" @onchange="(e => ScaleOutChanged(e))">
+                                    <option value="true">@SharedLocalizer["Yes"]</option>
+                                    <option value="false">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (_distributedcache == "true" || _scaleout == "true")
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="distributedconnection" HelpText="Provide the connection string for the distributed cache service" ResourceKey="DistributedConnection">Connection String: </Label>
+                                <div class="col-sm-9">
+                                    <input id="distributedconnection" class="form-control" @bind="@_distributedconnection" />
+                                </div>
+                            </div>
+                        }
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="cachecontrol" HelpText="Provide a Cache-Control directive for static assets. For example 'public, max-age=60' indicates that static assets should be cached for 60 seconds. A blank value indicates caching for static assets is not enabled." ResourceKey="CacheControl">Static Asset Cache-Control: </Label>
+                            <div class="col-sm-9">
+                                <input id="cachecontrol" class="form-control" @bind="@_cachecontrol" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager Url: </Label>
-                    <div class="col-sm-9">
-                        <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
+                </Section>
+                <br />
+                <Section Name="Marketplace" Heading="Marketplace" ResourceKey="Marketplace">
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager Url: </Label>
+                            <div class="col-sm-9">
+                                <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="packageregistryemail" HelpText="Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations." ResourceKey="PackageManagerEmail">Package Manager Email: </Label>
+                            <div class="col-sm-9">
+                                <input id="packageregistryemail" class="form-control" @bind="@_packageregistryemail" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="packageregistryemail" HelpText="Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations." ResourceKey="PackageManagerEmail">Package Manager Email: </Label>
-                    <div class="col-sm-9">
-                        <input id="packageregistryemail" class="form-control" @bind="@_packageregistryemail" />
-                    </div>
-                </div>
+                </Section>
             </div>
             <br /><br />
             <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
@@ -211,6 +286,7 @@
     private string _osversion = string.Empty;
     private string _process = string.Empty;
     private string _machinename = string.Empty;
+    private string _instance = string.Empty;
     private string _ipaddress = string.Empty;
     private string _environment = string.Empty;
     private string _contentrootpath = string.Empty;
@@ -222,8 +298,16 @@
     private string _detailederrors = string.Empty;
     private string _logginglevel = string.Empty;
     private string _notificationlevel = string.Empty;
+    private string _broadcast = string.Empty;
     private string _swagger = string.Empty;
+
+    private string _cacheduration = string.Empty;
+    private string _failsafe = "true";
+    private string _distributedcache = "false";
+    private string _scaleout = "false";
+    private string _distributedconnection = string.Empty;
     private string _cachecontrol = string.Empty;
+
     private string _packageregistryurl = string.Empty;
     private string _packageregistryemail = string.Empty;
 
@@ -243,6 +327,7 @@
             _osversion = systeminfo["OSVersion"].ToString();
             _process = systeminfo["Process"].ToString();
             _machinename = systeminfo["MachineName"].ToString();
+            _instance = systeminfo["Instance"].ToString();
             _ipaddress = systeminfo["IPAddress"].ToString();
             _environment = systeminfo["Environment"].ToString();
             _contentrootpath = systeminfo["ContentRootPath"].ToString();
@@ -258,8 +343,16 @@
             _detailederrors = systeminfo["DetailedErrors"].ToString();
             _logginglevel = systeminfo["Logging:LogLevel:Default"].ToString();
             _notificationlevel = systeminfo["Logging:LogLevel:Notify"].ToString();
+            _broadcast = systeminfo["Logging:LogLevel:Broadcast"].ToString();
             _swagger = systeminfo["UseSwagger"].ToString();
-            _cachecontrol = systeminfo["CacheControl"].ToString();
+
+            _cacheduration = systeminfo["Caching:Duration"].ToString();
+            _distributedcache = systeminfo["Caching:Distributed"].ToString();
+            _failsafe = systeminfo["Caching:FailSafe"].ToString();
+            _scaleout = systeminfo["Caching:ScaleOut"].ToString();
+            _distributedconnection = systeminfo["ConnectionStrings:DistributedCache"].ToString();
+            _cachecontrol = systeminfo["Caching:Cache-Control"].ToString();
+
             _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
             _packageregistryemail = systeminfo["PackageRegistryEmail"].ToString();
         }
@@ -277,44 +370,54 @@
         _initialized = true;
     }
 
-	private async Task SaveConfig()
-	{
-		try
-		{
-			var settings = new Dictionary<string, object>();
-			settings.Add("DetailedErrors", _detailederrors);
-			settings.Add("Logging:LogLevel:Default", _logginglevel);
-			settings.Add("Logging:LogLevel:Notify", _notificationlevel);
-			settings.Add("UseSwagger", _swagger);
-            settings.Add("CacheControl", _cachecontrol);
+    private async Task SaveConfig()
+    {
+        try
+        {
+            var settings = new Dictionary<string, object>();
+
+            settings.Add("DetailedErrors", _detailederrors);
+            settings.Add("Logging:LogLevel:Default", _logginglevel);
+            settings.Add("Logging:LogLevel:Notify", _notificationlevel);
+            settings.Add("Logging:LogLevel:Broadcast", _broadcast);
+            settings.Add("UseSwagger", _swagger);
+
+            settings.Add("Caching:Duration", _cacheduration);
+            settings.Add("Caching:FailSafe", _failsafe);
+            settings.Add("Caching:Distributed", (_distributedcache == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
+            settings.Add("Caching:ScaleOut", (_scaleout == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
+            settings.Add("ConnectionStrings:DistributedCache", _distributedconnection);
+            settings.Add("Caching:Cache-Control", _cachecontrol);
+
             settings.Add("PackageRegistryUrl", _packageregistryurl);
             settings.Add("PackageRegistryEmail", _packageregistryemail);
-            await SystemService.UpdateSystemInfoAsync(settings);
-			AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Saving Configuration");
-			AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
-		}
-	}
 
-	private async Task ClearLog()
-	{
-		try
-		{
-			var settings = new Dictionary<string, object>();
-			settings.Add("clearlog", "true");
-			await SystemService.UpdateSystemInfoAsync(settings);
-			_log = string.Empty;
-			AddModuleMessage(Localizer["Success.ClearLog"], MessageType.Success);
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Clearing Log");
-			AddModuleMessage(Localizer["Error.ClearLog"], MessageType.Error);
-		}
-	}
+            await SystemService.UpdateSystemInfoAsync(settings);
+            AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Configuration");
+            AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
+        }
+    }
+
+    private async Task ClearLog()
+    {
+        try
+        {
+            var settings = new Dictionary<string, object>();
+            settings.Add("clearlog", "true");
+            await SystemService.UpdateSystemInfoAsync(settings);
+            _log = string.Empty;
+            AddModuleMessage(Localizer["Success.ClearLog"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Clearing Log");
+            AddModuleMessage(Localizer["Error.ClearLog"], MessageType.Error);
+        }
+    }
 
     private async Task RestartApplication()
     {
@@ -329,5 +432,17 @@
         {
             await logger.LogError(ex, "Error Restarting Application");
         }
+    }
+
+    private void DistributedCacheChanged(ChangeEventArgs e)
+    {
+        _distributedcache = (string)e.Value;
+        StateHasChanged();
+    }
+
+    private void ScaleOutChanged(ChangeEventArgs e)
+    {
+        _scaleout = (string)e.Value;
+        StateHasChanged();
     }
 }

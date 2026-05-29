@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -19,12 +18,12 @@ namespace Oqtane.Modules.HtmlText.Services
     {
         private readonly IHtmlTextRepository _htmlTextRepository;
         private readonly IUserPermissions _userPermissions;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
         private readonly IHttpContextAccessor _accessor;
         private readonly Alias _alias;
 
-        public ServerHtmlTextService(IHtmlTextRepository htmlTextRepository, IUserPermissions userPermissions, IMemoryCache cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
+        public ServerHtmlTextService(IHtmlTextRepository htmlTextRepository, IUserPermissions userPermissions, ICacheManager cache, ITenantManager tenantManager, ILogManager logger, IHttpContextAccessor accessor)
         {
             _htmlTextRepository = htmlTextRepository;
             _userPermissions = userPermissions;
@@ -51,9 +50,8 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             if (_userPermissions.IsAuthorized(_accessor.HttpContext.User, _alias.SiteId, EntityNames.Module, moduleId, PermissionNames.View))
             {
-                return Task.FromResult(_cache.GetOrCreate($"HtmlText:{_alias.SiteKey}:{moduleId}", entry =>
+                return Task.FromResult(_cache.GetCache(_alias, $"HtmlText:{moduleId}", entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return _htmlTextRepository.GetHtmlText(moduleId);
                 }));
             }
@@ -97,7 +95,7 @@ namespace Oqtane.Modules.HtmlText.Services
 
         private void ClearCache(int moduleId)
         {
-            _cache.Remove($"HtmlText:{_alias.SiteKey}:{moduleId}");
+            _cache.RemoveCache(_alias, $"HtmlText:{moduleId}");
         }
     }
 }
