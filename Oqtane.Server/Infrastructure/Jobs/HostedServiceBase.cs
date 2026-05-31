@@ -66,7 +66,7 @@ namespace Oqtane.Infrastructure
                             // get name of job
                             string jobTypeName = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
 
-                            // load jobs and find current job
+                            // load current job
                             Job job = jobs.GetJob(jobTypeName);
 
                             if (job == null)
@@ -122,16 +122,18 @@ namespace Oqtane.Infrastructure
                                 {
                                     NextExecution = job.NextExecution.Value;
                                 }
+                                NextExecution = RemoveSeconds(NextExecution);
 
                                 // auto healing if a job has been executing longer than the maximum duration (ie. due to an exception or forceful termination)
-                                if (job.IsExecuting && DateTime.UtcNow > NextExecution.AddMinutes(job.MaximumDuration))
+                                if (job.IsExecuting && RemoveSeconds(DateTime.UtcNow) > NextExecution.AddMinutes(job.MaximumDuration))
                                 {
                                     // reset job
                                     job.IsExecuting = false;
                                 }
 
-                                // determine if the job should be run
-                                if (!job.IsExecuting && NextExecution <= DateTime.UtcNow && (job.EndDate == null || job.EndDate >= DateTime.UtcNow))
+                                // determine if the job should be run (load it again in case it was updated by anther instance)
+                                job = jobs.GetJob(jobTypeName);
+                                if (!job.IsExecuting && NextExecution <= RemoveSeconds(DateTime.UtcNow) && (job.EndDate == null || job.EndDate >= RemoveSeconds(DateTime.UtcNow)))
                                 {
                                     // update the job to indicate it is executing (prevents multiple instances of the same job running concurrently)
                                     job.IsExecuting = true;
@@ -230,7 +232,7 @@ namespace Oqtane.Infrastructure
                 case "O": // one time
                     break;
             }
-            return nextExecution;
+            return RemoveSeconds(nextExecution);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -311,6 +313,11 @@ namespace Oqtane.Infrastructure
                 // wait until the task completes or the stop token triggers
                 await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken)).ConfigureAwait(false);
             }
+        }
+
+        private DateTime RemoveSeconds(DateTime date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, 0, date.Kind);
         }
 
         private bool IsInstalled(IConfigurationRoot config)
