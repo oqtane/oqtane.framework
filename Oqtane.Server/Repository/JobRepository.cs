@@ -31,25 +31,21 @@ namespace Oqtane.Repository
 
         public IEnumerable<Job> GetJobs()
         {
-            return _cache.GetCache("Jobs", entry =>
+            // remove any jobs which have been uninstalled
+            foreach (var job in _db.Job.ToList())
             {
-                // remove any jobs which have been uninstalled
-                foreach (var job in _db.Job.ToList())
+                if (Type.GetType(job.JobType) == null)
                 {
-                    if (Type.GetType(job.JobType) == null)
-                    {
-                        DeleteJob(job.JobId);
-                    }
+                    DeleteJob(job.JobId);
                 }
-                return _db.Job.ToList();
-            });
+            }
+            return _db.Job.ToList();
         }
 
         public Job AddJob(Job job)
         {
             _db.Job.Add(job);
             _db.SaveChanges();
-            _cache.RemoveCache("Jobs");
             return job;
         }
 
@@ -57,13 +53,16 @@ namespace Oqtane.Repository
         {
             _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
-            _cache.RemoveCache("Jobs");
+            _cache.RemoveCache($"Job:{job.JobType}");
             return job;
         }
 
         public Job GetJob(string jobType)
         {
-            return GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
+            return _cache.GetCache($"Job:{jobType}", entry =>
+            {
+                return _db.Job.Where(item => item.JobType == jobType).FirstOrDefault();
+            });
         }
 
         public Job GetJob(int jobId)
@@ -89,7 +88,7 @@ namespace Oqtane.Repository
             Job job = _db.Job.Find(jobId);
             _db.Job.Remove(job);
             _db.SaveChanges();
-            _cache.RemoveCache("Jobs");
+            _cache.RemoveCache($"Job:{job.JobType}");
         }
     }
 }
