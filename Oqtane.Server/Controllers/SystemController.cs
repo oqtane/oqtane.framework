@@ -76,7 +76,10 @@ namespace Oqtane.Controllers
                 case "connectionstrings":
                     foreach (var kvp in _configManager.GetSettings(SettingKeys.ConnectionStringsSection))
                     {
-                        systeminfo.Add(kvp.Key, kvp.Value);
+                        if (kvp.Key != "DistributedCache")
+                        {
+                            systeminfo.Add(kvp.Key, kvp.Value);
+                        }
                     }
                     break;
             }
