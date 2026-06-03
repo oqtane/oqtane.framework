@@ -96,7 +96,15 @@ namespace Oqtane.Infrastructure
                                 job.IsExecuting = false;
                                 job.NextExecution = null;
 
-                                job = jobs.AddJob(job);
+                                try
+                                {
+                                    job = jobs.AddJob(job);
+                                }
+                                catch
+                                {
+                                    // ignore exception which can occur if multiple instances are trying to auto register the same job
+                                    job = jobs.GetJob(jobTypeName);
+                                }
                             }
 
                             if (job != null && job.IsEnabled)
