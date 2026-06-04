@@ -49,6 +49,10 @@ namespace Oqtane.Infrastructure
         {
             await Task.Yield(); // required so that this method does not block startup
 
+            // random delay to prevent jobs from running concurrently (ie. thundering herd)
+            int randomDelay = new Random().Next(0, 10000); 
+            await Task.Delay(randomDelay, stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
