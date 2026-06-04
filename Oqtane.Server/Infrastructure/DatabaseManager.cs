@@ -314,55 +314,55 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                    using (var db = GetInstallationContext())
+                using (var db = GetInstallationContext())
+                {
+                    Tenant tenant;
+                    if (install.IsNewTenant)
                     {
-                        Tenant tenant;
-                        if (install.IsNewTenant)
+                        tenant = new Tenant
                         {
-                            tenant = new Tenant
+                            Name = install.TenantName,
+                            DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
+                            DBType = install.DatabaseType,
+                            CreatedBy = "",
+                            CreatedOn = DateTime.UtcNow,
+                            ModifiedBy = "",
+                            ModifiedOn = DateTime.UtcNow
+                        };
+                        db.Tenant.Add(tenant);
+                        db.SaveChanges();
+                        _cache.RemoveCache("Tenants");
+                    }
+                    else
+                    {
+                        tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
+                    }
+
+                    var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                    var firstAlias = aliasNames[0];
+                    foreach (var aliasName in aliasNames)
+                    {
+                        if (tenant != null)
+                        {
+                            var alias = new Alias
                             {
-                                Name = install.TenantName,
-                                DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
-                                DBType = install.DatabaseType,
+                                Name = aliasName,
+                                TenantId = tenant.TenantId,
+                                SiteId = -1,
+                                IsDefault = (aliasName == firstAlias),
                                 CreatedBy = "",
                                 CreatedOn = DateTime.UtcNow,
                                 ModifiedBy = "",
                                 ModifiedOn = DateTime.UtcNow
                             };
-                            db.Tenant.Add(tenant);
-                            db.SaveChanges();
-                            _cache.RemoveCache("Tenants");
-                        }
-                        else
-                        {
-                            tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
+                            db.Alias.Add(alias);
                         }
 
-                        var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
-                        var firstAlias = aliasNames[0];
-                        foreach (var aliasName in aliasNames)
-                        {
-                            if (tenant != null)
-                            {
-                                var alias = new Alias
-                                {
-                                    Name = aliasName,
-                                    TenantId = tenant.TenantId,
-                                    SiteId = -1,
-                                    IsDefault = (aliasName == firstAlias),
-                                    CreatedBy = "",
-                                    CreatedOn = DateTime.UtcNow,
-                                    ModifiedBy = "",
-                                    ModifiedOn = DateTime.UtcNow
-                                };
-                                db.Alias.Add(alias);
-                            }
-
-                            db.SaveChanges();
-                        }
-
-                        _cache.RemoveCache("Aliases");
+                        db.SaveChanges();
                     }
+
+                    _cache.RemoveCache("Aliases");
+                }
             }
 
             result.Success = true;
