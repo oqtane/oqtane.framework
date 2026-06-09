@@ -1,13 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
@@ -34,14 +33,16 @@ namespace Oqtane.Infrastructure
     {
         private readonly IConfigurationRoot _config;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<ConfigManager> _filelogger;
 
         private static string appsettingsPath = "";
         private static string appsettingsFilename = "";
 
-        public ConfigManager(IConfigurationRoot config, IWebHostEnvironment environment)
+        public ConfigManager(IConfigurationRoot config, IWebHostEnvironment environment, ILogger<ConfigManager> filelogger)
         {
             _config = config;
             _environment = environment;
+            _filelogger = filelogger;
 
             appsettingsPath = GetAppSettingsOverridePath();
             if (!string.IsNullOrEmpty(appsettingsPath))
@@ -132,7 +133,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Oqtane Error: Error Updating App Setting {key} - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error Updating App Setting {key} - {ex}"));
             }
         }
 
@@ -153,7 +154,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Oqtane Error: Error Removing App Setting {key} - {ex}");
+                _filelogger.LogError(Utilities.LogMessage(this, $"Oqtane Error: Error Removing App Setting {key} - {ex}"));
             }
         }
 

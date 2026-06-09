@@ -7,6 +7,7 @@ namespace Oqtane.Shared
 
         public const string ConnectionStringsSection = "ConnectionStrings";
         public const string ConnectionStringKey = "DefaultConnection";
+        public const string DistributedCacheKey = "DistributedCache";
 
         public const string InstallationSection = "Installation";
         public const string DefaultAliasKey = "DefaultAlias";
