@@ -58,7 +58,10 @@ namespace Oqtane.Infrastructure
 
         public void ReleaseLock(string key)
         {
-            _cache.Remove(key);
+            if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.DistributedCacheKey)))
+            {
+                _cache.Remove(key);
+            }
         }
     }
 }
