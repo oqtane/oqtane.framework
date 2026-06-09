@@ -355,7 +355,7 @@
             _distributedcache = systeminfo["Caching:Distributed"].ToString();
             _failsafe = systeminfo["Caching:FailSafe"].ToString();
             _scaleout = systeminfo["Caching:ScaleOut"].ToString();
-            _distributedconnection = systeminfo["ConnectionStrings:DistributedCache"].ToString();
+            _distributedconnection = systeminfo[$"ConnectionStrings:{SettingKeys.DistributedCacheKey}"].ToString();
             _toggledistributedconnection = SharedLocalizer["ShowPassword"];
             _cachecontrol = systeminfo["Caching:Cache-Control"].ToString();
 
@@ -392,7 +392,7 @@
             settings.Add("Caching:FailSafe", _failsafe);
             settings.Add("Caching:Distributed", (_distributedcache == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
             settings.Add("Caching:ScaleOut", (_scaleout == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
-            settings.Add("ConnectionStrings:DistributedCache", _distributedconnection);
+            settings.Add($"ConnectionStrings:{SettingKeys.DistributedCacheKey}", _distributedconnection);
             settings.Add("Caching:Cache-Control", _cachecontrol);
 
             settings.Add("PackageRegistryUrl", _packageregistryurl);
