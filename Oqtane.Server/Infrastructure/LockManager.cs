@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Oqtane.Shared;
 
@@ -28,6 +29,10 @@ namespace Oqtane.Infrastructure
             {
                 return true; // no distributed cache indicates a single instance environment
             }
+
+            // random delay to prevent instances from starting up concurrently (ie. thundering herd)
+            int randomDelay = new Random().Next(0, 2000);
+            Task.Delay(randomDelay);
 
             // attempt to get the distributed cache entry
             var bytes = _cache.Get(key);
