@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
@@ -36,7 +35,6 @@ using Oqtane.Services;
 using Oqtane.Shared;
 using Radzen;
 using ZiggyCreatures.Caching.Fusion;
-using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -228,7 +226,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
             services.AddSingleton<AutoValidateAntiforgeryTokenFilter>();
             services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
-            services.AddSingleton<IServerStateManager, ServerStateManager>();
             return services;
         }
 
@@ -568,7 +565,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 BackplaneChannelPrefix = configuration.GetSection("InstallationId").Value + ":"
             };
 
-            var defaultCacheEntryOptions = new FusionCacheEntryOptions();
+            var defaultCacheEntryOptions = new FusionCacheEntryOptions
+            {
+                ReThrowDistributedCacheExceptions = false // suppress serialization exceptions
+            };
 
             var cacheSettings = configuration.GetSection("Caching");
             if (!cacheSettings.GetChildren().Any())
@@ -604,33 +604,31 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 if (cacheSettings.GetValue<bool>("Distributed") && cacheSettings.GetValue<bool>("ScaleOut"))
                 {
+                    services.AddStackExchangeRedisCache(options => {
+                        options.Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey);
+                    });
+
                     // use memory cache (L1) with distributed cache (L2) and backplane for synchronization across instances
                     services.AddFusionCache()
                         .WithOptions(fusionCacheOptions)
                         .WithDefaultEntryOptions(defaultCacheEntryOptions)
                         .WithSerializer(new FusionCacheSystemTextJsonSerializer())
-                        .WithDistributedCache(new RedisCache(new RedisCacheOptions
-                        {
-                            Configuration = configuration.GetConnectionString("DistributedCache")
-                        }))
-                        .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
-                        {
-                            Configuration = configuration.GetConnectionString("DistributedCache")
-                        }));
+                        .WithRegisteredDistributedCache()
+                        .WithRegisteredBackplane();
                 }
                 else
                 {
+                    services.AddStackExchangeRedisCache(options => {
+                        options.Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey);
+                    });
+
                     if (cacheSettings.GetValue<bool>("ScaleOut"))
                     {
                         // use memory cache (L1) with backplane for synchronization across instances
                         services.AddFusionCache()
                             .WithOptions(fusionCacheOptions)
                             .WithDefaultEntryOptions(defaultCacheEntryOptions)
-                            .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
-                            {
-                                Configuration = configuration.GetConnectionString("DistributedCache")
-                            }));
-
+                            .WithRegisteredBackplane();
                     }
                     else
                     {
@@ -639,15 +637,13 @@ namespace Microsoft.Extensions.DependencyInjection
                             .WithOptions(fusionCacheOptions)
                             .WithDefaultEntryOptions(defaultCacheEntryOptions)
                             .WithSerializer(new FusionCacheSystemTextJsonSerializer())
-                            .WithDistributedCache(new RedisCache(new RedisCacheOptions
-                            {
-                                Configuration = configuration.GetConnectionString("DistributedCache")
-                            }));
+                            .WithRegisteredDistributedCache();
                     }
                 }
             }
 
             services.AddSingleton<ICacheManager, CacheManager>();
+            services.AddSingleton<ILockManager, LockManager>();
 
             return services;
         }

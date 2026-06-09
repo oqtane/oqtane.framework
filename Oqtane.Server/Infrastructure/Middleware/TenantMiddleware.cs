@@ -42,14 +42,6 @@ namespace Oqtane.Infrastructure
                     });
                     context.Items.Add(Constants.HttpContextSiteSettingsKey, sitesettings);
 
-                    // handle first request to site
-                    var serverState = context.RequestServices.GetService(typeof(IServerStateManager)) as IServerStateManager;
-                    if (!serverState.GetServerState(alias.SiteKey).IsInitialized)
-                    {
-                        var sites = context.RequestServices.GetService(typeof(ISiteRepository)) as ISiteRepository;
-                        sites.InitializeSite(alias);
-                    }
-
                     // rewrite path by removing alias path prefix from reserved route (api,pages,files) requests for consistent routes
                     if (!string.IsNullOrEmpty(alias.Path))
                     {

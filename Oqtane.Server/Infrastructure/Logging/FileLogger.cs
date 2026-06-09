@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Infrastructure
@@ -9,13 +10,13 @@ namespace Oqtane.Infrastructure
     {
         protected readonly FileLoggerProvider _FileLoggerProvider;
         private readonly IWebHostEnvironment _environment;
-        private readonly IConfigManager _configManager;
+        private readonly LogLevel _minLevel;
 
-        public FileLogger(FileLoggerProvider FileLoggerProvider, IWebHostEnvironment environment,IConfigManager configManager)
+        public FileLogger(FileLoggerProvider FileLoggerProvider, IWebHostEnvironment environment, IConfigurationRoot config)
         {
             _FileLoggerProvider = FileLoggerProvider;
             _environment = environment;
-            _configManager = configManager;
+            _minLevel = config.GetValue("Logging:FileLogger:LogLevel:Default", LogLevel.Error);
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -25,27 +26,13 @@ namespace Oqtane.Infrastructure
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel != LogLevel.None;
+            return logLevel >= _minLevel;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            // ignore log if it is being broadcasted from LogManager
-            if (eventId.Name == "SiteId")
-            {
-                return;
-            }
-
-            if (_configManager.GetSetting("Logging:FileLogger:LogLevel:Default", "") == "")
-            {
-                _configManager.AddOrUpdateSetting("Logging:FileLogger:LogLevel:Default", "Error", true);
-                if (logLevel < LogLevel.Error)
-                {
-                    return;
-                }
-            }
-
-            if (!IsEnabled(logLevel))
+            // ignore log if it is below the min level or is being broadcast from LogManager
+            if (!IsEnabled(logLevel) || eventId.Name == "SiteId")
             {
                 return;
             }

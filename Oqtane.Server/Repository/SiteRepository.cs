@@ -22,7 +22,8 @@ namespace Oqtane.Repository
         Site GetSite(int siteId, bool tracking);
         void DeleteSite(int siteId);
 
-        void InitializeSite(Alias alias);
+        string ProcessSiteMigrations(Alias alias, Site site);
+        string ProcessPageTemplates(Alias alias, Site site, string version);
         void CreatePages(Site site, List<PageTemplate> pageTemplates, Alias alias);
     }
 
@@ -40,15 +41,13 @@ namespace Oqtane.Repository
         private readonly ISettingRepository _settingRepository;
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfigurationRoot _config;
-        private readonly IServerStateManager _serverState;
         private readonly ITenantManager _tenantManager;
         private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
-        private static readonly object _lock = new object();
 
         public SiteRepository(IDbContextFactory<TenantDBContext> factory, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
             IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IThemeRepository themeRepository, ISettingRepository settingRepository,
-            IServiceProvider serviceProvider, IConfigurationRoot config, IServerStateManager serverState, ITenantManager tenantManager, ICacheManager cache, ILogManager logger)
+            IServiceProvider serviceProvider, IConfigurationRoot config, ITenantManager tenantManager, ICacheManager cache, ILogManager logger)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -62,7 +61,6 @@ namespace Oqtane.Repository
             _settingRepository = settingRepository;
             _serviceProvider = serviceProvider;
             _config = config;
-            _serverState = serverState;
             _tenantManager = tenantManager;
             _cache = cache;
             _logger = logger;
@@ -123,41 +121,7 @@ namespace Oqtane.Repository
         }
 
 
-        public void InitializeSite(Alias alias)
-        {
-            var serverstate = _serverState.GetServerState(alias.SiteKey);
-            if (!serverstate.IsInitialized)
-            {
-                // ensure site initialization is only executed once
-                lock (_lock)
-                {
-                    if (!serverstate.IsInitialized)
-                    {
-                        var site = GetSite(alias.SiteId);
-                        if (site != null)
-                        {
-                            // initialize theme Assemblies
-                            site.Themes = _themeRepository.GetThemes(site.SiteId).ToList();
-
-                            // initialize module Assemblies
-                            var moduleDefinitions = _moduleDefinitionRepository.GetModuleDefinitions(alias.SiteId);
-
-                            // execute migrations
-                            var version = ProcessSiteMigrations(alias, site);
-                            version = ProcessPageTemplates(alias, site, moduleDefinitions, version);
-                            if (site.Version != version)
-                            {
-                                site.Version = version;
-                                UpdateSite(site);
-                            }
-                        }
-                        serverstate.IsInitialized = true;
-                    }
-                }
-            } 
-        }
-
-        private string ProcessSiteMigrations(Alias alias, Site site)
+        public string ProcessSiteMigrations(Alias alias, Site site)
         {
             var version = site.Version;
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
@@ -197,10 +161,11 @@ namespace Oqtane.Repository
             return version;
         }
 
-        private string ProcessPageTemplates(Alias alias, Site site, IEnumerable<ModuleDefinition> moduleDefinitions, string version)
+        public string ProcessPageTemplates(Alias alias, Site site, string version)
         {
             var pageTemplates = new List<PageTemplate>();
-            foreach (var moduleDefinition in moduleDefinitions)
+
+            foreach (var moduleDefinition in _moduleDefinitionRepository.GetModuleDefinitions(site.SiteId))
             {
                 if (moduleDefinition.PageTemplates != null)
                 {
