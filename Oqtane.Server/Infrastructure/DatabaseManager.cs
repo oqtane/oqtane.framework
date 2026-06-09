@@ -101,10 +101,6 @@ namespace Oqtane.Infrastructure
             // get configuration
             if (install == null)
             {
-                // random delay to prevent instances from starting up concurrently (ie. thundering herd)
-                int randomDelay = new Random().Next(0, 2000);
-                Task.Delay(randomDelay);
-
                 // startup or automated installation
                 install = new InstallConfig
                 {
@@ -190,11 +186,10 @@ namespace Oqtane.Infrastructure
             // proceed with installation/migration
             if (!string.IsNullOrEmpty(install.ConnectionString))
             {
-                // wait until lock is acquired before proceeding (this prevents multiple instances from attempting to install/migrate concurrently)
                 var lockKey = "StartUp";
                 while (!_lockManager.TryAcquireLock(lockKey, "true", TimeSpan.FromMinutes(1)))
                 {
-                    Task.Delay(1000);
+                    // wait until lock is acquired before proceeding (this prevents multiple instances from attempting to install/migrate concurrently)
                 }
 
                 result = CreateDatabase(install);
