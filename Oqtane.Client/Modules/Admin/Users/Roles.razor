@@ -89,16 +89,6 @@ else
             User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
             name = user.DisplayName;
 
-            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-            {
-                roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-                roles.RemoveAll(item => item.Name == RoleNames.Everyone || item.Name == RoleNames.Unauthenticated);
-            }
-            else
-            {
-                roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
-            }
-
             await GetUserRoles();
         }
         catch (Exception ex)
@@ -113,7 +103,23 @@ else
         try
         {
             userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, userid);
-
+            if (userroles.Any(item => item.Role.Name == RoleNames.Host))
+            {
+                roles = new List<Role>();
+            }
+            else
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
+                    roles.RemoveAll(item => item.Name == RoleNames.Everyone || item.Name == RoleNames.Unauthenticated);
+                }
+                else
+                {
+                    roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+                }
+            }
+            roleid = -1;
         }
         catch (Exception ex)
         {
