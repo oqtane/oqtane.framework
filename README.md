@@ -111,6 +111,9 @@ Connect with other developers, get support, and share ideas by joining the Oqtan
 # Roadmap
 This project is open source, and therefore is a work in progress...
 
+Backlog
+- native MCP Server
+
 [10.2.0](https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.0) (May 29, 2026)
 - [x] Distributed Caching
 - [x] Scale-out Support
