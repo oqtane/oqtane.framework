@@ -1,5 +1,5 @@
-using System;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Infrastructure
@@ -11,17 +11,17 @@ namespace Oqtane.Infrastructure
     public class FileLoggerProvider : ILoggerProvider
     {
         private readonly IWebHostEnvironment _environment;
-        private readonly IConfigManager _configManager;
+        private readonly IConfigurationRoot _config;
 
-        public FileLoggerProvider(IWebHostEnvironment environment, IConfigManager configManager)
+        public FileLoggerProvider(IWebHostEnvironment environment, IConfigurationRoot config)
         {
             _environment = environment;
-            _configManager = configManager;
+            _config = config;
         }
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new FileLogger(this, _environment, _configManager);
+            return new FileLogger(this, _environment, _config);
         }
 
         public void Dispose()

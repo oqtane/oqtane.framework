@@ -65,7 +65,11 @@ namespace Oqtane.Infrastructure
                     {
                         try
                         {
+                            // get required services
                             var jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
+                            var jobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
+                            var tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                            var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
 
                             // get name of job
                             string jobTypeName = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
@@ -113,10 +117,6 @@ namespace Oqtane.Infrastructure
 
                             if (job != null && job.IsEnabled)
                             {
-                                var jobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
-                                var tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
-                                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-
                                 // get next execution date
                                 DateTime NextExecution;
                                 if (job.NextExecution == null)
@@ -143,13 +143,12 @@ namespace Oqtane.Infrastructure
                                     job.IsExecuting = false;
                                 }
 
-                                // determine if the job should be run (load it again in case it was updated by anther instance)
-                                job = jobs.GetJob(jobTypeName);
+                                // determine if the job should be run
                                 if (!job.IsExecuting && NextExecution <= RemoveSeconds(DateTime.UtcNow) && (job.EndDate == null || job.EndDate >= RemoveSeconds(DateTime.UtcNow)))
                                 {
                                     // update the job to indicate it is executing (prevents multiple instances of the same job running concurrently)
                                     job.IsExecuting = true;
-                                    jobs.UpdateJob(job);
+                                    job = jobs.UpdateJob(job);
 
                                     // create a job log entry
                                     JobLog log = new JobLog();

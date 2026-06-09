@@ -2,18 +2,19 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using Oqtane.Enums;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -34,14 +35,16 @@ namespace Oqtane.Infrastructure
         private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ICacheManager _cache;
+        private readonly ILockManager _lockManager;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, ILockManager lockManager, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _cache = cache;
+            _lockManager = lockManager;
             _configManager = configManager;
             _filelogger = filelogger;
         }
@@ -98,6 +101,10 @@ namespace Oqtane.Infrastructure
             // get configuration
             if (install == null)
             {
+                // random delay to prevent instances from starting up concurrently (ie. thundering herd)
+                int randomDelay = new Random().Next(0, 2000);
+                Task.Delay(randomDelay);
+
                 // startup or automated installation
                 install = new InstallConfig
                 {
@@ -183,6 +190,13 @@ namespace Oqtane.Infrastructure
             // proceed with installation/migration
             if (!string.IsNullOrEmpty(install.ConnectionString))
             {
+                // wait until lock is acquired before proceeding (this prevents multiple instances from attempting to install/migrate concurrently)
+                var lockKey = "StartUp";
+                while (!_lockManager.TryAcquireLock(lockKey, "true", TimeSpan.FromMinutes(1)))
+                {
+                    Task.Delay(1000);
+                }
+
                 result = CreateDatabase(install);
                 if (result.Success)
                 {
@@ -199,11 +213,17 @@ namespace Oqtane.Infrastructure
                                 if (result.Success)
                                 {
                                     result = CreateSite(install);
+                                    if (result.Success)
+                                    {
+                                        result = InitializeSites(install);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                _lockManager.ReleaseLock(lockKey);
             }
 
             return result;
@@ -432,7 +452,7 @@ namespace Oqtane.Infrastructure
                                 }
                                 catch (Exception ex)
                                 {
-                                    result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + ". " + ex.ToString();
+                                    result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + " - " + ex.ToString();
                                     _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                                 }
                             }
@@ -646,8 +666,67 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = "An Error Occurred Creating Site. " + ex.ToString();
+                    result.Message = "An Error Occurred Creating Site - " + ex.ToString();
                 }
+            }
+
+            if (string.IsNullOrEmpty(result.Message))
+            {
+                result.Success = true;
+            }
+            else
+            {
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+            }
+
+            return result;
+        }
+
+        private Installation InitializeSites(InstallConfig install)
+        {
+            var result = new Installation { Success = false, Message = string.Empty };
+
+            try
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    var aliasRepository = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                    var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+
+                    var current = tenantManager.GetAlias();
+
+                    var aliases = aliasRepository.GetAliases().ToList();
+                    foreach (var tenant in tenants.GetTenants().ToList())
+                    {
+                        tenantManager.SetTenant(tenant.TenantId);
+                        foreach (var site in sites.GetSites())
+                        {
+                            var alias = aliases.FirstOrDefault(item => item.TenantId == tenant.TenantId && item.SiteId == site.SiteId && item.IsDefault);
+                            if (alias != null)
+                            {
+                                tenantManager.SetAlias(alias);
+
+                                // execute site migrations
+                                var version = sites.ProcessSiteMigrations(alias, site);
+                                // process routable modules
+                                version = sites.ProcessPageTemplates(alias, site, version);
+                                if (site.Version != version)
+                                {
+                                    site.Version = version;
+                                    sites.UpdateSite(site);
+                                }
+                            }
+                        }
+                    }
+
+                    tenantManager.SetAlias(current);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = "An Error Occurred Initializing Sites - " + ex.ToString();
             }
 
             if (string.IsNullOrEmpty(result.Message))
