@@ -361,6 +361,18 @@ namespace Oqtane.Extensions
                 {
                     user = _users.GetUser(identityuser.UserName);
                     user.SiteId = alias.SiteId;
+                    if ((!string.IsNullOrEmpty(email) && user.Email != email) || (!string.IsNullOrEmpty(name) && user.DisplayName != name))
+                    {
+                        // synchronize email and displayname
+                        user.Email = !string.IsNullOrEmpty(email) ? email : user.Email;
+                        user.DisplayName = !string.IsNullOrEmpty(name) ? name : user.DisplayName;
+                        _users.UpdateUser(user);
+                        if (identityuser.Email != user.Email)
+                        {
+                            identityuser.Email = user.Email;
+                            await _identityUserManager.UpdateAsync(identityuser); // security stamp not updated
+                        }
+                    }
                 }
                 else
                 {
