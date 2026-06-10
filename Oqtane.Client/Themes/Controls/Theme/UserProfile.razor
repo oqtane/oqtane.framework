@@ -32,7 +32,7 @@ else
     public string ProfileUrl { get; set; } // optional parameter to specify a custom user profile url
 
     [Parameter]
-    public string DisplayName { get; set; } = "Username";
+    public string DisplayName { get; set; }
 
     private string _registerurl = "";
     private string _profileurl = "";
@@ -90,7 +90,13 @@ else
 
         if (PageState.User != null)
         {
-            switch (DisplayName.ToLower())
+            var displayname = DisplayName;
+            if (string.IsNullOrEmpty(displayname))
+            {
+                displayname = SettingService.GetSetting(PageState.Site.Settings, "LoginOptions:ProfileDisplayName", "username");
+            }
+
+            switch (displayname.ToLower())
             {
                 case "displayname":
                     _displayname = PageState.User.DisplayName;

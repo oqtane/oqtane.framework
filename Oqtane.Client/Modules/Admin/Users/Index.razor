@@ -128,6 +128,16 @@ else
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="profiledisplayname" HelpText="Optionally specify the identifier which will be used for the user's profile (the default is username)" ResourceKey="ProfileDisplayName">Profile Display Name:</Label>
+                        <div class="col-sm-9">
+                            <select id="profiledisplayname" class="form-select" @bind="@_profiledisplayname">
+                                <option value="username">@Localizer["Username"]</option>
+                                <option value="email">@Localizer["Email"]</option>
+                                <option value="displayname">@Localizer["Name"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="profileurl" HelpText="Optionally provide a custom profile url" ResourceKey="ProfileUrl">Profile Url:</Label>
                         <div class="col-sm-9">
                             <input id="profileurl" class="form-control" @bind="@_profileurl" />
@@ -554,6 +564,7 @@ else
     private string _allowregistration;
     private string _registerurl;
     private string _requireconfirmedemail;
+    private string _profiledisplayname;
     private string _profileurl;
     private string _cookiename;
     private string _cookiedomain;
@@ -633,6 +644,7 @@ else
             _passkeys = SettingService.GetSetting(settings, "LoginOptions:Passkeys", "false");
             _registerurl = SettingService.GetSetting(settings, "LoginOptions:RegisterUrl", "");
             _requireconfirmedemail = SettingService.GetSetting(settings, "LoginOptions:RequireConfirmedEmail", "true");
+            _profiledisplayname = SettingService.GetSetting(settings, "LoginOptions:ProfileDisplayName", "username");
             _profileurl = SettingService.GetSetting(settings, "LoginOptions:ProfileUrl", "");
             _cookiename = SettingService.GetSetting(settings, "LoginOptions:CookieName", ".AspNetCore.Identity.Application");
             _cookiedomain = SettingService.GetSetting(settings, "LoginOptions:CookieDomain", "");
@@ -773,6 +785,7 @@ else
                 settings = SettingService.SetSetting(settings, "LoginOptions:Passkeys", _passkeys, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:RegisterUrl", _registerurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:RequireConfirmedEmail", _requireconfirmedemail, false);
+                settings = SettingService.SetSetting(settings, "LoginOptions:ProfileDisplayName", _profiledisplayname, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:ProfileUrl", _profileurl, false);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieName", _cookiename, true);
                 settings = SettingService.SetSetting(settings, "LoginOptions:CookieDomain", _cookiedomain, true);
