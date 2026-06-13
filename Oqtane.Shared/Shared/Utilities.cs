@@ -243,6 +243,7 @@ namespace Oqtane.Shared
             string result = "";
             if (url != null)
             {
+                url = url.Replace("'", ""); // remove apostrophes
                 var normalizedString = WebUtility.UrlDecode(url).ToLowerInvariant().Normalize(NormalizationForm.FormD);
                 var stringBuilder = new StringBuilder();
                 var stringLength = normalizedString.Length;
@@ -257,9 +258,13 @@ namespace Oqtane.Shared
                         case UnicodeCategory.UppercaseLetter:
                         case UnicodeCategory.DecimalDigitNumber:
                             if (c < 128)
+                            {
                                 stringBuilder.Append(c);
+                            }
                             else
+                            {
                                 stringBuilder.Append(RemapInternationalCharToAscii(c));
+                            }
                             prevdash = false;
                             break;
 
@@ -273,7 +278,6 @@ namespace Oqtane.Shared
                                 stringBuilder.Append('-');
                                 prevdash = true;
                             }
-
                             break;
                     }
                 }
