@@ -35,6 +35,7 @@ using Oqtane.Services;
 using Oqtane.Shared;
 using Radzen;
 using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -621,7 +622,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         .WithDefaultEntryOptions(defaultCacheEntryOptions)
                         .WithSerializer(new FusionCacheSystemTextJsonSerializer())
                         .WithRegisteredDistributedCache()
-                        .WithRegisteredBackplane();
+                        .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                        {
+                            Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey)
+                        }));
                 }
                 else
                 {
@@ -635,7 +639,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         services.AddFusionCache()
                             .WithOptions(fusionCacheOptions)
                             .WithDefaultEntryOptions(defaultCacheEntryOptions)
-                            .WithRegisteredBackplane();
+                            .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
+                            {
+                                Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey)
+                            }));
                     }
                     else
                     {
