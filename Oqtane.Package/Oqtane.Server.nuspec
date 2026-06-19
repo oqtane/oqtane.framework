@@ -37,7 +37,7 @@
         <dependency id="EFCore.NamingConventions" version="10.0.1" exclude="Build,Analyzers" />
         <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="10.0.2" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="10.0.9" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Data.Sqlite.Core" version="10.0.9" exclude="Build,Analyzers" />
+        <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.3" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="10.0.9" exclude="Build,Analyzers" />
       </group>
     </dependencies>
