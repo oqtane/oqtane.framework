@@ -650,7 +650,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddSingleton<ICacheManager, CacheManager>();
-            services.AddSingleton<ILockManager, LockManager>();
+            services.AddSingleton<IDistributedLockManager, DistributedLockManager>();
 
             return services;
         }

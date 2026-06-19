@@ -35,16 +35,16 @@ namespace Oqtane.Infrastructure
         private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ICacheManager _cache;
-        private readonly ILockManager _lockManager;
+        private readonly IDistributedLockManager _distributedLockManager;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, ILockManager lockManager, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IDistributedLockManager distributedLockManager, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _cache = cache;
-            _lockManager = lockManager;
+            _distributedLockManager = distributedLockManager;
             _configManager = configManager;
             _filelogger = filelogger;
         }
@@ -187,7 +187,7 @@ namespace Oqtane.Infrastructure
             if (!string.IsNullOrEmpty(install.ConnectionString))
             {
                 var lockKey = "StartUp";
-                while (!_lockManager.TryAcquireLock(lockKey, "true", TimeSpan.FromMinutes(1)))
+                while (!_distributedLockManager.TryAcquireLock(lockKey, "true", TimeSpan.FromMinutes(1)))
                 {
                     // wait until lock is acquired before proceeding (this prevents multiple instances from attempting to install/migrate concurrently)
                 }
@@ -218,7 +218,7 @@ namespace Oqtane.Infrastructure
                     }
                 }
 
-                _lockManager.ReleaseLock(lockKey);
+                _distributedLockManager.ReleaseLock(lockKey);
             }
 
             return result;

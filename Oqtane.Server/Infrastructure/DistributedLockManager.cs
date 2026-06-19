@@ -6,18 +6,18 @@ using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
-    public interface ILockManager
+    public interface IDistributedLockManager
     {
         bool TryAcquireLock(string key, string value, TimeSpan expiration);
         void ReleaseLock(string key);
     }
 
-    public class LockManager : ILockManager
+    public class DistributedLockManager : IDistributedLockManager
     {
         private readonly IDistributedCache _cache;
         private readonly IConfigManager _config;
 
-        public LockManager(IDistributedCache cache, IConfigManager config)
+        public DistributedLockManager(IDistributedCache cache, IConfigManager config)
         {
             _cache = cache;
             _config = config;
@@ -25,9 +25,10 @@ namespace Oqtane.Infrastructure
 
         public bool TryAcquireLock(string key, string value, TimeSpan expiration)
         {
-            if (string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.DistributedCacheKey)))
+            // check if scale out is enabled and a distributed cache connection string is configured
+            if (_config.GetSetting("Caching:ScaleOut", "false") != "true" || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.DistributedCacheKey)))
             {
-                return true; // no distributed cache indicates a single instance environment
+                return true;
             }
 
             // random delay to prevent instances from starting up concurrently (ie. thundering herd)
