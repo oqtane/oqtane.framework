@@ -573,4 +573,10 @@
   <data name="LoginLink.HelpText" xml:space="preserve">
     <value>Do you want to allow users to login using a time sensitive link sent by email?</value>
   </data>
+  <data name="ProfileDisplayName.Text" xml:space="preserve">
+    <value>Profile Display Name:</value>
+  </data>
+  <data name="ProfileDisplayName.HelpText" xml:space="preserve">
+    <value>Optionally specify the identifier which will be used for the user's profile (the default is username)</value>
+  </data>
 </root>

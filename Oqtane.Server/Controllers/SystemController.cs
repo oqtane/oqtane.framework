@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("Caching:Duration", _configManager.GetSetting("Caching:Duration", "10"));
                     systeminfo.Add("Caching:FailSafe", _configManager.GetSetting("Caching:FailSafe", "true"));
                     systeminfo.Add("Caching:Distributed", _configManager.GetSetting("Caching:Distributed", "false"));
-                    systeminfo.Add("ConnectionStrings:DistributedCache", _configManager.GetSetting("ConnectionStrings:DistributedCache", ""));
+                    systeminfo.Add($"ConnectionStrings:{SettingKeys.DistributedCacheKey}", _configManager.GetSetting($"ConnectionStrings:{SettingKeys.DistributedCacheKey}", ""));
                     systeminfo.Add("Caching:ScaleOut", _configManager.GetSetting("Caching:ScaleOut", "false"));
                     systeminfo.Add("Caching:Cache-Control", _configManager.GetSetting("Caching:Cache-Control", ""));
                     systeminfo.Add("PackageRegistryUrl", _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl));
@@ -76,7 +76,10 @@ namespace Oqtane.Controllers
                 case "connectionstrings":
                     foreach (var kvp in _configManager.GetSettings(SettingKeys.ConnectionStringsSection))
                     {
-                        systeminfo.Add(kvp.Key, kvp.Value);
+                        if (kvp.Key != SettingKeys.DistributedCacheKey)
+                        {
+                            systeminfo.Add(kvp.Key, kvp.Value);
+                        }
                     }
                     break;
             }

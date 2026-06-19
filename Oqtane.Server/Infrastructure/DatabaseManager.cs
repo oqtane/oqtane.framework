@@ -2,18 +2,19 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using Oqtane.Enums;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -34,14 +35,16 @@ namespace Oqtane.Infrastructure
         private readonly IConfigManager _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ICacheManager _cache;
+        private readonly IDistributedLockManager _distributedLockManager;
         private readonly IConfigManager _configManager;
         private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
+        public DatabaseManager(IConfigManager config, IServiceScopeFactory serviceScopeFactory, ICacheManager cache, IDistributedLockManager distributedLockManager, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _cache = cache;
+            _distributedLockManager = distributedLockManager;
             _configManager = configManager;
             _filelogger = filelogger;
         }
@@ -183,6 +186,12 @@ namespace Oqtane.Infrastructure
             // proceed with installation/migration
             if (!string.IsNullOrEmpty(install.ConnectionString))
             {
+                var lockKey = "StartUp";
+                while (!_distributedLockManager.TryAcquireLock(lockKey, "true", TimeSpan.FromMinutes(1)))
+                {
+                    // wait until lock is acquired before proceeding (this prevents multiple instances from attempting to install/migrate concurrently)
+                }
+
                 result = CreateDatabase(install);
                 if (result.Success)
                 {
@@ -199,11 +208,17 @@ namespace Oqtane.Infrastructure
                                 if (result.Success)
                                 {
                                     result = CreateSite(install);
+                                    if (result.Success)
+                                    {
+                                        result = InitializeSites(install);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                _distributedLockManager.ReleaseLock(lockKey);
             }
 
             return result;
@@ -314,55 +329,55 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                    using (var db = GetInstallationContext())
+                using (var db = GetInstallationContext())
+                {
+                    Tenant tenant;
+                    if (install.IsNewTenant)
                     {
-                        Tenant tenant;
-                        if (install.IsNewTenant)
+                        tenant = new Tenant
                         {
-                            tenant = new Tenant
+                            Name = install.TenantName,
+                            DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
+                            DBType = install.DatabaseType,
+                            CreatedBy = "",
+                            CreatedOn = DateTime.UtcNow,
+                            ModifiedBy = "",
+                            ModifiedOn = DateTime.UtcNow
+                        };
+                        db.Tenant.Add(tenant);
+                        db.SaveChanges();
+                        _cache.RemoveCache("Tenants");
+                    }
+                    else
+                    {
+                        tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
+                    }
+
+                    var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
+                    var firstAlias = aliasNames[0];
+                    foreach (var aliasName in aliasNames)
+                    {
+                        if (tenant != null)
+                        {
+                            var alias = new Alias
                             {
-                                Name = install.TenantName,
-                                DBConnectionString = (install.TenantName == TenantNames.Master) ? SettingKeys.ConnectionStringKey : install.TenantName,
-                                DBType = install.DatabaseType,
+                                Name = aliasName,
+                                TenantId = tenant.TenantId,
+                                SiteId = -1,
+                                IsDefault = (aliasName == firstAlias),
                                 CreatedBy = "",
                                 CreatedOn = DateTime.UtcNow,
                                 ModifiedBy = "",
                                 ModifiedOn = DateTime.UtcNow
                             };
-                            db.Tenant.Add(tenant);
-                            db.SaveChanges();
-                            _cache.RemoveCache("Tenants");
-                        }
-                        else
-                        {
-                            tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
+                            db.Alias.Add(alias);
                         }
 
-                        var aliasNames = install.Aliases.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray();
-                        var firstAlias = aliasNames[0];
-                        foreach (var aliasName in aliasNames)
-                        {
-                            if (tenant != null)
-                            {
-                                var alias = new Alias
-                                {
-                                    Name = aliasName,
-                                    TenantId = tenant.TenantId,
-                                    SiteId = -1,
-                                    IsDefault = (aliasName == firstAlias),
-                                    CreatedBy = "",
-                                    CreatedOn = DateTime.UtcNow,
-                                    ModifiedBy = "",
-                                    ModifiedOn = DateTime.UtcNow
-                                };
-                                db.Alias.Add(alias);
-                            }
-
-                            db.SaveChanges();
-                        }
-
-                        _cache.RemoveCache("Aliases");
+                        db.SaveChanges();
                     }
+
+                    _cache.RemoveCache("Aliases");
+                }
             }
 
             result.Success = true;
@@ -432,7 +447,7 @@ namespace Oqtane.Infrastructure
                                 }
                                 catch (Exception ex)
                                 {
-                                    result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + ". " + ex.ToString();
+                                    result.Message = "An Error Occurred Executing Upgrade Logic On Tenant " + tenant.Name + " - " + ex.ToString();
                                     _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                                 }
                             }
@@ -646,8 +661,67 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    result.Message = "An Error Occurred Creating Site. " + ex.ToString();
+                    result.Message = "An Error Occurred Creating Site - " + ex.ToString();
                 }
+            }
+
+            if (string.IsNullOrEmpty(result.Message))
+            {
+                result.Success = true;
+            }
+            else
+            {
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+            }
+
+            return result;
+        }
+
+        private Installation InitializeSites(InstallConfig install)
+        {
+            var result = new Installation { Success = false, Message = string.Empty };
+
+            try
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    var aliasRepository = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                    var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+
+                    var current = tenantManager.GetAlias();
+
+                    var aliases = aliasRepository.GetAliases().ToList();
+                    foreach (var tenant in tenants.GetTenants().ToList())
+                    {
+                        tenantManager.SetTenant(tenant.TenantId);
+                        foreach (var site in sites.GetSites())
+                        {
+                            var alias = aliases.FirstOrDefault(item => item.TenantId == tenant.TenantId && item.SiteId == site.SiteId && item.IsDefault);
+                            if (alias != null)
+                            {
+                                tenantManager.SetAlias(alias);
+
+                                // execute site migrations
+                                var version = sites.ProcessSiteMigrations(alias, site);
+                                // process routable modules
+                                version = sites.ProcessPageTemplates(alias, site, version);
+                                if (site.Version != version)
+                                {
+                                    site.Version = version;
+                                    sites.UpdateSite(site);
+                                }
+                            }
+                        }
+                    }
+
+                    tenantManager.SetAlias(current);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = "An Error Occurred Initializing Sites - " + ex.ToString();
             }
 
             if (string.IsNullOrEmpty(result.Message))

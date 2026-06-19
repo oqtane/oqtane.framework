@@ -28,24 +28,25 @@ namespace Oqtane.Infrastructure
 
         void EntityChanged(object sender, SyncEvent syncEvent)
         {
-            List<Type> eventSubscribers = _cache.GetCache("EventSubscribers", entry =>
+            List<string> eventSubscribers = _cache.GetCache("EventSubscribers", entry =>
             {
-                eventSubscribers = new List<Type>();
+                eventSubscribers = new List<string>();
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
                 foreach (Assembly assembly in assemblies)
                 {
                     foreach (var type in assembly.GetTypes(typeof(IEventSubscriber)))
                     {
-                        eventSubscribers.Add(type);
+                        eventSubscribers.Add(type.AssemblyQualifiedName);
                     }
                 }
                 return eventSubscribers;
             }, TimeSpan.MaxValue, TimeSpan.MaxValue);
 
-            foreach (var type in eventSubscribers)
+            foreach (var eventSubscriber in eventSubscribers)
             {
                 try
                 {
+                    var type = Type.GetType(eventSubscriber);
                     var obj = ActivatorUtilities.CreateInstance(_serviceProvider, type) as IEventSubscriber;
                     if (obj != null)
                     {
@@ -54,7 +55,7 @@ namespace Oqtane.Infrastructure
                 }
                 catch (Exception ex)
                 {
-                    _filelogger.LogError(Utilities.LogMessage(this, $"Error In EventSubscriber {type.AssemblyQualifiedName} - {ex.Message}"));
+                    _filelogger.LogError(Utilities.LogMessage(this, $"Error In EventSubscriber {eventSubscriber} - {ex.Message}"));
                 }
             }
         }

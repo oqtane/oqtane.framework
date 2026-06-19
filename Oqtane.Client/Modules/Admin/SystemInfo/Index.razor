@@ -200,7 +200,10 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="distributedconnection" HelpText="Provide the connection string for the distributed cache service" ResourceKey="DistributedConnection">Connection String: </Label>
                                 <div class="col-sm-9">
-                                    <input id="distributedconnection" class="form-control" @bind="@_distributedconnection" />
+                                    <div class="input-group">
+                                        <input id="distributedconnection" type="@_distributedconnectiontype" class="form-control" @bind="@_distributedconnection" />
+                                        <button type="button" class="btn btn-secondary" @onclick="@ToggleDistributedConnection" tabindex="-1">@_toggledistributedconnection</button>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -306,6 +309,8 @@
     private string _distributedcache = "false";
     private string _scaleout = "false";
     private string _distributedconnection = string.Empty;
+    private string _distributedconnectiontype = "password";
+    private string _toggledistributedconnection = string.Empty;
     private string _cachecontrol = string.Empty;
 
     private string _packageregistryurl = string.Empty;
@@ -350,7 +355,8 @@
             _distributedcache = systeminfo["Caching:Distributed"].ToString();
             _failsafe = systeminfo["Caching:FailSafe"].ToString();
             _scaleout = systeminfo["Caching:ScaleOut"].ToString();
-            _distributedconnection = systeminfo["ConnectionStrings:DistributedCache"].ToString();
+            _distributedconnection = systeminfo[$"ConnectionStrings:{SettingKeys.DistributedCacheKey}"].ToString();
+            _toggledistributedconnection = SharedLocalizer["ShowPassword"];
             _cachecontrol = systeminfo["Caching:Cache-Control"].ToString();
 
             _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
@@ -386,7 +392,7 @@
             settings.Add("Caching:FailSafe", _failsafe);
             settings.Add("Caching:Distributed", (_distributedcache == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
             settings.Add("Caching:ScaleOut", (_scaleout == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
-            settings.Add("ConnectionStrings:DistributedCache", _distributedconnection);
+            settings.Add($"ConnectionStrings:{SettingKeys.DistributedCacheKey}", _distributedconnection);
             settings.Add("Caching:Cache-Control", _cachecontrol);
 
             settings.Add("PackageRegistryUrl", _packageregistryurl);
@@ -399,6 +405,20 @@
         {
             await logger.LogError(ex, "Error Saving Configuration");
             AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
+        }
+    }
+
+    private void ToggleDistributedConnection()
+    {
+        if (_distributedconnectiontype == "password")
+        {
+            _distributedconnectiontype = "text";
+            _toggledistributedconnection = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _distributedconnectiontype = "password";
+            _toggledistributedconnection = SharedLocalizer["ShowPassword"];
         }
     }
 

@@ -24,12 +24,9 @@ namespace Oqtane.Repository
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseOqtaneDatabase(_database, _connectionString);
 
+        // only contains specific entities which are required for installation in DatabaseManager
         public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<ModuleDefinition> ModuleDefinition { get; set; }
-        public virtual DbSet<Job> Job { get; set; }
-        public virtual DbSet<JobLog> JobLog { get; set; }
-
-
     }
 }

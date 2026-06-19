@@ -166,7 +166,7 @@ namespace Oqtane.Infrastructure
             }
 
             // use ILogger to broadcast the event to any registered providers (e.g. Application Insights, Serilog, etc...)
-            var broadcast = Shared.LogLevel.Information;
+            var broadcast = Shared.LogLevel.None;
             section = _config.GetSection("Logging:LogLevel:Broadcast");
             if (section.Exists())
             {

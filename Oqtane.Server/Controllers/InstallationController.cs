@@ -32,9 +32,10 @@ namespace Oqtane.Controllers
         private readonly ISiteRepository _sites;
         private readonly ILogger<InstallationController> _filelogger;
         private readonly ITenantManager _tenantManager;
-        private readonly IServerStateManager _serverState;
+        private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IThemeRepository _themes;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, ICacheManager cache, IHttpContextAccessor accessor, IAliasRepository aliases, ISiteRepository sites, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IServerStateManager serverState)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, ICacheManager cache, IHttpContextAccessor accessor, IAliasRepository aliases, ISiteRepository sites, ILogger<InstallationController> filelogger, ITenantManager tenantManager, IModuleDefinitionRepository moduleDefinitions, IThemeRepository themes)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -46,7 +47,8 @@ namespace Oqtane.Controllers
             _sites = sites;
             _filelogger = filelogger;
             _tenantManager = tenantManager;
-            _serverState = serverState;
+            _moduleDefinitions = moduleDefinitions;
+            _themes = themes;
         }
 
         // POST api/<controller>
@@ -128,8 +130,9 @@ namespace Oqtane.Controllers
                         hashfilename = false;
                     }
 
-                    // get site assemblies which should be downloaded to client
-                    var assemblies = _serverState.GetServerState(alias.SiteKey).Assemblies;
+                    // get module and theme assemblies for site
+                    var assemblies = _moduleDefinitions.GetAssemblies(alias.SiteId);
+                    assemblies.Concat(_themes.GetAssemblies(alias.SiteId));
 
                     // populate assembly list
                     foreach (var assembly in assemblies)
