@@ -599,11 +599,5 @@ namespace Oqtane.Repository
             var tenant = _tenantManager.GetTenant();
             return $"Tenant:{tenant?.TenantId}:Sites";
         }
-
-        private string GetCacheKey()
-        {
-            var tenant = _tenantManager.GetTenant();
-            return $"Tenant:{tenant?.TenantId}:Sites";
-        }
     }
 }
