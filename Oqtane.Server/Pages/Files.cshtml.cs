@@ -102,9 +102,6 @@ namespace Oqtane.Pages
 
             if (file == null)
             {
-                var siteSettings = HttpContext.GetSiteSettings();
-                var captureBrokenUrls = (siteSettings.ContainsKey("CaptureBrokenUrls") ? bool.Parse(siteSettings["CaptureBrokenUrls"]) : false);
-
                 // referrer will only be set if the link originated externally
                 string referrer = (HttpContext.Request.Headers[HeaderNames.Referer] != StringValues.Empty) ? HttpContext.Request.Headers[HeaderNames.Referer] : "";
 
