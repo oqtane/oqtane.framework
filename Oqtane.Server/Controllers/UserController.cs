@@ -404,18 +404,10 @@ namespace Oqtane.Controllers
         [HttpGet("passwordrequirements/{siteid}")]
         public Dictionary<string, string> PasswordRequirements(int siteid)
         {
-            var requirements = new Dictionary<string, string>();
-
-            var site = _sites.GetSite(siteid);
-            if (site != null && (site.AllowRegistration || User.IsInRole(RoleNames.Registered)))
-            {
-                // get password settings
-                var sitesettings = HttpContext.GetSiteSettings();
-                requirements = sitesettings.Where(item => item.Key.StartsWith("IdentityOptions:Password:"))
-                    .ToDictionary(item => item.Key, item => item.Value);
-            }
-
-            return requirements;
+            // get password settings
+            var sitesettings = HttpContext.GetSiteSettings();
+            return sitesettings.Where(item => item.Key.StartsWith("IdentityOptions:Password:"))
+                .ToDictionary(item => item.Key, item => item.Value);
         }
 
         // GET: api/<controller>/passkey?id=x
