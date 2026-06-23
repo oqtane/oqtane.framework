@@ -129,6 +129,9 @@
   <data name="Error.File.Upload" xml:space="preserve">
     <value>File Upload Failed</value>
   </data>
+    <data name="Error.Folder.Capacity" xml:space="preserve">
+    <value>File Upload Failed As Folder Capacity Exceeded</value>
+  </data>
   <data name="Message.File.NotSelected" xml:space="preserve">
     <value>You Have Not Selected A File To Upload</value>
   </data>

@@ -478,34 +478,43 @@
 
                     if (success)
                     {
-                        await logger.LogInformation("File Upload Succeeded {Files}", uploads);
-                        if (ShowSuccess)
-                        {
-                            _message = Localizer["Success.File.Upload"];
-                            _messagetype = MessageType.Success;
-                        }
-
+                        // verify file was uploaded (it may have been removed if folder exceeded capacity)
                         FileId = -1;
                         if (Folder != Constants.PackagesFolder && !AnonymizeUploadFilenames)
                         {
-                            // set FileId to first file in upload collection
+                            // get first file in upload collection
                             var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
                             if (file != null)
                             {
                                 FileId = file.FileId;
                             }
                         }
+                        if (FileId != -1 || (Folder == Constants.PackagesFolder || AnonymizeUploadFilenames))
+                        {
+                            await logger.LogInformation("File Upload Succeeded {Files}", uploads);
+                            if (ShowSuccess)
+                            {
+                                _message = Localizer["Success.File.Upload"];
+                                _messagetype = MessageType.Success;
+                            }
 
-                        await SetImage();
+                            await SetImage();
 
-                        await OnUpload.InvokeAsync(FileId);
+                            await OnUpload.InvokeAsync(FileId);
 #pragma warning disable CS0618
-                        await OnSelect.InvokeAsync(FileId);
+                            await OnSelect.InvokeAsync(FileId);
 #pragma warning restore CS0618
-                        await OnSelectFile.InvokeAsync(FileId);
+                            await OnSelectFile.InvokeAsync(FileId);
 
-                        await GetFiles();
-                        StateHasChanged();
+                            await GetFiles();
+                            StateHasChanged();
+                        }
+                        else                        
+                        {
+                            await logger.LogError("File Upload Failed {Files}", uploads);
+                            _message = Localizer["Error.Folder.Capacity"];
+                            _messagetype = MessageType.Error;
+                        }
                     }
                     else
                     {
