@@ -251,13 +251,20 @@
             File file = await FileService.GetFileAsync(FileId);
             if (file != null)
             {
-                FolderId = file.FolderId;
+                if (_folders.Any(item => item.FolderId == file.FolderId))
+                {
+                    FolderId = file.FolderId;
+                }
+                else
+                {
+                    FolderId = -1; // file exists but user does not have permission to folder
+                }
             }
             else
             {
-                _message = "FileId " + FileId.ToString() + " Does Not Exist";
+                _message = "File Does Not Exist Or You Do Not Have Permission To View It";
                 _messagetype = MessageType.Error;
-                FileId = -1; // file does not exist
+                FileId = -1;
             }
         }
 
