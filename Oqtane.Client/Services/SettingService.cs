@@ -375,7 +375,7 @@ namespace Oqtane.Services
 
         public async Task<Dictionary<string, string>> GetFolderSettingsAsync(int folderId)
         {
-            return await GetSettingsAsync( EntityNames.Folder, folderId);
+            return await GetSettingsAsync(EntityNames.Folder, folderId);
         }
 
         public async Task UpdateFolderSettingsAsync(Dictionary<string, string> folderSettings, int folderId)

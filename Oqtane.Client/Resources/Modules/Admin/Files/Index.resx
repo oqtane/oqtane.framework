@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -191,5 +191,17 @@
   </data>
   <data name="Error.SaveSiteSettings" xml:space="preserve">
     <value>Error Saving Settings</value>
+  </data>
+  <data name="Success.Folder.Sync" xml:space="preserve">
+    <value>Folder  Sync Successfully</value>
+  </data>
+  <data name="Error.Folder.Sync" xml:space="preserve">
+    <value>Error Sync Folder</value>
+  </data>
+  <data name="SyncFolder" xml:space="preserve">
+    <value>Sync Folder</value>
+  </data>
+  <data name="SyncFolderRecursively" xml:space="preserve">
+    <value>Sync Folder Recursively</value>
   </data>
 </root>

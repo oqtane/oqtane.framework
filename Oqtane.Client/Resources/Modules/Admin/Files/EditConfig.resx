@@ -117,94 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Name.Text" xml:space="preserve">
-    <value>Name: </value>
+  <data name="Error.FolderConfig.Load" xml:space="preserve">
+    <value>Error Loading Folder Config</value>
   </data>
-  <data name="NoParent" xml:space="preserve">
-    <value>No Parent</value>
+  <data name="Error.FolderConfig.Save" xml:space="preserve">
+    <value>Error Saving Folder Config</value>
   </data>
-  <data name="Error.Folder.Load" xml:space="preserve">
-    <value>Error Loading Folder</value>
+  <data name="Error.FolderConfig.Delete" xml:space="preserve">
+    <value>Error Deleting Folder Config</value>
   </data>
-  <data name="Message.Required.FolderParent" xml:space="preserve">
-    <value>Folders Must Have A Parent And A Name</value>
+  <data name="Provider.Text" xml:space="preserve">
+    <value>Provider:</value>
   </data>
-  <data name="Message.Folder.InvalidName" xml:space="preserve">
-    <value>Folder Name Not Valid.</value>
+  <data name="Provider.HelpText" xml:space="preserve">
+    <value>Select the folder provider.</value>
   </data>
-  <data name="Error.Folder.Save" xml:space="preserve">
-    <value>Error Saving Folder</value>
+  <data name="FolderConfig.Text" xml:space="preserve">
+    <value>Folder Config:</value>
   </data>
-  <data name="Message.Folder.Subfolders.InvalidDelete" xml:space="preserve">
-    <value>Folder Has Subfolders And Cannot Be Deleted</value>
+  <data name="FolderConfig.HelpText" xml:space="preserve">
+    <value>Select the folder config.</value>
   </data>
-  <data name="Error.Folder.Delete" xml:space="preserve">
-    <value>Error Deleting Folder</value>
+  <data name="ConfigName.Text" xml:space="preserve">
+    <value>Config Name:</value>
   </data>
-  <data name="Parent.HelpText" xml:space="preserve">
-    <value>Select the parent folder</value>
+  <data name="ConfigName.HelpText" xml:space="preserve">
+    <value>Enter the folder config name.</value>
   </data>
-  <data name="Name.HelpText" xml:space="preserve">
-    <value>Enter the folder name</value>
+  <data name="Message.Required.ConfigName" xml:space="preserve">
+    <value>Config Name is Required</value>
   </data>
-  <data name="Parent.Text" xml:space="preserve">
-    <value>Parent: </value>
-  </data>
-  <data name="Permissions.Heading" xml:space="preserve">
-    <value>Permissions</value>
-  </data>
-  <data name="DeleteFolder.Header" xml:space="preserve">
-    <value>Delete Folder</value>
-  </data>
-  <data name="DeleteFolder.Message" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete This Folder?</value>
-  </data>
-  <data name="Type.HelpText" xml:space="preserve">
-    <value>Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users</value>
-  </data>
-  <data name="Type.Text" xml:space="preserve">
-    <value>Type:</value>
-  </data>
-  <data name="Capacity.HelpText" xml:space="preserve">
-    <value>Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited.</value>
-  </data>
-  <data name="Capacity.Text" xml:space="preserve">
-    <value>Capacity:</value>
-  </data>
-  <data name="ImageSizes.HelpText" xml:space="preserve">
-    <value>Optionally enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes (not recommended).</value>
-  </data>
-  <data name="ImageSizes.Text" xml:space="preserve">
-    <value>Image Sizes:</value>
-  </data>
-  <data name="FolderManagement.Title" xml:space="preserve">
-    <value>Folder Management!</value>
-  </data>
-  <data name="Private" xml:space="preserve">
-    <value>Private</value>
-  </data>
-  <data name="Public" xml:space="preserve">
-    <value>Public</value>
-  </data>
-  <data name="Folder Management" xml:space="preserve">
-    <value>Folder Management</value>
-  </data>
-  <data name="Message.Folder.Duplicate" xml:space="preserve">
-    <value>Folder Name Specified Already Exists In Parent</value>
-  </data>
-  <data name="Settings.Heading" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="CacheControl.Text" xml:space="preserve">
-    <value>Caching:</value>
-  </data>
-  <data name="CacheControl.HelpText" xml:space="preserve">
-    <value>Optionally provide a Cache-Control directive for this folder. For example 'public, max-age=60' indicates that files in this folder should be cached for 60 seconds. Please note that when caching is enabled, changes to files will not be immediately reflected in the UI.</value>
-  </data>
-  <data name="AddNewConfig" xml:space="preserve">
-    <value>Add New Config</value>
-  </data>
-  <data name="EditConfig" xml:space="preserve">
-    <value>Edit Config</value>
+  <data name="Message.FolderConfig.Duplicate" xml:space="preserve">
+    <value>Folder Config Name Specified Already Exists</value>
   </data>
 </root>
