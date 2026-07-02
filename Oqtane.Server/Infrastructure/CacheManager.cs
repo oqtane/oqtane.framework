@@ -42,7 +42,7 @@ namespace Oqtane.Infrastructure
         {
             return _cache.GetOrSet(FormatKey(alias, key),
                 ct => factory(ct),
-                SetOptions(memoryCacheDuration, distributedCacheDuration));
+                options => SetOptions(options, memoryCacheDuration, distributedCacheDuration));
         }
 
         public void RemoveCache(Alias alias, string key)
@@ -77,7 +77,7 @@ namespace Oqtane.Infrastructure
         {
             return await _cache.GetOrSetAsync(FormatKey(alias, key),
                 async ct => await factory(ct),
-                SetOptions(memoryCacheDuration, distributedCacheDuration));
+                options => SetOptions(options, memoryCacheDuration, distributedCacheDuration));
         }
 
         public async Task RemoveCacheAsync(Alias alias, string key)
@@ -94,19 +94,17 @@ namespace Oqtane.Infrastructure
             return key;
         }
 
-        private FusionCacheEntryOptions SetOptions(TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
+        private void SetOptions(FusionCacheEntryOptions options, TimeSpan? memoryCacheDuration, TimeSpan? distributedCacheDuration)
         {
-            var options = new FusionCacheEntryOptions();
-            options.MemoryCacheDuration = memoryCacheDuration; // infinite = TimeSpan.MaxValue
+            options.SetMemoryCacheDuration(memoryCacheDuration); // infinite = TimeSpan.MaxValue
             if (distributedCacheDuration == TimeSpan.MinValue)
             {
                 options.SetSkipDistributedCache(true, true);
             }
             else
             {
-                options.DistributedCacheDuration = distributedCacheDuration;
+                options.SetDistributedCacheDuration(distributedCacheDuration);
             }
-            return options;
         }
     }
 }
