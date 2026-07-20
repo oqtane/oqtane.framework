@@ -16,6 +16,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Controllers
 {
@@ -334,7 +335,7 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // GET api/<controller>/validate/x
+        // GET api/<controller>/validate?username=x&email=y&password=z
         [HttpGet("validateuser")]
         public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
         {
@@ -348,17 +349,33 @@ namespace Oqtane.Controllers
             return await _userManager.ValidatePassword(password);
         }
 
-        // GET api/<controller>/token
+        // GET api/<controller>/token?username=x&password=y
         [HttpGet("token")]
-        [Authorize(Roles = RoleNames.Registered)]
-        public string Token()
+        public async Task<string> Token(string username, string password)
         {
             var token = "";
             var sitesettings = HttpContext.GetSiteSettings();
             var secret = sitesettings.GetValue("JwtOptions:Secret", "");
             if (!string.IsNullOrEmpty(secret))
             {
-                token = _jwtManager.GenerateToken(_tenantManager.GetAlias(), (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                var alias = _tenantManager.GetAlias();
+                if (User.Identity.IsAuthenticated)
+                {
+                    token = _jwtManager.GenerateToken(alias, (ClaimsIdentity)User.Identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+                    {
+                        var user = new User { SiteId = alias.SiteId, Username = username, Password = password, LastIPAddress = HttpContext.Connection.RemoteIpAddress?.ToString() };
+                        user = await _userManager.LoginUser(user, false, false);
+                        if (user.IsAuthenticated)
+                        {
+                            var identity = UserSecurity.CreateClaimsIdentity(alias, user);
+                            token = _jwtManager.GenerateToken(alias, identity, secret, sitesettings.GetValue("JwtOptions:Issuer", ""), sitesettings.GetValue("JwtOptions:Audience", ""), int.Parse(sitesettings.GetValue("JwtOptions:Lifetime", "20")));
+                        }
+                    }
+                }
             }
             return token;
         }
