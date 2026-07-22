@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Oqtane.Shared;
 using System.IO;
+using Oqtane.Providers;
 
 namespace Oqtane.Modules.Admin.Files.Manager
 {
@@ -13,15 +14,20 @@ namespace Oqtane.Modules.Admin.Files.Manager
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private const string DocumentExtensions = ".txt,.htm,.html";
 
-        public FileManager(IFolderRepository folderRepository, IFileRepository fileRepository)
+        public FileManager(
+            IFolderRepository folderRepository,
+            IFileRepository fileRepository,
+            IFolderProviderFactory folderProviderFactory)
         {
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
+            _folderProviderFactory = folderProviderFactory; 
         }
 
-        public Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
+        public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
         {
             var searchContents = new List<SearchContent>();
 
@@ -44,7 +50,8 @@ namespace Oqtane.Modules.Admin.Files.Manager
                         var path = folder.Path + file.Name;
 
                         var body = "";
-                        if (System.IO.File.Exists(_fileRepository.GetFilePath(file)))
+                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        if (await folderProvider.FileExistsAsync(folder, file.Name))
                         {
                             // only non-binary files can be indexed
                             if (DocumentExtensions.Contains(Path.GetExtension(file.Name)))
@@ -52,7 +59,9 @@ namespace Oqtane.Modules.Admin.Files.Manager
                                 // get the contents of the file
                                 try
                                 {
-                                    body = System.IO.File.ReadAllText(_fileRepository.GetFilePath(file));
+                                    using var stream = await folderProvider.GetFileStreamAsync(file);
+                                    StreamReader reader = new StreamReader(stream);
+                                    body = reader.ReadToEnd();
                                 }
                                 catch
                                 {
@@ -84,7 +93,7 @@ namespace Oqtane.Modules.Admin.Files.Manager
                 }
             }
 
-            return Task.FromResult(searchContents);
+            return searchContents;
         }
     }
 }

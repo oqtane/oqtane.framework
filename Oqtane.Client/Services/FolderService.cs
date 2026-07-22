@@ -59,6 +59,8 @@ namespace Oqtane.Services
         /// </param>
         /// <returns></returns>
         Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath);
+
+        Task SyncFolderAsync(int folderId, bool recursive, bool includeFiles);
     }
 
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
@@ -97,6 +99,11 @@ namespace Oqtane.Services
         public async Task DeleteFolderAsync(int folderId)
         {
             await DeleteAsync($"{ApiUrl}/{folderId}");
+        }
+
+        public async Task SyncFolderAsync(int folderId, bool recursive, bool includeFiles)
+        {
+            await PostJsonAsync<object>($"{ApiUrl}/sync/{folderId}/{recursive}/{includeFiles}", null);
         }
     }
 }

@@ -19,7 +19,7 @@ else
         <TabPanel Name="Files" Heading="Files" ResourceKey="Files">
             <div class="row">
                 <div class="col-md mb-1">
-                    <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" />
+                    <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" Parameters="@($"pid={_folderId}")" />
                 </div>
                 <div class="col-md-8 mb-1">
                     <div class="input-group">
@@ -30,7 +30,9 @@ else
                                 <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                             }
                         </select>
-                        <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="EditFolder" />&nbsp;
+                        <ActionLink AltText="@Localizer["SyncFolder"]" Class="btn btn-secondary" IconOnly="true" IconName="transfer" OnClick="async () => await SyncFolderAsync(false)" />
+                        <ActionLink AltText="@Localizer["SyncFolderRecursively"]" Class="btn btn-secondary" IconOnly="true" IconName="loop" OnClick="async () => await SyncFolderAsync(true)" />
+                        <ActionLink Action="Edit" AltText="Edit Folder" Class="btn btn-secondary" Parameters="@($"id={_folderId}")" ResourceKey="EditFolder" IconOnly="true" IconName="pencil" />
                     </div>
                 </div>
                 <div class="col-md mb-1 text-end">
@@ -55,7 +57,7 @@ else
                         <td><a href="@context.Url" target="_new">@context.Name</a></td>
                         <td>@UtcToLocal(context.ModifiedOn)</td>
                         <td>@context.Extension.ToUpper() @SharedLocalizer["File"]</td>
-                        <td>@string.Format("{0:0.00}", ((decimal)context.Size / 1000)) KB</td>
+                        <td>@string.Format("{0:0.00}", ((decimal)context.Size / 1024)) KB</td>
                     </Row>
                 </Pager>
             }
@@ -106,13 +108,7 @@ else
     {
         try
         {
-            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-
-            if (_folderId == -1 && _folders.Count > 0)
-            {
-                _folderId = _folders[0].FolderId;
-                await GetFiles();
-            }
+            await LoadFolders();
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
@@ -125,6 +121,21 @@ else
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
+        }
+    }
+
+    private async Task LoadFolders()
+    {
+        _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+
+        if (_folders.Count > 0)
+        {
+            if (_folderId == -1)
+            {
+                _folderId = _folders[0].FolderId;
+            }
+
+            await GetFiles();
         }
     }
 
@@ -183,4 +194,28 @@ else
         }
     }
 
+    private async Task SyncFolderAsync(bool recursive)
+    {
+        try
+        {
+            if (_folderId <= 0)
+            {
+                return;
+            }
+
+            ShowProgressIndicator();
+
+            await FolderService.SyncFolderAsync(_folderId, recursive, true);
+            await logger.LogInformation("Folder Synced {FolderId} Recursive: {Recursive}", _folderId, recursive);
+            AddModuleMessage(Localizer["Success.Folder.Sync"], MessageType.Success);
+            await LoadFolders();
+
+            HideProgressIndicator();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Syncing Folder {FolderId} {Error}", _folderId, ex.Message);
+            AddModuleMessage(Localizer["Error.Folder.Sync"], MessageType.Error);
+        }
+    }
 }

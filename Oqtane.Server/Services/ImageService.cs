@@ -9,16 +9,20 @@ using Oqtane.Shared;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Webp;
 using System.Linq;
+using Oqtane.Providers;
+using System.Threading.Tasks;
 
 namespace Oqtane.Services
 {
     public class ImageService : IImageService
     {
         private readonly ILogManager _logger;
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private static readonly string[] _formats = ["png", "webp"];
 
-        public ImageService(ILogManager logger)
+        public ImageService(IFolderProviderFactory folderProviderFactory, ILogManager logger)
         {
+            _folderProviderFactory = folderProviderFactory;
             _logger = logger;
         }
 
@@ -27,7 +31,7 @@ namespace Oqtane.Services
             return _formats;
         }
 
-        public string CreateImage(string filepath, int width, int height, string mode, string position, string background, string rotate, string format, string imagepath)
+        public async Task<Stream> CreateImageAsync(Models.File file, int width, int height, string mode, string position, string background, string rotate, string format, string imageName)
         {
             try
             {
@@ -39,7 +43,8 @@ namespace Oqtane.Services
                 rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
                 if (!_formats.Contains(format)) format = "png";
 
-                using (var stream = new FileStream(filepath, FileMode.Open, FileAccess.Read))
+                var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                using (var stream = await folderProvider.GetFileStreamAsync(file))
                 {
                     stream.Position = 0;
                     using (var image = Image.Load(stream))
@@ -77,17 +82,21 @@ namespace Oqtane.Services
                                 .Rotate(angle)
                                 .Resize(resizeOptions));
 
-                        image.Save(imagepath, encoder);
+                        var imageStream = new MemoryStream();
+                        image.Save(imageStream, encoder);
+                        imageStream.Position = 0;
+
+                        //await folderProvider.AddFileAsync(file.Folder, imageName, imageStream);
+
+                        return imageStream;
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, ex, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Rotate} {Error}", filepath, width, height, mode, rotate, ex.Message);
-                imagepath = "";
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, ex, "Error Creating Image For File {Folder}{FilePath} {Width} {Height} {Mode} {Rotate} {Error}", file.Folder.Path, file.Name, width, height, mode, rotate, ex.Message);
+                return null;
             }
-
-            return imagepath;
         }
 
         private static IImageEncoder GetEncoder(string format, bool transparent)
