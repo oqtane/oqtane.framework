@@ -107,6 +107,7 @@ else
         try
         {
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _folders = _folders.Where(item => !item.Path.StartsWith("Users")).ToList();
 
             if (_folderId == -1 && _folders.Count > 0)
             {

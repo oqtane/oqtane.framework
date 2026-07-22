@@ -201,4 +201,10 @@
   <data name="CacheControl.HelpText" xml:space="preserve">
     <value>Optionally provide a Cache-Control directive for this folder. For example 'public, max-age=60' indicates that files in this folder should be cached for 60 seconds. Please note that when caching is enabled, changes to files will not be immediately reflected in the UI.</value>
   </data>
+  <data name="Path.Text" xml:space="preserve">
+    <value>Path:</value>
+  </data>
+  <data name="Path.HelpText" xml:space="preserve">
+    <value>The folder path</value>
+  </data>
 </root>
