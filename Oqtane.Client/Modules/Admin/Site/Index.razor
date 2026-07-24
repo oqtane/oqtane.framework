@@ -500,7 +500,7 @@
                                         <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                         @foreach (var site in _sites)
                                         {
-                                            <option value="@site.SiteId">@site.Name</option>
+                                            <option value="@site.SiteId">@site.Name  @(site.SiteId == _primarySiteId ? $" ({Localizer["Primary"]})" : $" ({Localizer["Secondary"]})")</option>
                                         }
                                     </select>
                                     @if (!_addSiteGroupMember)
@@ -669,6 +669,7 @@
     private int _siteId;
     private string _groupName = string.Empty;
     private string _groupType = SiteGroupTypes.Synchronization;
+    private int _primarySiteId = -1;
     private string _primary = "True";
     private string _synchronized = string.Empty;
     private bool _addSiteGroup = false;
@@ -1254,6 +1255,7 @@
             {
                 _groupName = group.Name;
                 _groupType = group.Type;
+                _primarySiteId = group.PrimarySiteId;
                 _siteId = -1;
                 _primary = "False";
                 _addSiteGroupMember = false;
@@ -1279,18 +1281,6 @@
             // include sites which are members
             _sites = _sites.Where(item => siteGroupMembers.Any(item2 => item2.SiteId == item.SiteId)).ToList();
             var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
-            foreach (var site in _sites)
-            {
-                if (group.PrimarySiteId == site.SiteId)
-                {
-                    site.Name += $" ({Localizer["Primary"]})";
-                }
-                else
-                {
-                    site.Name += $" ({Localizer["Secondary"]})";
-                }                
-            }
-
             var siteGroupMember = siteGroupMembers.FirstOrDefault(item => item.SiteId == _siteId);
             if (siteGroupMember != null)
             {
@@ -1315,6 +1305,8 @@
     private async Task AddSiteGroup()
     {
         _groupName = "";
+        _groupType = SiteGroupTypes.Synchronization;
+        _primarySiteId = -1;
         _siteId = PageState.Site.SiteId;
         _primary = "True";
         _synchronized = "";

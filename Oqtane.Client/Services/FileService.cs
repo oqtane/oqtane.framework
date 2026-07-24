@@ -129,10 +129,7 @@ namespace Oqtane.Services
             {
                 folderPath = Utilities.UrlCombine(folderPath) + "/";
             }
-
-            var path = WebUtility.UrlEncode(folderPath);
-
-            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{path}");
+            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{WebUtility.UrlEncode(folderPath)}");
             return files?.OrderBy(item => item.Name).ToList();
         }
 
@@ -143,7 +140,7 @@ namespace Oqtane.Services
 
         public async Task<File> GetFileAsync(int folderId, string name)
         {
-            return await GetJsonAsync<File>($"{Apiurl}/name/{name}/{folderId}");
+            return await GetJsonAsync<File>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}/{folderId}");
         }
 
         public async Task<File> AddFileAsync(File file)

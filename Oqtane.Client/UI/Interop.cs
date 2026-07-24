@@ -242,6 +242,20 @@ namespace Oqtane.UI
             }
         }
 
+        public Task DownloadFile(string filename, string url)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.downloadFile", filename, url);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         public Task RefreshBrowser(bool force, int wait)
         {
             try

@@ -149,6 +149,14 @@ namespace Oqtane.Services
         Task<string> GetTokenAsync();
 
         /// <summary>
+        /// Get token for current user
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<string> GetTokenAsync(string username, string password);
+
+        /// <summary>
         /// Get personal access token for current user (administrators only)
         /// </summary>
         /// <returns></returns>
@@ -313,6 +321,11 @@ namespace Oqtane.Services
         public async Task<string> GetTokenAsync()
         {
             return await GetStringAsync($"{Apiurl}/token");
+        }
+
+        public async Task<string> GetTokenAsync(string username, string password)
+        {
+            return await GetStringAsync($"{Apiurl}/token?username={WebUtility.UrlEncode(username)}&password={WebUtility.UrlEncode(password)}");
         }
 
         public async Task<string> GetPersonalAccessTokenAsync()

@@ -346,7 +346,16 @@
     <value>Visitor Management</value>
   </data>
   <data name="Oqtane.Marketplace" xml:space="preserve">
-    <value>Please note that third party extensions are registered in the &lt;a href="https://www.oqtane.net" target="_new"&gt;Oqtane Marketplace&lt;/a&gt; which enables them to be seamlessly downloaded and installed into the framework.</value>
+    <value>The &lt;a href="https://www.oqtane.net" target="_new"&gt;Oqtane Marketplace&lt;/a&gt; allows extensions to be seamlessly downloaded and installed in your installation. Open Source extensions are available to everyone, however Commercial extensions can only be accessed with a valid user account. Accounts can be registered on the Marketplace website and then connected using the form below.</value>
+  </data>
+  <data name="Marketplace.Connected" xml:space="preserve">
+    <value>Your installation is successfully connected to the Marketplace</value>
+  </data>
+  <data name="Marketplace.Disconnected" xml:space="preserve">
+    <value>Please note that in order to access Commercial extensions, you will need to specify your user account in the Marketplace tab</value>
+  </data>
+  <data name="Marketplace.Validation" xml:space="preserve">
+    <value>Your user account could not be validated. Please verify your Marketplace email and password are correct.</value>
   </data>
   <data name="Home" xml:space="preserve">
     <value>Home</value>

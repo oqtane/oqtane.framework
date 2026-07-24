@@ -136,7 +136,7 @@
     <value>Login Link Notification For [SiteName]</value>
   </data>
   <data name="NoVerificationEmailBody" xml:space="preserve">
-    <value>Dear [UserDisplayName],&lt;br&gt;&lt;br&gt;A user account has been successfully created for you with the username &lt;b&gt;[Username]&lt;/b&gt;. Please &lt;b&gt;&lt;a href="[URL]"&gt;click here to login&lt;/a&gt;&lt;/b&gt;. If you do not know your password, use the forgot password option on the login page to reset your account.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
+    <value>Dear [UserDisplayName],&lt;br&gt;&lt;br&gt;A user account has been successfully created for you with the username &lt;b&gt;[Username]&lt;/b&gt;. Please &lt;b&gt;&lt;a href="[URL]"&gt;click here to login&lt;/a&gt;&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
   </data>
   <data name="NoVerificationEmailSubject" xml:space="preserve">
     <value>User Account Notification for [SiteName]</value>

@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.UserProfile
+@using System.Globalization
 @using System.Net
 @using System.Text.RegularExpressions;
 @inherits ModuleBase
@@ -628,6 +629,8 @@
                         {
                             AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
                         }
+
+                        await SetCultureAsync(_culturecode);
                     }
                 }
                 else
@@ -649,6 +652,17 @@
         }
     }
 
+    private async Task SetCultureAsync(string culture)
+    {
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(PageState.Site.CultureCode, culture));
+            var interop = new Interop(JSRuntime);
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
+        }
+    }
+    
     private void Cancel()
     {
         NavigationManager.NavigateTo(PageState.ReturnUrl);

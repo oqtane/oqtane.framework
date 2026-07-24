@@ -139,12 +139,33 @@
     <value>No Themes Match The Criteria Provided Or Package Service Is Disabled</value>
   </data>
   <data name="Download.Heading" xml:space="preserve">
-    <value>Marketplace</value>
+    <value>Themes</value>
   </data>
   <data name="Upload.Heading" xml:space="preserve">
     <value>Upload</value>
   </data>
   <data name="Product" xml:space="preserve">
     <value>Product</value>
-  </data> 
+  </data>
+  <data name="Settings.Heading" xml:space="preserve">
+    <value>Marketplace</value>
+  </data>
+  <data name="RegistryUrl.Text" xml:space="preserve">
+    <value>Marketplace Url:</value>
+  </data>
+  <data name="RegistryUrl.HelpText" xml:space="preserve">
+    <value>The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace.</value>
+  </data>
+  <data name="RegistryEmail.Text" xml:space="preserve">
+    <value>Email:</value>
+  </data>
+  <data name="RegistryEmail.HelpText" xml:space="preserve">
+    <value>The email address you use to sign in to the Marketplace</value>
+  </data>
+  <data name="RegistryPassword.Text" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="RegistryPassword.HelpText" xml:space="preserve">
+    <value>The password you use to sign in to the Marketplace</value>
+  </data>
 </root>

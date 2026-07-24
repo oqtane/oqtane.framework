@@ -215,23 +215,6 @@
                         </div>
                     </div>
                 </Section>
-                <br />
-                <Section Name="Marketplace" Heading="Marketplace" ResourceKey="Marketplace">
-                    <div class="container">
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="packageregistryurl" HelpText="Specify The Url Of The Package Manager Service For Installing Modules, Themes, And Translations. If This Field Is Blank It Means The Package Manager Service Is Disabled For This Installation." ResourceKey="PackageManager">Package Manager Url: </Label>
-                            <div class="col-sm-9">
-                                <input id="packageregistryurl" class="form-control" @bind="@_packageregistryurl" />
-                            </div>
-                        </div>
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="packageregistryemail" HelpText="Specify The Email Address Of The User Account Used For Interacting With The Package Manager Service. This Account Is Used For Managing Packages Across Multiple Installations." ResourceKey="PackageManagerEmail">Package Manager Email: </Label>
-                            <div class="col-sm-9">
-                                <input id="packageregistryemail" class="form-control" @bind="@_packageregistryemail" />
-                            </div>
-                        </div>
-                    </div>
-                </Section>
             </div>
             <br /><br />
             <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
@@ -313,9 +296,6 @@
     private string _toggledistributedconnection = string.Empty;
     private string _cachecontrol = string.Empty;
 
-    private string _packageregistryurl = string.Empty;
-    private string _packageregistryemail = string.Empty;
-
     private string _log = string.Empty;
 
     private string _tenant = string.Empty;
@@ -358,9 +338,6 @@
             _distributedconnection = systeminfo[$"ConnectionStrings:{SettingKeys.DistributedCacheKey}"].ToString();
             _toggledistributedconnection = SharedLocalizer["ShowPassword"];
             _cachecontrol = systeminfo["Caching:Cache-Control"].ToString();
-
-            _packageregistryurl = systeminfo["PackageRegistryUrl"].ToString();
-            _packageregistryemail = systeminfo["PackageRegistryEmail"].ToString();
         }
 
         systeminfo = await SystemService.GetSystemInfoAsync("log");
@@ -394,9 +371,6 @@
             settings.Add("Caching:ScaleOut", (_scaleout == "true" && !string.IsNullOrEmpty(_distributedconnection)) ? "true" : "false");
             settings.Add($"ConnectionStrings:{SettingKeys.DistributedCacheKey}", _distributedconnection);
             settings.Add("Caching:Cache-Control", _cachecontrol);
-
-            settings.Add("PackageRegistryUrl", _packageregistryurl);
-            settings.Add("PackageRegistryEmail", _packageregistryemail);
 
             await SystemService.UpdateSystemInfoAsync(settings);
             AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);

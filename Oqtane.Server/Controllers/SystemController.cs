@@ -63,6 +63,7 @@ namespace Oqtane.Controllers
                     systeminfo.Add("Caching:Cache-Control", _configManager.GetSetting("Caching:Cache-Control", ""));
                     systeminfo.Add("PackageRegistryUrl", _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl));
                     systeminfo.Add("PackageRegistryEmail", _configManager.GetSetting("PackageRegistryEmail", ""));
+                    systeminfo.Add("PackageRegistryToken", _configManager.GetSetting("PackageRegistryToken", ""));
                     break;
                 case "log":
                     string log = "";

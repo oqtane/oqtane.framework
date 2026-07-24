@@ -8,12 +8,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-
 using NodaTime;
-using NodaTime.Extensions;
-
 using Oqtane.Models;
-
 using File = Oqtane.Models.File;
 using TimeZone = Oqtane.Models.TimeZone;
 
@@ -100,7 +96,7 @@ namespace Oqtane.Shared
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             var querystring = (download) ? "?download" : "";
-            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{folderpath.Replace("\\", "/")}{filename}{querystring}";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{WebUtility.UrlEncode(filename)}{querystring}";
         }
 
         public static string FileUrl(Alias alias, int fileid)
@@ -137,7 +133,7 @@ namespace Oqtane.Shared
             background = string.IsNullOrEmpty(background) ? "transparent" : background;
             format = string.IsNullOrEmpty(format) ? "png" : format;
             var querystring = $"?width={width}&height={height}&mode={mode}&position={position}&background={background}&rotate={rotate}&format={format}&recreate={recreate}";
-            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{folderpath.Replace("\\", "/")}{filename}{querystring}";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{WebUtility.UrlEncode(filename)}{querystring}";
         }
 
         public static string TenantUrl(Alias alias, string url)
@@ -145,6 +141,21 @@ namespace Oqtane.Shared
             url = (!url.StartsWith("/")) ? "/" + url : url;
             url = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path + url : url;
             return $"{alias?.BaseUrl}{url}";
+        }
+
+        public static string EncodeFolderPath(string folderPath)
+        {
+            if (!string.IsNullOrEmpty(folderPath))
+            {
+                folderPath = folderPath.Replace("\\", "/");
+                var segments = folderPath.Split('/');
+                for (int i = 0; i < segments.Length; i++)
+                {
+                    segments[i] = WebUtility.UrlEncode(segments[i]);
+                }
+                return string.Join("/", segments);
+            }
+            return folderPath;
         }
 
         public static string AddUrlParameters(params object[] parameters)

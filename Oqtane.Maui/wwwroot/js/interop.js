@@ -419,6 +419,13 @@ Oqtane.Interop = {
         fileinput.value = '';
         return success;
     },
+    downloadFile: function (filename, url) {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = filename ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+    },
     refreshBrowser: function (verify, wait) {
         async function attemptReload (verify) {
             if (verify) {

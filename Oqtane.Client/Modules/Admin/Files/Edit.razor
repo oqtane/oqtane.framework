@@ -37,7 +37,7 @@
                         <div class="col-sm-9">
                             @if (_isSystem)
                             {
-                                <input id="name" class="form-control" @bind="@_name" readonly />
+                                <input id="name" class="form-control" @bind="@_name" disabled />
                             }
                             else
                             {
@@ -45,6 +45,15 @@
                             }
                         </div>
                     </div>
+                    @if (PageState.QueryString.ContainsKey("id"))
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Label>
+                            <div class="col-sm-9">
+                                <input id="path" class="form-control" @bind="@_path" disabled />
+                            </div>
+                        </div>
+                    }
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Type">Type: </Label>
                         <div class="col-sm-9">
@@ -117,6 +126,7 @@
     private int _folderId = -1;
     private int _parentId = -1;
     private string _name;
+    private string _path;
     private string _type = FolderTypes.Private;
     private string _capacity = "0";
     private string _cachecontrol = string.Empty;
@@ -150,6 +160,7 @@
                 {
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
+                    _path = folder.Path;
                     _type = folder.Type;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;

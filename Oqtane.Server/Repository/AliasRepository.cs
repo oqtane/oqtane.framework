@@ -16,6 +16,7 @@ namespace Oqtane.Repository
         Alias GetAlias(int aliasId);
         Alias GetAlias(int aliasId, bool tracking);
         Alias GetAlias(string url);
+        Alias GetAlias(int tenantId, int siteId);
         void DeleteAlias(int aliasId);
     }
 
@@ -114,6 +115,11 @@ namespace Oqtane.Repository
             }
 
             return alias;
+        }
+
+        public Alias GetAlias(int tenantId, int siteId)
+        {
+            return _db.Alias.FirstOrDefault(item => item.TenantId == tenantId && item.SiteId == siteId);
         }
 
         public void DeleteAlias(int aliasId)

@@ -820,57 +820,57 @@
             culture = LocalizationManager.GetDefaultCulture();
         }
 
+        // get user culture (ui localization)
+        var uiCulture = site.User?.CultureCode;
+
+        // get current culture cookie
+        string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
+
         // determine if site is using content localization
         var contentLocalization = site.Languages.Any(item => !string.IsNullOrEmpty(item.AliasName));
 
-        // get user culture (ui localization)
-        var uiCulture = site.User?.CultureCode;
-        // if user has not specified a UI culture
-        if (string.IsNullOrEmpty(uiCulture))
+        // manage localization cookie
+        if (contentLocalization)
         {
-            // if not using content localization
-            if (!contentLocalization)
+            if (string.IsNullOrEmpty(uiCulture))
+            {                
+                // use site culture
+                uiCulture = culture; 
+            }
+
+            if (cultureCookie == null)
             {
-                // use default language if specified otherwise use first language in collection
-                uiCulture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
+                SetLocalizationCookie(cultureCookie);
             }
             else
             {
-                // use site culture
-                uiCulture = culture;
+                // determine if cookie needs to be updated
+                var requestCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie);
+                if (requestCulture?.Culture.Name != culture || requestCulture?.UICulture.Name != uiCulture)
+                {
+                    cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
+                    SetLocalizationCookie(cultureCookie);
+                }
             }
         }
         else
         {
-            // if not using content localization and UI culture is not supported by site
-            if (!contentLocalization && !site.Languages.Any(item => item.Code == uiCulture))
+            if (cultureCookie == null)
             {
-                // use site culture
-                uiCulture = culture;                
-            }
-        }
+                if (string.IsNullOrEmpty(uiCulture) || !site.Languages.Any(item => item.Code == uiCulture))
+                {
+                    // use default language if specified otherwise use first language in collection
+                    uiCulture = (site.Languages.Where(l => l.IsDefault).SingleOrDefault() ?? site.Languages.First()).Code;
+                }
 
-        // get culture cookie
-        string cultureCookie = Context.Request.Cookies[Shared.CookieRequestCultureProvider.DefaultCookieName];
-        if (cultureCookie == null)
-        {
-            // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
-            cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
-            SetLocalizationCookie(cultureCookie);
-        }
-        else
-        {
-            // validate the culture cookie
-            var requestCulture = Shared.CookieRequestCultureProvider.ParseCookieValue(cultureCookie);
-            if (requestCulture?.Culture.Name != culture || requestCulture?.UICulture.Name != uiCulture)
-            {
-                // convert to culture cookie format (ie. "c=en|uic=en") and save cookie
                 cultureCookie = Shared.CookieRequestCultureProvider.MakeCookieValue(new Models.RequestCulture(culture, uiCulture));
                 SetLocalizationCookie(cultureCookie);
             }
         }
 
-        return culture; // html element language attribute for page
+        // return content culture for html element attribute for page
+        return culture; 
     }
 
     private void SetLocalizationCookie(string cookieValue)
