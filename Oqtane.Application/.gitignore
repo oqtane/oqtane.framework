@@ -25,16 +25,3 @@ Server/wwwroot/Packages/*.log
 
 Server/wwwroot/_content/*
 !Server/wwwroot/_content/Placeholder.txt
-
-Server/wwwroot/Modules/*
-!Server/wwwroot/Modules/Oqtane.Modules.*
-!Server/wwwroot/Modules/Templates
-Server/wwwroot/Modules/Templates/*
-!Server/wwwroot/Modules/Templates/External
-
-Server/wwwroot/Themes/*
-!Server/wwwroot/Themes/Oqtane.Themes.*
-!Server/wwwroot/Themes/Templates
-Server/wwwroot/Themes/Templates/*
-!Server/wwwroot/Themes/Templates/External
-/Server/appsettings.json
