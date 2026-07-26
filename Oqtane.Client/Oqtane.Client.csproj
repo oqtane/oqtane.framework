@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.10" />
-    <PackageReference Include="Radzen.Blazor" Version="11.1.3" />
+    <PackageReference Include="Radzen.Blazor" Version="11.1.7" />
   </ItemGroup>
 
   <ItemGroup>
