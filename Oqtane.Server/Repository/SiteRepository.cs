@@ -265,7 +265,7 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = "Users/", Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Constants.UserFolderPath, Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -286,7 +286,8 @@ namespace Oqtane.Repository
                 var section = _config.GetSection("Installation:SiteTemplate");
                 if (section.Exists())
                 {
-                    if(string.IsNullOrEmpty(section.Value)){
+                    if (string.IsNullOrEmpty(section.Value))
+                    {
                         site.SiteTemplateType = Constants.DefaultSiteTemplate;
                     }
                     else

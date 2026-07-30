@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -17,14 +18,18 @@ namespace Oqtane.Repository
     public class SiteTemplateRepository : ISiteTemplateRepository
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IConfigManager _configManager;
 
-        public SiteTemplateRepository(IServiceProvider serviceProvider)
+        public SiteTemplateRepository(IServiceProvider serviceProvider, IConfigManager configManager)
         {
             _serviceProvider = serviceProvider;
+            _configManager = configManager;
         }
 
         private List<SiteTemplate> LoadSiteTemplates()
         {
+            var defaultSiteTemplate = _configManager.GetSetting("Installation:SiteTemplate", Constants.DefaultSiteTemplate);
+
             List<SiteTemplate> siteTemplates = new List<SiteTemplate>();
 
             // iterate through Oqtane site template assemblies
@@ -32,13 +37,13 @@ namespace Oqtane.Repository
                 
             foreach (Assembly assembly in assemblies)
             {
-                siteTemplates = LoadSiteTemplatesFromAssembly(siteTemplates, assembly);
+                siteTemplates = LoadSiteTemplatesFromAssembly(siteTemplates, assembly, defaultSiteTemplate);
             }
 
             return siteTemplates;
         }
 
-        private List<SiteTemplate> LoadSiteTemplatesFromAssembly(List<SiteTemplate> siteTemplates, Assembly assembly)
+        private List<SiteTemplate> LoadSiteTemplatesFromAssembly(List<SiteTemplate> siteTemplates, Assembly assembly, string defaultSiteTemplate)
         {
             Type[] siteTemplateTypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ISiteTemplate))).ToArray();
             foreach (Type siteTemplateType in siteTemplateTypes)
@@ -53,7 +58,8 @@ namespace Oqtane.Repository
                         siteTemplates.Add(new SiteTemplate
                         {
                             Name = name,
-                            TypeName = typename
+                            TypeName = typename,
+                            IsDefault = (typename == defaultSiteTemplate)
                         });
                     }
                 }

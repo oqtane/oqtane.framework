@@ -340,7 +340,7 @@ namespace Oqtane.Managers
             }
 
             // remove user folder for site
-            var folder = _folders.GetFolder(siteid, $"Users/{userid}/");
+            var folder = _folders.GetFolder(siteid, $"{Constants.UserFolderPath}{userid}/");
             if (folder != null)
             {
                 if (Directory.Exists(_folders.GetFolderPath(folder)))

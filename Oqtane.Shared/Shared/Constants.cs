@@ -44,6 +44,7 @@ namespace Oqtane.Shared
 
         public const string FileUrl = "/files/";
         public const string ImageUrl = "/api/file/image/";
+        public const string UserFolderPath = "Users/";
         public const int UserFolderCapacity = 20; // megabytes
         public const string PackagesFolder = "Packages";
 
