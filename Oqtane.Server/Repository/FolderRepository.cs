@@ -12,6 +12,7 @@ namespace Oqtane.Repository
     public interface IFolderRepository
     {
         IEnumerable<Folder> GetFolders(int siteId);
+        IEnumerable<Folder> GetFolders(int siteId, int userId);
         Folder AddFolder(Folder folder);
         Folder UpdateFolder(Folder folder);
         Folder GetFolder(int folderId);
@@ -39,9 +40,16 @@ namespace Oqtane.Repository
 
         public IEnumerable<Folder> GetFolders(int siteId)
         {
+            return GetFolders(siteId, -1);
+        }
+
+        public IEnumerable<Folder> GetFolders(int siteId, int userId)
+        {
             using var db = _dbContextFactory.CreateDbContext();
             var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            var folders = db.Folder.Where(item => item.SiteId == siteId).ToList();
+            var folders = db.Folder.Where(item => item.SiteId == siteId &&
+                (!item.Path.StartsWith(Constants.UserFolderPath) || item.Path == Constants.UserFolderPath || item.Path.StartsWith($"{Constants.UserFolderPath}{userId}/")))
+                .ToList();
             foreach (var folder in folders)
             {
                 folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();

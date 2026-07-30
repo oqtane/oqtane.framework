@@ -55,7 +55,7 @@ namespace Oqtane.Repository
             }
 
             // add folder for user
-            var folder = _folders.GetFolder(user.SiteId, "Users/");
+            var folder = _folders.GetFolder(user.SiteId, Constants.UserFolderPath);
             if (folder != null)
             {
                 _folders.AddFolder(new Folder
@@ -63,11 +63,12 @@ namespace Oqtane.Repository
                     SiteId = folder.SiteId,
                     ParentId = folder.FolderId,
                     Name = "My Folder",
-                    Type = FolderTypes.Private,
-                    Path = $"Users/{user.UserId}/",
+                    Type = folder.Type,
+                    Path = $"{Constants.UserFolderPath}{user.UserId}/",
                     Order = 1,
-                    ImageSizes = "",
-                    Capacity = Constants.UserFolderCapacity,
+                    ImageSizes = folder.ImageSizes,
+                    Capacity = folder.Capacity,
+                    CacheControl = folder.CacheControl,                     
                     IsSystem = true,
                     PermissionList = new List<Permission>
                     {

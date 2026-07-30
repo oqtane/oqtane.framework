@@ -69,11 +69,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
-
-        if (PageState.QueryString.ContainsKey("id"))
+        try
         {
-            _folderId = int.Parse(PageState.QueryString["id"]);
+            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId, false);
+
+            if (PageState.QueryString.ContainsKey("id"))
+            {
+                _folderId = int.Parse(PageState.QueryString["id"]);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Folders {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Folders.Load"], MessageType.Error);
         }
     }
 

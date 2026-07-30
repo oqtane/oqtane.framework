@@ -9,6 +9,7 @@ namespace Oqtane.Models
     {
         public string Name { get; set; }
         public string TypeName { get; set; }
+        public bool IsDefault { get; set; }
     }
 
     public class PageTemplate
