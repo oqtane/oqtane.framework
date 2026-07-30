@@ -132,6 +132,7 @@ namespace Oqtane.Repository
                 }
                 else
                 {
+                    permission.PermissionId = 0; // allow identity column to auto-generate
                     db.Permission.Add(permission);
                     modified = true;
                 }
