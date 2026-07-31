@@ -12,7 +12,6 @@ using Oqtane.Shared;
 
 namespace Oqtane.Pages
 {
-    [Authorize]
     [IgnoreAntiforgeryToken]
     public class LogoutModel : PageModel
     {
@@ -27,14 +26,21 @@ namespace Oqtane.Pages
             _logger = logger;
         }
 
+        public IActionResult OnGet()
+        {
+            var returnurl = HttpContext.GetAlias().Path + "/";
+            returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
+            return LocalRedirect(Url.Content("~" + returnurl));
+        }
+
         public async Task<IActionResult> OnPostAsync(string returnurl, string everywhere)
         {
-            returnurl = (returnurl == null) ? "/" : returnurl;
+            var alias = HttpContext.GetAlias();
+            returnurl = (returnurl == null) ? alias.Path + "/" : returnurl;
             returnurl = (!returnurl.StartsWith("/")) ? "/" + returnurl : returnurl;
 
             if (HttpContext.User != null)
             {
-                var alias = HttpContext.GetAlias();
                 var user = _userManager.GetUser(HttpContext.User.Identity.Name, alias.SiteId);
                 if (user != null)
                 {
