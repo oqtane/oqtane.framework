@@ -46,14 +46,28 @@ namespace Oqtane.Repository
         public IEnumerable<Folder> GetFolders(int siteId, int userId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            var folders = db.Folder.Where(item => item.SiteId == siteId &&
-                (!item.Path.StartsWith(Constants.UserFolderPath) || item.Path == Constants.UserFolderPath || item.Path.StartsWith($"{Constants.UserFolderPath}{userId}/")))
+            var folders = db.Folder
+                .Where(item => item.SiteId == siteId && (!item.Path.StartsWith(Constants.UserFolderPath) || item.Path == Constants.UserFolderPath || item.Path.StartsWith($"{Constants.UserFolderPath}{userId}/")))
+                .Select(item => new Folder
+                {
+                    FolderId = item.FolderId,
+                    SiteId = item.SiteId,
+                    ParentId = item.ParentId,
+                    Type = item.Type,
+                    Name = item.Name,
+                    Path = item.Path,
+                    Order = item.Order,
+                    ImageSizes = item.ImageSizes,
+                    Capacity = item.Capacity,
+                    IsSystem = item.IsSystem,
+                    CacheControl = item.CacheControl,
+                    CreatedBy = item.CreatedBy,
+                    CreatedOn = item.CreatedOn,
+                    ModifiedBy = item.ModifiedBy,
+                    ModifiedOn = item.ModifiedOn,
+                    PermissionList = db.Permission.Where(p => p.EntityName == EntityNames.Folder && p.EntityId == item.FolderId).ToList()
+                })
                 .ToList();
-            foreach (var folder in folders)
-            {
-                folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();
-            }
             return GetFoldersHierarchy(folders);
         }
 
