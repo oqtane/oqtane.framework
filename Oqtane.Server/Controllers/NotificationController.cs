@@ -36,11 +36,7 @@ namespace Oqtane.Controllers
         {
             IEnumerable<Notification> notifications = null;
 
-            int SiteId;
-            int UserId;
-            int Count;
-            bool IsRead;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out UserId) && int.TryParse(count, out Count) && bool.TryParse(isread, out IsRead) && IsAuthorized(UserId))
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out int UserId) && int.TryParse(count, out int Count) && bool.TryParse(isread, out bool IsRead) && IsAuthorized(UserId))
             {
                 if (direction == "to")
                 {
@@ -55,9 +51,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Get Attempt {SiteId} {Direction} {UserId} {Count} {isRead}", siteid, direction, userid, count, isread);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                notifications = null;
             }
-
 
             return notifications;
         }
@@ -69,10 +63,7 @@ namespace Oqtane.Controllers
         {
             int notificationsCount = 0;
 
-            int SiteId;
-            int UserId;
-            bool IsRead;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out UserId) && bool.TryParse(isread, out IsRead) && IsAuthorized(UserId))
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out int UserId) && bool.TryParse(isread, out bool IsRead) && IsAuthorized(UserId))
             {
                 if (direction == "to")
                 {
@@ -87,9 +78,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Get Attempt {SiteId} {Direction} {UserId} {isRead}", siteid, direction, userid, isread);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                notificationsCount = 0;
             }
-
 
             return notificationsCount;
         }
@@ -102,9 +91,7 @@ namespace Oqtane.Controllers
         {
             IEnumerable<Notification> notifications = null;
 
-            int SiteId;
-            int UserId;
-            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out UserId) && IsAuthorized(UserId))
+            if (int.TryParse(siteid, out int SiteId) && SiteId == _alias.SiteId && int.TryParse(userid, out int UserId) && IsAuthorized(UserId))
             {
                 if (direction == "to")
                 {
@@ -119,7 +106,6 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Notification Get Attempt {SiteId} {Direction} {UserId}", siteid, direction, userid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                notifications = null;
             }
 
             return notifications;
@@ -130,7 +116,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Notification Get(int id)
         {
-            Notification notification = _notifications.GetNotification(id);
+            var notification = _notifications.GetNotification(id);
             if (notification != null && notification.SiteId == _alias.SiteId && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
             {
                 return notification;
@@ -181,10 +167,11 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Notification Put(int id, [FromBody] Notification notification)
         {
-            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && notification.NotificationId == id && _notifications.GetNotification(notification.NotificationId, false) != null)
+            var existing = _notifications.GetNotification(id, false);
+            if (ModelState.IsValid && notification.SiteId == _alias.SiteId && notification.NotificationId == id && existing != null && existing.SiteId == _alias.SiteId)
             {
                 bool update = false;
-                if (IsAuthorized(notification.FromUserId))
+                if (IsAuthorized(existing.FromUserId))
                 {
                     // notification belongs to current authenticated user - update is allowed
                     if (!User.IsInRole(RoleNames.Admin))
@@ -197,14 +184,12 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    if (IsAuthorized(notification.ToUserId))
+                    if (IsAuthorized(existing.ToUserId))
                     {
                         // notification was sent to current authenticated user - only isread and isdeleted properties can be updated
-                        var isread = notification.IsRead;
-                        var isdeleted = notification.IsDeleted;
-                        notification = _notifications.GetNotification(notification.NotificationId);
-                        notification.IsRead = isread;
-                        notification.IsDeleted = isdeleted;
+                        existing.IsRead = notification.IsRead;
+                        existing.IsDeleted = notification.IsDeleted;
+                        notification = existing;
                         update = true;
                     }
                 }
@@ -235,7 +220,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
-            Notification notification = _notifications.GetNotification(id);
+            var notification = _notifications.GetNotification(id);
             if (notification != null && notification.SiteId == _alias.SiteId && (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId)))
             {
                 _notifications.DeleteNotification(id);
@@ -258,6 +243,5 @@ namespace Oqtane.Controllers
             }
             return authorized;
         }
-
     }
 }
