@@ -154,7 +154,7 @@
     <value>The contact for the module</value>
   </data>
   <data name="License.HelpText" xml:space="preserve">
-    <value>The module license terms</value>
+    <value>The module license</value>
   </data>
   <data name="Runtimes.HelpText" xml:space="preserve">
     <value>The Blazor runtimes which this module supports</value>
