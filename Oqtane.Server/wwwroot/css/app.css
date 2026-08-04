@@ -267,6 +267,10 @@ app {
     color: var(--bs-heading-color);
 }
 
+.app-tab-content {
+    padding-top: 1.5rem;
+}
+
 /* Text Editor */
 .text-area-editor > textarea {
     width: 100%;
