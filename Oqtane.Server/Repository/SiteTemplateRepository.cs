@@ -28,7 +28,11 @@ namespace Oqtane.Repository
 
         private List<SiteTemplate> LoadSiteTemplates()
         {
-            var defaultSiteTemplate = _configManager.GetSetting("Installation:SiteTemplate", Constants.DefaultSiteTemplate);
+            var defaultSiteTemplate = _configManager.GetSetting("Installation:SiteTemplate", "");
+            if (string.IsNullOrEmpty(defaultSiteTemplate))
+            {
+                defaultSiteTemplate = Constants.DefaultSiteTemplate;
+            }
 
             List<SiteTemplate> siteTemplates = new List<SiteTemplate>();
 

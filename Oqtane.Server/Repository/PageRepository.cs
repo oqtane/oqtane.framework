@@ -37,7 +37,11 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             var permissions = _permissions.GetPermissions(siteId, EntityNames.Page).ToList();
-            var pages = db.Page.Where(item => item.SiteId == siteId && item.UserId == null).ToList();
+            var pages = db.Page
+                .Where(item => item.SiteId == siteId && item.UserId == null)
+                .AsNoTracking()
+                .ToList();
+
             foreach (var page in pages)
             {
                 page.PermissionList = permissions.Where(item => item.EntityId == page.PageId).ToList();
@@ -105,7 +109,7 @@ namespace Oqtane.Repository
 
         public Page GetPage(int pageId)
         {
-            return GetPage(pageId, true);
+            return GetPage(pageId, false);
         }
 
         public Page GetPage(int pageId, bool tracking)
@@ -114,12 +118,15 @@ namespace Oqtane.Repository
             Page page;
             if (tracking)
             {
-                page = db.Page.Find(pageId);
+                page = db.Page
+                    .Find(pageId);
 
             }
             else
             {
-                page = db.Page.AsNoTracking().FirstOrDefault(item => item.PageId == pageId);
+                page = db.Page
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.PageId == pageId);
             }
             if (page != null)
             {
@@ -131,7 +138,9 @@ namespace Oqtane.Repository
         public Page GetPage(string path, int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var page = db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
+            var page = db.Page
+                .AsNoTracking()
+                .FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
             if (page != null)
             {
                 page.PermissionList = _permissions.GetPermissions(page.SiteId, EntityNames.Page, page.PageId)?.ToList();
@@ -152,13 +161,9 @@ namespace Oqtane.Repository
                 {
                     _pageModules.DeletePageModule(pageModule.PageModuleId);
                 }
-
-                // At this point the page item is unaware of changes happened in other
-                // contexts (i.e.: the contex opened and closed in each DeletePageModule).
-                // Workin on page item may result in unxpected behaviour:
-                // better close and reopen context to work on a fresh page item.
             }
 
+            // use new context as page may have changed
             using var dbContext = _dbContextFactory.CreateDbContext();
             {
                 var page = dbContext.Page.Find(pageId);

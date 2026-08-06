@@ -34,13 +34,16 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             return db.SiteGroupMember
-                .Where(item => (siteId == -1 || item.SiteId == siteId) && (siteGroupId == -1 || item.SiteGroupId == siteGroupId))
                 .Include(item => item.SiteGroup) // eager load
+                .Where(item => (siteId == -1 || item.SiteId == siteId) && (siteGroupId == -1 || item.SiteGroupId == siteGroupId))
+                .AsNoTracking()
                 .ToList();
         }
 
         public SiteGroupMember AddSiteGroupMember(SiteGroupMember siteGroupMember)
         {
+            siteGroupMember.SiteGroup = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.SiteGroupMember.Add(siteGroupMember);
             db.SaveChanges();
@@ -49,6 +52,8 @@ namespace Oqtane.Repository
 
         public SiteGroupMember UpdateSiteGroupMember(SiteGroupMember siteGroupMember)
         {
+            siteGroupMember.SiteGroup = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(siteGroupMember).State = EntityState.Modified;
             db.Entry(siteGroupMember.SiteGroup).State = EntityState.Unchanged; // prevent update of linked entity
@@ -58,7 +63,7 @@ namespace Oqtane.Repository
 
         public SiteGroupMember GetSiteGroupMember(int siteGroupMemberId)
         {
-            return GetSiteGroupMember(siteGroupMemberId, true);
+            return GetSiteGroupMember(siteGroupMemberId, false);
         }
 
         public SiteGroupMember GetSiteGroupMember(int siteGroupMemberId, bool tracking)
@@ -72,8 +77,9 @@ namespace Oqtane.Repository
             }
             else
             {
-                return db.SiteGroupMember.AsNoTracking()
-                    .Include(item => item.SiteGroup) // eager load 
+                return db.SiteGroupMember
+                    .Include(item => item.SiteGroup) // eager load
+                    .AsNoTracking()
                     .FirstOrDefault(item => item.SiteGroupMemberId == siteGroupMemberId);
             }
         }

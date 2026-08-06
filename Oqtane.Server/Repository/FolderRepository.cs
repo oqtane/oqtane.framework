@@ -153,7 +153,7 @@ namespace Oqtane.Repository
 
         public Folder GetFolder(int folderId)
         {
-            return GetFolder(folderId, true);
+            return GetFolder(folderId, false);
         }
 
         public Folder GetFolder(int folderId, bool tracking)
@@ -262,7 +262,9 @@ namespace Oqtane.Repository
         public string GetFolderPath(int folderId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder.Find(folderId);
+            var folder = db.Folder
+                .AsNoTracking()
+                .FirstOrDefault(item => item.FolderId == folderId);
             return GetFolderPath(folder);
         }
 
@@ -280,6 +282,5 @@ namespace Oqtane.Repository
             }
             return path;
         }
-
     }
 }

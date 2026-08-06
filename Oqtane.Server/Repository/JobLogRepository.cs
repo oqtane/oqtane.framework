@@ -32,15 +32,17 @@ namespace Oqtane.Repository
         public IEnumerable<JobLog> GetJobLogs(int jobId)
         {
             return _db.JobLog
-                .AsNoTracking()
-                .Where(item => item.JobId == jobId || jobId == -1)
                 .Include(item => item.Job) // eager load jobs
+                .Where(item => item.JobId == jobId || jobId == -1)
                 .OrderByDescending(item => item.JobLogId)
+                .AsNoTracking()
                 .ToList();
         }
 
         public JobLog AddJobLog(JobLog jobLog)
         {
+            jobLog.Job = null;
+
             _db.JobLog.Add(jobLog);
             _db.SaveChanges();
             return jobLog;
@@ -48,6 +50,8 @@ namespace Oqtane.Repository
 
         public JobLog UpdateJobLog(JobLog jobLog)
         {
+            jobLog.Job = null;
+
             _db.Entry(jobLog).State = EntityState.Modified;
             _db.SaveChanges();
             return jobLog;
@@ -55,8 +59,10 @@ namespace Oqtane.Repository
 
         public JobLog GetJobLog(int jobLogId)
         {
-            return _db.JobLog.Include(item => item.Job) // eager load job
-                .SingleOrDefault(item => item.JobLogId == jobLogId); 
+            return _db.JobLog
+                .Include(item => item.Job) // eager load job
+                .AsNoTracking()
+                .FirstOrDefault(item => item.JobLogId == jobLogId); 
         }
 
         public void DeleteJobLog(int jobLogId)

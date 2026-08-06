@@ -44,12 +44,18 @@ namespace Oqtane.Repository
         {
             if (IsMaster(entityName))
             {
-                return _master.Setting.Where(item => item.EntityName == entityName).ToList();
+                return _master.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .AsNoTracking()
+                    .ToList();
             }
             else
             {
                 using var db = _tenantContextFactory.CreateDbContext();
-                return db.Setting.Where(item => item.EntityName == entityName).ToList();
+                return db.Setting
+                    .Where(item => item.EntityName == entityName)
+                    .AsNoTracking()
+                    .ToList();
             }
         }
 
@@ -57,12 +63,18 @@ namespace Oqtane.Repository
         {
             if (IsMaster(entityName))
             {
-                return _master.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId).ToList();
+                return _master.Setting
+                    .Where(item => item.EntityName == entityName && item.EntityId == entityId)
+                    .AsNoTracking()
+                    .ToList();
             }
             else
             {
                 using var db = _tenantContextFactory.CreateDbContext();
-                return db.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId).ToList();
+                return db.Setting
+                    .Where(item => item.EntityName == entityName && item.EntityId == entityId)
+                    .AsNoTracking()
+                    .ToList();
             }
         }
 
@@ -124,12 +136,16 @@ namespace Oqtane.Repository
         {
             if (IsMaster(entityName))
             {
-                return _master.Setting.Find(settingId);
+                return _master.Setting
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.SettingId == settingId);
             }
             else
             {
                 using var tenant = _tenantContextFactory.CreateDbContext();
-                return tenant.Setting.Find(settingId);
+                return tenant.Setting
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.SettingId == settingId);
             }
         }
 
@@ -137,12 +153,16 @@ namespace Oqtane.Repository
         {
             if (IsMaster(entityName))
             {
-                return _master.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+                return _master.Setting
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName);
             }
             else
             {
                 using var tenant = _tenantContextFactory.CreateDbContext();
-                return tenant.Setting.Where(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName).FirstOrDefault();
+                return tenant.Setting
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.EntityName == entityName && item.EntityId == entityId && item.SettingName == settingName);
             }
         }
 
@@ -195,13 +215,20 @@ namespace Oqtane.Repository
         public IEnumerable<string> GetEntityNames()
         {
             using var db = _tenantContextFactory.CreateDbContext();
-            return db.Setting.Select(item => item.EntityName).Distinct().OrderBy(item => item).ToList();
+            return db.Setting
+                .Select(item => item.EntityName).Distinct()
+                .OrderBy(item => item)
+                .ToList();
         }
         public IEnumerable<int> GetEntityIds(string entityName)
         {
             using var db = _tenantContextFactory.CreateDbContext();
-            return db.Setting.Where(item => item.EntityName == entityName)
-                .Select(item => item.EntityId).Distinct().OrderBy(item => item).ToList();
+            return db.Setting
+                .Where(item => item.EntityName == entityName)
+                .Select(item => item.EntityId)
+                .Distinct()
+                .OrderBy(item => item)
+                .ToList();
         }
 
         public string GetSettingValue(IEnumerable<Setting> settings, string settingName, string defaultValue)

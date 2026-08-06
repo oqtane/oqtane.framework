@@ -35,11 +35,17 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (isMapped)
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl)).ToList();
+                return db.UrlMapping
+                    .Where(item => item.SiteId == siteId && !string.IsNullOrEmpty(item.MappedUrl))
+                    .AsNoTracking()
+                    .ToList();
             }
             else
             {
-                return db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl)).ToList();
+                return db.UrlMapping
+                    .Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl))
+                    .AsNoTracking()
+                    .ToList();
             }
         }
 
@@ -62,7 +68,7 @@ namespace Oqtane.Repository
         public UrlMapping GetUrlMapping(int urlMappingId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return GetUrlMapping(urlMappingId, true);
+            return GetUrlMapping(urlMappingId, false);
         }
 
         public UrlMapping GetUrlMapping(int urlMappingId, bool tracking)
@@ -70,11 +76,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.UrlMapping.Find(urlMappingId);
+                return db.UrlMapping
+                    .Find(urlMappingId);
             }
             else
             {
-                return db.UrlMapping.AsNoTracking().FirstOrDefault(item => item.UrlMappingId == urlMappingId);
+                return db.UrlMapping
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.UrlMappingId == urlMappingId);
             }
         }
 
@@ -88,7 +97,9 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
-            var urlMapping = db.UrlMapping.Where(item => item.SiteId == siteId && item.Url == url).FirstOrDefault();
+            var urlMapping = db.UrlMapping
+                .AsNoTracking()
+                .FirstOrDefault(item => item.SiteId == siteId && item.Url == url);
 
             if (urlMapping == null)
             {

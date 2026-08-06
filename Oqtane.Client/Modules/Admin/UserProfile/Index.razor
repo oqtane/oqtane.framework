@@ -654,7 +654,7 @@
 
     private async Task SetCultureAsync(string culture)
     {
-        if (culture != CultureInfo.CurrentUICulture.Name)
+        if (!string.IsNullOrEmpty(culture) && culture != CultureInfo.CurrentUICulture.Name)
         {
             var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(PageState.Site.CultureCode, culture));
             var interop = new Interop(JSRuntime);
