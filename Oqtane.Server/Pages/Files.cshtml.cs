@@ -76,6 +76,9 @@ namespace Oqtane.Pages
                 }
             }
 
+            folderpath = WebUtility.UrlDecode(folderpath);
+            filename = WebUtility.UrlDecode(filename);
+
             Models.File file;
             if (folderpath == "id/" && int.TryParse(filename, out int fileid))
             {
