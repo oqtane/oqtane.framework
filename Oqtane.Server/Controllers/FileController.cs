@@ -146,6 +146,7 @@ namespace Oqtane.Controllers
         [HttpGet("name/{name}/{folderId}")]
         public Models.File Get(string name, int folderId)
         {
+            name = WebUtility.UrlDecode(name);
             Models.File file = _files.GetFile(folderId, name);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
