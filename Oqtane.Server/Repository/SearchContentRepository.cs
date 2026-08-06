@@ -42,7 +42,6 @@ namespace Oqtane.Repository
             var keywords = SearchUtils.GetKeywords(searchQuery.Keywords);
 
             var searchContents = db.SearchContentWord
-                .AsNoTracking()
                 .Include(item => item.SearchContent)
                 .Include(item => item.SearchWord)
                 .Where(item => item.SearchContent.SiteId == searchQuery.SiteId)
@@ -187,7 +186,9 @@ namespace Oqtane.Repository
             }
 
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SearchWord.FirstOrDefault(i => i.Word == word);
+            return db.SearchWord
+                .AsNoTracking()
+                .FirstOrDefault(i => i.Word == word);
         }
 
         public SearchWord AddSearchWord(SearchWord searchWord)
@@ -205,7 +206,9 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             return db.SearchContentWord
                 .Include(i => i.SearchWord)
-                .Where(i => i.SearchContentId == searchContentId).ToList();
+                .Where(i => i.SearchContentId == searchContentId)
+                .AsNoTracking()
+                .ToList();
         }
 
         public SearchContentWord AddSearchContentWord(SearchContentWord searchContentWord)

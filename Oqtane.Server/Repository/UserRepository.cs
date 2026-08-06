@@ -36,7 +36,9 @@ namespace Oqtane.Repository
         public IEnumerable<User> GetUsers()
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.User.ToList();
+            return db.User
+                .AsNoTracking()
+                .ToList();
         }
 
         public User AddUser(User user)
@@ -105,7 +107,7 @@ namespace Oqtane.Repository
 
         public User GetUser(int userId)
         {
-            return GetUser(userId, true);
+            return GetUser(userId, false);
         }
 
         public User GetUser(int userId, bool tracking)
@@ -113,11 +115,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.User.Find(userId);
+                return db.User
+                    .Find(userId);
             }
             else
             {
-                return db.User.AsNoTracking().FirstOrDefault(item => item.UserId == userId);
+                return db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.UserId == userId);
             }
         }
 
@@ -132,11 +137,15 @@ namespace Oqtane.Repository
             User user = null;
             if (!string.IsNullOrEmpty(username))
             {
-                user = db.User.Where(item => item.Username == username).FirstOrDefault();
+                user = db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.Username == username);
             }
             if (user == null && !string.IsNullOrEmpty(email))
             {
-                user = db.User.Where(item => item.Email == email).FirstOrDefault();
+                user = db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.Email == email);
             }
             return user;
         }

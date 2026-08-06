@@ -42,7 +42,10 @@ namespace Oqtane.Repository
             return _cache.GetCache(_tenantManager.GetAlias(), $"Permissions:{entityName}", entry =>
             {
                 var roles = _roles.GetRoles(siteId, true).ToList();
-                var permissions = db.Permission.Where(item => item.SiteId == siteId && item.EntityName == entityName).ToList();
+                var permissions = db.Permission
+                    .Where(item => item.SiteId == siteId && item.EntityName == entityName)
+                    .AsNoTracking()
+                    .ToList();
                 foreach (var permission in permissions)
                 {
                     if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
@@ -160,7 +163,9 @@ namespace Oqtane.Repository
         public Permission GetPermission(int permissionId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Permission.Find(permissionId);
+            return db.Permission
+                .AsNoTracking()
+                .FirstOrDefault(item => item.PermissionId == permissionId);
         }
 
         public void DeletePermission(int permissionId)

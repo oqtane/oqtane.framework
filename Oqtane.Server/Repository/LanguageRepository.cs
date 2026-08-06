@@ -26,7 +26,10 @@ namespace Oqtane.Repository
         public IEnumerable<Language> GetLanguages(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Language.Where(l => l.SiteId == siteId).ToList();
+            return db.Language
+                .Where(l => l.SiteId == siteId)
+                .AsNoTracking()
+                .ToList();
         }
 
         public Language AddLanguage(Language language)
@@ -40,7 +43,7 @@ namespace Oqtane.Repository
                     .ToList()
                     .ForEach(l => l.IsDefault = false);
             }
-            language.Name = ""; // stored in database but not used (SQLite limitation)
+            language.Name = ""; // stored in database but not used (SQLite drop column limitation)
             db.Language.Add(language);
             db.SaveChanges();
 
@@ -71,7 +74,9 @@ namespace Oqtane.Repository
         public Language GetLanguage(int languageId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Language.Find(languageId);
+            return db.Language
+                .AsNoTracking()
+                .FirstOrDefault(item => item.LanguageId == languageId);
         }
 
         public void DeleteLanguage(int languageId)

@@ -71,13 +71,16 @@ namespace Oqtane.Repository
             return _cache.GetCache(GetCacheKey(), entry =>
             {
                 using var db = _factory.CreateDbContext();
-                var sites = db.Site;
+                var sites = db.Site
+                    .OrderBy(item => item.Name)
+                    .AsNoTracking()
+                    .ToList();
                 var tenantId = _tenantManager.GetTenantId();
-                foreach ( var site in sites )
+                foreach (var site in sites)
                 {
                     site.TenantId = tenantId;
                 }
-                return sites.OrderBy(item => item.Name).ToList();
+                return sites;
             });
         }
 
@@ -103,18 +106,13 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId)
         {
-            return GetSite(siteId, true);
+            return GetSite(siteId, false);
         }
 
         public Site GetSite(int siteId, bool tracking)
         {
-            // note that tracking parameter is no longer relevant
-            var site = GetSites().FirstOrDefault(item => item.SiteId == siteId);
-            if (site != null)
-            {
-                site.TenantId = _tenantManager.GetTenantId();
-            }
-            return site;
+            // note that tracking parameter is no longer relevant as it is retrieving from cache
+            return GetSites().FirstOrDefault(item => item.SiteId == siteId); ;
         }
 
         public void DeleteSite(int siteId)

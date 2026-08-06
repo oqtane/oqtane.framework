@@ -30,28 +30,46 @@ namespace Oqtane.Repository
             {
                 if (function == null)
                 {
-                    return db.Log.Where(item => item.SiteId == siteId).
-                        OrderByDescending(item => item.LogDate).Take(rows).ToList();
+                    return db.Log
+                        .Where(item => item.SiteId == siteId)
+                        .OrderByDescending(item => item.LogDate)
+                        .Take(rows)
+                        .AsNoTracking()
+                        .ToList();
                 }
 
-                return db.Log.Where(item => item.SiteId == siteId && item.Function == function).
-                    OrderByDescending(item => item.LogDate).Take(rows).ToList();
+                return db.Log
+                    .Where(item => item.SiteId == siteId && item.Function == function)
+                    .OrderByDescending(item => item.LogDate)
+                    .Take(rows)
+                    .AsNoTracking()
+                    .ToList();
             }
 
             if (function == null)
             {
-                return db.Log.Where(item => item.SiteId == siteId && item.Level == level)
-                    .OrderByDescending(item => item.LogDate).Take(rows).ToList();
+                return db.Log
+                    .Where(item => item.SiteId == siteId && item.Level == level)
+                    .OrderByDescending(item => item.LogDate)
+                    .Take(rows)
+                    .AsNoTracking()
+                    .ToList();
             }
 
-            return db.Log.Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
-                .OrderByDescending(item => item.LogDate).Take(rows).ToList();
+            return db.Log
+                .Where(item => item.SiteId == siteId && item.Level == level && item.Function == function)
+                .OrderByDescending(item => item.LogDate)
+                .Take(rows)
+                .AsNoTracking()
+                .ToList();
         }
 
         public Log GetLog(int logId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Log.Find(logId);
+            return db.Log
+                .AsNoTracking()
+                .FirstOrDefault(item => item.LogId == logId);
         }
 
         public void AddLog(Log log)

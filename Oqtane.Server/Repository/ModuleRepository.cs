@@ -45,7 +45,10 @@ namespace Oqtane.Repository
         public IEnumerable<Module> GetModules(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Module.Where(item => item.SiteId == siteId).ToList();
+            return db.Module
+                .Where(item => item.SiteId == siteId)
+                .AsNoTracking()
+                .ToList();
         }
 
         public Module AddModule(Module module)
@@ -68,7 +71,7 @@ namespace Oqtane.Repository
 
         public Module GetModule(int moduleId)
         {
-            return GetModule(moduleId, true);
+            return GetModule(moduleId, false);
         }
 
         public Module GetModule(int moduleId, bool tracking)
@@ -77,11 +80,14 @@ namespace Oqtane.Repository
             Module module;
             if (tracking)
             {
-                module = db.Module.Find(moduleId);
+                module = db.Module
+                    .Find(moduleId);
             }
             else
             {
-                module = db.Module.AsNoTracking().FirstOrDefault(item => item.ModuleId == moduleId);
+                module = db.Module
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.ModuleId == moduleId);
             }
             if (module != null)
             {
