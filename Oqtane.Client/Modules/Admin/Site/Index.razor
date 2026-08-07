@@ -44,7 +44,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content" ResourceKey="Culture">Language:</Label>
+                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc..." ResourceKey="Culture">Culture:</Label>
                 <div class="col-sm-9">
                     <select id="culture" class="form-select" @bind="@_culturecode">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -701,7 +701,7 @@
             if (site != null)
             {
                 _timezones = TimeZoneService.GetTimeZones();
-                _cultures = await LocalizationService.GetNeutralCulturesAsync();
+                _cultures = await LocalizationService.GetCulturesAsync(false);
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);

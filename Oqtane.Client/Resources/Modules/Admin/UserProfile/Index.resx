@@ -292,6 +292,6 @@
     <value>Language:</value>
   </data>
   <data name="CultureCode.HelpText" xml:space="preserve">
-    <value>Your preferred language. Note that you will only be able to choose from languages supported on this site.</value>
+    <value>Your preferred language for interacting with the UI. Note that you will only be able to choose from languages supported on this site.</value>
   </data>
 </root>
