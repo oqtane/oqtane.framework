@@ -80,6 +80,8 @@ namespace Oqtane.Repository
 
         public Permission AddPermission(Permission permission)
         {
+            permission.Role = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Permission.Add(permission);
             db.SaveChanges();
@@ -89,6 +91,8 @@ namespace Oqtane.Repository
 
         public Permission UpdatePermission(Permission permission)
         {
+            permission.Role = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(permission).State = EntityState.Modified;
             db.SaveChanges();
