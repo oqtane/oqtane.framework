@@ -567,4 +567,10 @@
   <data name="ChangeDetection" xml:space="preserve">
     <value>Change Detection</value>
   </data>
+  <data name="Culture.Text" xml:space="preserve">
+    <value>Culture:</value>
+  </data>
+  <data name="Culture.HelpText" xml:space="preserve">
+    <value>The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc...</value>
+  </data>
 </root>
