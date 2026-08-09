@@ -27,12 +27,15 @@ namespace [Owner].Module.[Module].Repository
         public IEnumerable<Models.[Module]> Get[Module]s(int ModuleId)
         {
             using var db = _factory.CreateDbContext();
-            return db.[Module].Where(item => item.ModuleId == ModuleId).ToList();
+            return db.[Module]
+		.Where(item => item.ModuleId == ModuleId)
+		.AsNoTracking()
+		.ToList();
         }
 
         public Models.[Module] Get[Module](int [Module]Id)
         {
-            return Get[Module]([Module]Id, true);
+            return Get[Module]([Module]Id, false);
         }
 
         public Models.[Module] Get[Module](int [Module]Id, bool tracking)
@@ -40,11 +43,14 @@ namespace [Owner].Module.[Module].Repository
             using var db = _factory.CreateDbContext();
             if (tracking)
             {
-                return db.[Module].Find([Module]Id);
+                return db.[Module]
+		    .Find([Module]Id);
             }
             else
             {
-                return db.[Module].AsNoTracking().FirstOrDefault(item => item.[Module]Id == [Module]Id);
+                return db.[Module]
+		    .AsNoTracking()
+		    .FirstOrDefault(item => item.[Module]Id == [Module]Id);
             }
         }
 
