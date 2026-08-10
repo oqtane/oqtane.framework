@@ -30,6 +30,7 @@
         <dependency id="Swashbuckle.AspNetCore" version="10.2.3" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="4.17.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache" version="2.6.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.6.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.6.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.6.0" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="9.7.0" exclude="Build,Analyzers" />
