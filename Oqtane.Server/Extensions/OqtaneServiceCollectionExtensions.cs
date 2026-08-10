@@ -34,8 +34,10 @@ using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Radzen;
+using StackExchange.Redis;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
+using ZiggyCreatures.Caching.Fusion.Locking.Distributed.Redis;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -603,12 +605,19 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else
             {
+                IConnectionMultiplexer muxer = ConnectionMultiplexer.Connect(configuration.GetConnectionString(SettingKeys.DistributedCacheKey));
+
+                services.AddStackExchangeRedisCache(options => {
+                    options.ConnectionMultiplexerFactory = () => Task.FromResult(muxer);
+                });
+
+                services.AddFusionCacheRedisDistributedLocker(options =>
+                {
+                    options.ConnectionMultiplexerFactory = () => Task.FromResult(muxer);
+                });
+
                 if (cacheSettings.GetValue<bool>("Distributed") && cacheSettings.GetValue<bool>("ScaleOut"))
                 {
-                    services.AddStackExchangeRedisCache(options => {
-                        options.Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey);
-                    });
-
                     // use memory cache (L1) with distributed cache (L2) and backplane for synchronization across instances
                     services.AddFusionCache()
                         .WithOptions(fusionCacheOptions)
@@ -617,15 +626,12 @@ namespace Microsoft.Extensions.DependencyInjection
                         .WithRegisteredDistributedCache()
                         .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                         {
-                            Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey)
-                        }));
+                            ConnectionMultiplexerFactory = () => Task.FromResult(muxer)
+                        }))
+                        .WithRegisteredDistributedLocker();
                 }
                 else
                 {
-                    services.AddStackExchangeRedisCache(options => {
-                        options.Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey);
-                    });
-
                     if (cacheSettings.GetValue<bool>("ScaleOut"))
                     {
                         // use memory cache (L1) with backplane for synchronization across instances
@@ -634,8 +640,9 @@ namespace Microsoft.Extensions.DependencyInjection
                             .WithDefaultEntryOptions(defaultCacheEntryOptions)
                             .WithBackplane(new RedisBackplane(new RedisBackplaneOptions
                             {
-                                Configuration = configuration.GetConnectionString(SettingKeys.DistributedCacheKey)
-                            }));
+                                ConnectionMultiplexerFactory = () => Task.FromResult(muxer)
+                            }))
+                            .WithRegisteredDistributedLocker();
                     }
                     else
                     {
@@ -644,7 +651,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             .WithOptions(fusionCacheOptions)
                             .WithDefaultEntryOptions(defaultCacheEntryOptions)
                             .WithSerializer(new FusionCacheSystemTextJsonSerializer())
-                            .WithRegisteredDistributedCache();
+                            .WithRegisteredDistributedCache()
+                            .WithRegisteredDistributedLocker();
                     }
                 }
             }
