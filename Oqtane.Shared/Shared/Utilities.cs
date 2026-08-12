@@ -96,7 +96,7 @@ namespace Oqtane.Shared
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             var querystring = (download) ? "?download" : "";
-            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{WebUtility.UrlEncode(filename)}{querystring}";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{Uri.EscapeDataString(filename)}{querystring}";
         }
 
         public static string FileUrl(Alias alias, int fileid)
@@ -133,7 +133,7 @@ namespace Oqtane.Shared
             background = string.IsNullOrEmpty(background) ? "transparent" : background;
             format = string.IsNullOrEmpty(format) ? "png" : format;
             var querystring = $"?width={width}&height={height}&mode={mode}&position={position}&background={background}&rotate={rotate}&format={format}&recreate={recreate}";
-            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{WebUtility.UrlEncode(filename)}{querystring}";
+            return $"{alias?.BaseUrl}{aliasUrl}{Constants.FileUrl}{EncodeFolderPath(folderpath)}{Uri.EscapeDataString(filename)}{querystring}";
         }
 
         public static string TenantUrl(Alias alias, string url)
@@ -151,7 +151,7 @@ namespace Oqtane.Shared
                 var segments = folderPath.Split('/');
                 for (int i = 0; i < segments.Length; i++)
                 {
-                    segments[i] = WebUtility.UrlEncode(segments[i]);
+                    segments[i] = Uri.EscapeDataString(segments[i]);
                 }
                 return string.Join("/", segments);
             }
