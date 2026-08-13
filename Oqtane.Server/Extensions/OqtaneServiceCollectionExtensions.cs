@@ -46,6 +46,8 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddOqtane(this IServiceCollection services, IConfigurationRoot configuration, IWebHostEnvironment environment)
         {
+            services.AddDataProtection();
+
             // process forwarded headers on load balancers and proxy servers
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -281,6 +283,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ISiteService, ServerSiteService>();
             services.AddTransient<ILocalizationCookieService, ServerLocalizationCookieService>();
             services.AddTransient<IOutputCacheService, ServerOutputCacheService>();
+            services.AddTransient<IVisitorCookieService, VisitorCookieService>();
 
             // repositories
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();

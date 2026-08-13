@@ -9,6 +9,7 @@ using Oqtane.Repository;
 using System.Net;
 using System;
 using System.Globalization;
+using Oqtane.Services;
 
 namespace Oqtane.Controllers
 {
@@ -16,12 +17,14 @@ namespace Oqtane.Controllers
     public class VisitorController : Controller
     {
         private readonly IVisitorRepository _visitors;
+        private readonly IVisitorCookieService _visitorCookieService;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public VisitorController(IVisitorRepository visitors, ILogManager logger, ITenantManager tenantManager)
+        public VisitorController(IVisitorRepository visitors, IVisitorCookieService visitorCookieService, ILogManager logger, ITenantManager tenantManager)
         {
             _visitors = visitors;
+            _visitorCookieService = visitorCookieService;
             _logger = logger;
             _alias = tenantManager.GetAlias();
         }
@@ -51,8 +54,7 @@ namespace Oqtane.Controllers
             bool authorized = User.IsInRole(RoleNames.Admin);
             if (!authorized)
             {
-                var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                authorized = (id == GetVisitorCookieId(Request.Cookies[visitorCookieName]));
+                authorized = (id == _visitorCookieService.GetVisitor(_alias.SiteId).VisitorId);
             }
 
             var visitor = _visitors.GetVisitor(id);
@@ -73,18 +75,6 @@ namespace Oqtane.Controllers
                 }
                 return null;
             }
-        }
-
-        private int GetVisitorCookieId(string visitorCookie)
-        {
-            var visitorId = -1;
-            if (visitorCookie != null)
-            {
-                // visitor cookies now contain the visitor id and an expiry date separated by a pipe symbol
-                visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
-                visitorId = int.TryParse(visitorCookie, out int _visitorId) ? _visitorId : -1;
-            }
-            return visitorId;
         }
     }
 }
