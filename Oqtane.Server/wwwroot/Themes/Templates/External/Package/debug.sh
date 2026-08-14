@@ -5,4 +5,6 @@ ProjectName=$2
 
 cp -f "../Client/bin/Debug/$TargetFramework/$ProjectName$.Client.Oqtane.dll" "../../[RootFolder]/Oqtane.Server/bin/Debug/$TargetFramework/"
 cp -f "../Client/bin/Debug/$TargetFramework/$ProjectName$.Client.Oqtane.pdb" "../../[RootFolder]/Oqtane.Server/bin/Debug/$TargetFramework/"
-cp -rf "../Client/wwwroot/"* "../../[RootFolder]/Oqtane.Server/wwwroot/_content/%ProjectName%/"
+
+cp -rf "../Server/wwwroot/"* "../../[RootFolder]/Oqtane.Server/wwwroot/_content/${ProjectName}/" || true
+cp -rf "../Server/wwwroot/_content/"* "../../[RootFolder]/Oqtane.Server/wwwroot/_content/" || true
