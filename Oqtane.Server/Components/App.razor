@@ -4,11 +4,9 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Antiforgery
-@using Microsoft.AspNetCore.Localization
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
 @using Microsoft.AspNetCore.Authentication
-@using Oqtane.Client
 @using Oqtane.UI
 @using Oqtane.Repository
 @using Oqtane.Infrastructure
@@ -354,7 +352,7 @@
             bool setcookie = false;
             Visitor visitor = null;
 
-            if (visitorId <= 0)
+            if (visitorId == -1)
             {
                 // use IP Address correlation (if enabled)
                 var correlate = bool.Parse(settings.GetValue("VisitorCorrelation", "true"));
@@ -369,7 +367,7 @@
                 }
             }
 
-            if (visitorId <= 0)
+            if (visitorId == -1)
             {
                 // create new visitor
                 visitor = new Visitor();

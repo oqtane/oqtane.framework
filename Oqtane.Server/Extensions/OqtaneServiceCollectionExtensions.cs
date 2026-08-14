@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -46,7 +47,19 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddOqtane(this IServiceCollection services, IConfigurationRoot configuration, IWebHostEnvironment environment)
         {
-            services.AddDataProtection();
+            // add data protection services for encrypting cookies and other sensitive data
+            var cacheSettings = configuration.GetSection("Caching");
+            if (!cacheSettings.GetValue<bool>("ScaleOut"))
+            {
+                services.AddDataProtection();
+            }
+            else
+            {
+                IConnectionMultiplexer muxer = ConnectionMultiplexer.Connect(configuration.GetConnectionString(SettingKeys.DistributedCacheKey));
+                services.AddDataProtection()
+                    .SetApplicationName("Oqtane")
+                    .PersistKeysToStackExchangeRedis(muxer, $"{configuration.GetSection("InstallationId").Value}:DataProtection");
+            }
 
             // process forwarded headers on load balancers and proxy servers
             services.Configure<ForwardedHeadersOptions>(options =>
