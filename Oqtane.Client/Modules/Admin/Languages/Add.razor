@@ -127,7 +127,7 @@ else
         if (culture != CultureInfo.CurrentUICulture.Name)
         {
             var interop = new Interop(JSRuntime);
-            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(PageState.Site.CultureCode, culture));
             await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360, true, "Lax");
         }
     }
