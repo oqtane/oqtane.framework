@@ -21,7 +21,9 @@ namespace Oqtane.Repository
         public IEnumerable<MigrationHistory> GetMigrationHistory()
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.MigrationHistory.ToList();
+            return db.MigrationHistory
+                .AsNoTracking()
+                .ToList();
         }
     }
 }

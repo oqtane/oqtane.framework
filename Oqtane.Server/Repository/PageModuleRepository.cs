@@ -41,7 +41,10 @@ namespace Oqtane.Repository
             var pagemodules = db.PageModule
                 .Include(item => item.Module) // eager load module
                 .Include(item => item.Page) // eager load page
-                .Where(item => item.Module.SiteId == siteId).ToList();
+                .Where(item => item.Module.SiteId == siteId)
+                .AsNoTracking()
+                .ToList();
+
             if (pagemodules.Any())
             {
                 var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
@@ -56,6 +59,9 @@ namespace Oqtane.Repository
 
         public PageModule AddPageModule(PageModule pageModule)
         {
+            pageModule.Page = null;
+            pageModule.Module = null;
+            
             using var db = _dbContextFactory.CreateDbContext();
             db.PageModule.Add(pageModule);
             db.SaveChanges();
@@ -64,6 +70,9 @@ namespace Oqtane.Repository
 
         public PageModule UpdatePageModule(PageModule pageModule)
         {
+            pageModule.Page = null;
+            pageModule.Module = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(pageModule).State = EntityState.Modified;
             db.SaveChanges();
@@ -72,7 +81,7 @@ namespace Oqtane.Repository
 
         public PageModule GetPageModule(int pageModuleId)
         {
-            return GetPageModule(pageModuleId, true);
+            return GetPageModule(pageModuleId, false);
         }
 
         public PageModule GetPageModule(int pageModuleId, bool tracking)
@@ -88,9 +97,10 @@ namespace Oqtane.Repository
             }
             else
             {
-                pagemodule = db.PageModule.AsNoTracking()
+                pagemodule = db.PageModule
                     .Include(item => item.Module) // eager load module
                     .Include(item => item.Page) // eager load page
+                    .AsNoTracking()
                     .FirstOrDefault(item => item.PageModuleId == pageModuleId);
             }
             if (pagemodule != null)
@@ -109,7 +119,9 @@ namespace Oqtane.Repository
             var pagemodule = db.PageModule
                 .Include(item => item.Module) // eager load module
                 .Include(item => item.Page) // eager load page
-                .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
+                .AsNoTracking()
+                .FirstOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
+
             if (pagemodule != null)
             {
                 var moduledefinitions = _moduleDefinitions.GetModuleDefinitions(pagemodule.Module.SiteId).ToList();

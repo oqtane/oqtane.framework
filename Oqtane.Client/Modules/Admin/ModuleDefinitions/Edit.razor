@@ -86,7 +86,7 @@
 						</div>
 					</div>
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
+						<Label Class="col-sm-3" For="license" HelpText="The module license" ResourceKey="License">License: </Label>
 						<div class="col-sm-9">
                             @if (_license.StartsWith("http") || _license.StartsWith("/") || _license.StartsWith("~"))
                             {
@@ -186,9 +186,9 @@
 		<div class="app-actiondialog">
 			<div class="modal" tabindex="-1" role="dialog">
 				<div class="modal-dialog">
-					<div class="modal-content">
+					<div class="modal-content" style="margin: 10% auto; width: 60%;">
 						<div class="modal-header">
-							<h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
+							<h5 class="modal-title">@SharedLocalizer["License Agreement"]</h5>
 							<button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
 						</div>
 						<div class="modal-body">

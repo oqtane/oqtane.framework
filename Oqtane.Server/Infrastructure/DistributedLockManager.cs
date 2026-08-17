@@ -1,8 +1,8 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Distributed;
 using Oqtane.Shared;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace Oqtane.Infrastructure
 {
@@ -14,10 +14,10 @@ namespace Oqtane.Infrastructure
 
     public class DistributedLockManager : IDistributedLockManager
     {
-        private readonly IDistributedCache _cache;
+        private readonly IFusionCache _cache;
         private readonly IConfigManager _config;
 
-        public DistributedLockManager(IDistributedCache cache, IConfigManager config)
+        public DistributedLockManager(IFusionCache cache, IConfigManager config)
         {
             _cache = cache;
             _config = config;
@@ -36,23 +36,31 @@ namespace Oqtane.Infrastructure
             Task.Delay(randomDelay);
 
             // attempt to get the distributed cache entry
-            var bytes = _cache.Get(key);
+            var cacheEntry = _cache.TryGet<string>(key, new()
+            {
+                SkipMemoryCacheRead = true,
+                SkipMemoryCacheWrite = true,
+                IsFailSafeEnabled = false
+            });
 
-            if (bytes != null)
+            if (cacheEntry.HasValue)
             {
                 // entry exists - an instance is executing
                 return false;
             }
 
             // entry does not exist - try to create it
-            bytes = Encoding.UTF8.GetBytes(value);
-            var options = new DistributedCacheEntryOptions
+            var options = new FusionCacheEntryOptions()
             {
-                AbsoluteExpirationRelativeToNow = expiration
+                SkipMemoryCacheRead = true,
+                SkipMemoryCacheWrite = true,
+                IsFailSafeEnabled = false,
+                Duration = expiration,
+                DistributedCacheDuration = expiration,
             };
             try
             {
-                _cache.Set(key, bytes, options);
+                _cache.Set(key, value, options);
                 return true;
             }
             catch

@@ -489,8 +489,8 @@
                         FileId = -1;
                         if (Folder != Constants.PackagesFolder && !AnonymizeUploadFilenames)
                         {
-                            // get first file in upload collection
-                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
+                            // get first file in upload collection (removing ":size" suffix)
+                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Substring(0, uploads[0].LastIndexOf(":")));
                             if (file != null)
                             {
                                 FileId = file.FileId;

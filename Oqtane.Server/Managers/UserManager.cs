@@ -340,7 +340,7 @@ namespace Oqtane.Managers
             }
 
             // remove user folder for site
-            var folder = _folders.GetFolder(siteid, $"Users/{userid}/");
+            var folder = _folders.GetFolder(siteid, $"{Constants.UserFolderPath}{userid}/");
             if (folder != null)
             {
                 if (Directory.Exists(_folders.GetFolderPath(folder)))
@@ -474,13 +474,10 @@ namespace Oqtane.Managers
                         user = GetUser(user.Username, user.SiteId);
                         var alias = _tenantManager.GetAlias();
                         string siteName = _sites.GetSite(user.SiteId).Name;
-                        string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                        string url = alias.Protocol + alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                         string subject = _localizer["UserLockoutEmailSubject"];
                         subject = subject.Replace("[SiteName]", siteName);
                         string body = _localizer["UserLockoutEmailBody"].Value;
                         body = body.Replace("[UserDisplayName]", user.DisplayName);
-                        body = body.Replace("[URL]", url);
                         body = body.Replace("[SiteName]", siteName);
                         var notification = new Notification(user.SiteId, user, subject, body);
                         _notifications.AddNotification(notification);

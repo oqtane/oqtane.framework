@@ -150,7 +150,7 @@
     {
         try
         {
-            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId, false);
 
             if (PageState.QueryString.ContainsKey("id"))
             {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -129,7 +130,7 @@ namespace Oqtane.Services
             {
                 folderPath = Utilities.UrlCombine(folderPath) + "/";
             }
-            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{WebUtility.UrlEncode(folderPath)}");
+            List<File> files = await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{Uri.EscapeDataString(folderPath)}");
             return files?.OrderBy(item => item.Name).ToList();
         }
 
@@ -140,7 +141,7 @@ namespace Oqtane.Services
 
         public async Task<File> GetFileAsync(int folderId, string name)
         {
-            return await GetJsonAsync<File>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}/{folderId}");
+            return await GetJsonAsync<File>($"{Apiurl}/name/{Uri.EscapeDataString(name)}/{folderId}");
         }
 
         public async Task<File> AddFileAsync(File file)

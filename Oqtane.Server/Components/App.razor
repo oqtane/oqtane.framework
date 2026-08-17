@@ -4,11 +4,9 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Extensions
 @using Microsoft.AspNetCore.Antiforgery
-@using Microsoft.AspNetCore.Localization
 @using Microsoft.Net.Http.Headers
 @using Microsoft.Extensions.Primitives
 @using Microsoft.AspNetCore.Authentication
-@using Oqtane.Client
 @using Oqtane.UI
 @using Oqtane.Repository
 @using Oqtane.Infrastructure
@@ -33,6 +31,7 @@
 @inject IJwtManager JwtManager
 @inject ICookieConsentService CookieConsentService
 @inject ISettingService SettingService
+@inject IVisitorCookieService VisitorCookieService
 
 @if (_initialized)
 {
@@ -179,7 +178,7 @@
 
                     if (site.VisitorTracking && _allowCookies)
                     {
-                        TrackVisitor(site.SiteId);
+                        _visitorId = TrackVisitor(site.SiteId, _remoteIPAddress);
                     }
 
                     // get jwt token for downstream APIs
@@ -317,7 +316,7 @@
         }
     }
 
-    private void TrackVisitor(int SiteId)
+    private int TrackVisitor(int siteId, string remoteIPAddress)
     {
         try
         {
@@ -334,9 +333,9 @@
             var filter = settings.GetValue("VisitorFilter", Constants.DefaultVisitorFilter);
             foreach (string term in filter.ToLower().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(sValue => sValue.Trim()).ToArray())
             {
-                if (_remoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
+                if (remoteIPAddress.ToLower().Contains(term) || useragent.ToLower().Contains(term) || language.ToLower().Contains(term))
                 {
-                    return;
+                    return -1;
                 }
             }
 
@@ -347,44 +346,33 @@
             userid = (userid == -1) ? null : userid;
 
             // get cookie value
-            var visitorCookieName = Constants.VisitorCookiePrefix + SiteId.ToString();
-            var visitorCookieValue = Context.Request.Cookies[visitorCookieName];
-            DateTime expiry = DateTime.MinValue;
-            if (visitorCookieValue != null && visitorCookieValue.Contains("|"))
-            {
-                // visitor cookies contain the visitor id and an expiry date separated by a pipe symbol
-                var values = visitorCookieValue.Split('|');
-                int.TryParse(values[0], out _visitorId);
-                DateTime.TryParseExact(values[1], "M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out expiry);
-            }
-            else // legacy cookie format
-            {
-                int.TryParse(visitorCookieValue, out _visitorId);
-            }
+            var visitorCookie = VisitorCookieService.GetVisitor(siteId);
+            var visitorId = visitorCookie.VisitorId;
+            var expiry = visitorCookie.Expiry;
             bool setcookie = false;
             Visitor visitor = null;
 
-            if (_visitorId <= 0)
+            if (visitorId == -1)
             {
-                // if enabled use IP Address correlation
+                // use IP Address correlation (if enabled)
                 var correlate = bool.Parse(settings.GetValue("VisitorCorrelation", "true"));
                 if (correlate)
                 {
-                    visitor = VisitorRepository.GetVisitor(SiteId, _remoteIPAddress);
+                    visitor = VisitorRepository.GetVisitor(siteId, remoteIPAddress);
                     if (visitor != null)
                     {
-                        _visitorId = visitor.VisitorId;
+                        visitorId = visitor.VisitorId;
                         setcookie = true;
                     }
                 }
             }
 
-            if (_visitorId <= 0)
+            if (visitorId == -1)
             {
                 // create new visitor
                 visitor = new Visitor();
-                visitor.SiteId = SiteId;
-                visitor.IPAddress = _remoteIPAddress;
+                visitor.SiteId = siteId;
+                visitor.IPAddress = remoteIPAddress;
                 visitor.UserAgent = useragent;
                 visitor.Language = language;
                 visitor.Url = url;
@@ -394,7 +382,7 @@
                 visitor.CreatedOn = DateTime.UtcNow;
                 visitor.VisitedOn = DateTime.UtcNow;
                 visitor = VisitorRepository.AddVisitor(visitor);
-                _visitorId = visitor.VisitorId;
+                visitorId = visitor.VisitorId;
                 setcookie = true;
             }
             else
@@ -405,12 +393,12 @@
                     if (visitor == null)
                     {
                         // get visitor if not previously loaded
-                        visitor = VisitorRepository.GetVisitor(_visitorId);
+                        visitor = VisitorRepository.GetVisitor(visitorId);
                     }
                     if (visitor != null)
                     {
                         // update visitor
-                        visitor.IPAddress = _remoteIPAddress;
+                        visitor.IPAddress = remoteIPAddress;
                         visitor.UserAgent = useragent;
                         visitor.Language = language;
                         visitor.Url = url;
@@ -430,7 +418,7 @@
                     else
                     {
                         // remove cookie if visitor does not exist
-                        Context.Response.Cookies.Delete(visitorCookieName);
+                        VisitorCookieService.DeleteVisitor(siteId);
                     }
                 }
             }
@@ -439,25 +427,16 @@
             if (setcookie)
             {
                 expiry = DateTime.UtcNow.AddMinutes(int.Parse(settings.GetValue("VisitorDuration", "5")));
-
-                Context.Response.Cookies.Append(
-                    visitorCookieName,
-                    $"{_visitorId}|{expiry.ToString("M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture)}",
-                    new CookieOptions()
-                    {
-                        Expires = DateTimeOffset.UtcNow.AddYears(10),
-                        IsEssential = true,
-                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax, // Set SameSite attribute
-                        Secure = true, // Ensure the cookie is only sent over HTTPS
-                        HttpOnly = true // Optional: Helps mitigate XSS attacks
-                    }
-                );
+                VisitorCookieService.SetVisitor(siteId, visitorId, expiry);
             }
+
+            return visitorId;
         }
         catch
         {
             // error tracking visitor
         }
+        return -1;
     }
 
     private async Task GetJwtToken(Alias alias)

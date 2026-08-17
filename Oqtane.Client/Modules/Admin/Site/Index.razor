@@ -11,7 +11,7 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 @inject ITimeZoneService TimeZoneService
-@inject ILocalizationService LocalizationService
+@inject ILanguageService LanguageService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
@@ -44,13 +44,13 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content" ResourceKey="Culture">Language:</Label>
+                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc..." ResourceKey="Culture">Culture:</Label>
                 <div class="col-sm-9">
                     <select id="culture" class="form-select" @bind="@_culturecode">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                        @foreach (var culture in _cultures)
+                        @foreach (var language in _languages)
                         {
-                            <option value="@culture.Name">@culture.DisplayName</option>
+                            <option value="@language.Code">@language.Name</option>
                         }
                     </select>
                 </div>
@@ -601,7 +601,7 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
     private List<Models.TimeZone> _timezones;
-    private IEnumerable<Models.Culture> _cultures;
+    private IEnumerable<Models.Language> _languages;
 
     private string _name = string.Empty;
     private string _timezoneid = string.Empty;
@@ -701,7 +701,7 @@
             if (site != null)
             {
                 _timezones = TimeZoneService.GetTimeZones();
-                _cultures = await LocalizationService.GetNeutralCulturesAsync();
+                _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);

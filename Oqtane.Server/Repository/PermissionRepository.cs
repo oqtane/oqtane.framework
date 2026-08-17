@@ -42,7 +42,10 @@ namespace Oqtane.Repository
             return _cache.GetCache(_tenantManager.GetAlias(), $"Permissions:{entityName}", entry =>
             {
                 var roles = _roles.GetRoles(siteId, true).ToList();
-                var permissions = db.Permission.Where(item => item.SiteId == siteId && item.EntityName == entityName).ToList();
+                var permissions = db.Permission
+                    .Where(item => item.SiteId == siteId && item.EntityName == entityName)
+                    .AsNoTracking()
+                    .ToList();
                 foreach (var permission in permissions)
                 {
                     if (permission.RoleId != null && string.IsNullOrEmpty(permission.RoleName))
@@ -77,6 +80,8 @@ namespace Oqtane.Repository
 
         public Permission AddPermission(Permission permission)
         {
+            permission.Role = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Permission.Add(permission);
             db.SaveChanges();
@@ -86,6 +91,8 @@ namespace Oqtane.Repository
 
         public Permission UpdatePermission(Permission permission)
         {
+            permission.Role = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(permission).State = EntityState.Modified;
             db.SaveChanges();
@@ -132,6 +139,7 @@ namespace Oqtane.Repository
                 }
                 else
                 {
+                    permission.PermissionId = 0; // allow identity column to auto-generate
                     db.Permission.Add(permission);
                     modified = true;
                 }
@@ -159,7 +167,9 @@ namespace Oqtane.Repository
         public Permission GetPermission(int permissionId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Permission.Find(permissionId);
+            return db.Permission
+                .AsNoTracking()
+                .FirstOrDefault(item => item.PermissionId == permissionId);
         }
 
         public void DeletePermission(int permissionId)

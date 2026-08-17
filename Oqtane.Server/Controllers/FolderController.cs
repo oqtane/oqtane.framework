@@ -35,21 +35,30 @@ namespace Oqtane.Controllers
             _alias = tenantManager.GetAlias();
         }
 
-        // GET: api/<controller>?siteid=x
+        // GET: api/<controller>?siteid=x&includeuserfolder=y
         [HttpGet]
-        public IEnumerable<Folder> Get(string siteid)
+        public IEnumerable<Folder> Get(string siteid, string includeuserfolder)
         {
+            bool includeUserFolder = true;
+            if (!string.IsNullOrEmpty(includeuserfolder) && bool.TryParse(includeuserfolder, out bool result))
+            {
+                includeUserFolder = result;
+            }
+
             List<Folder> folders = new List<Folder>();
             int SiteId;
             if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                var hierarchy = _folders.GetFolders(SiteId).ToList();
+                var hierarchy = _folders.GetFolders(SiteId, _userPermissions.GetUser(User).UserId).ToList();
                 foreach (Folder folder in hierarchy)
                 {
                     // note that Browse permission is used for this method
                     if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.PermissionList))
                     {
-                        folders.Add(folder);
+                        if (includeUserFolder || !folder.Path.StartsWith(Constants.UserFolderPath))
+                        {
+                            folders.Add(folder);
+                        }
                     }
                 }
             }
@@ -97,11 +106,11 @@ namespace Oqtane.Controllers
                 folderPath += "/";
             }
             Folder folder = _folders.GetFolder(siteId, folderPath);
-            if (folder == null && User.IsInRole(RoleNames.Host) && path.StartsWith("Users/"))
+            if (folder == null && User.IsInRole(RoleNames.Host) && path.StartsWith(Constants.UserFolderPath))
             {
                 // create the user folder on this site for the host user
                 var userId = int.Parse(path.ReplaceMultiple(new string[] { "Users", "/" }, ""));
-                folder = _folders.GetFolder(siteId, "Users/");
+                folder = _folders.GetFolder(siteId, Constants.UserFolderPath);
                 if (folder != null)
                 {
                     folder = _folders.AddFolder(new Folder
@@ -109,11 +118,12 @@ namespace Oqtane.Controllers
                         SiteId = folder.SiteId,
                         ParentId = folder.FolderId,
                         Name = "My Folder",
-                        Type = FolderTypes.Private,
+                        Type = folder.Type,
                         Path = path,
                         Order = 1,
-                        ImageSizes = "",
-                        Capacity = Constants.UserFolderCapacity,
+                        ImageSizes = folder.ImageSizes,
+                        Capacity = folder.Capacity,
+                        CacheControl = folder.CacheControl,
                         IsSystem = true,
                         PermissionList = new List<Permission>
                         {

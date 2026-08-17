@@ -32,14 +32,17 @@ namespace Oqtane.Repository
         public IEnumerable<Job> GetJobs()
         {
             // remove any jobs which have been uninstalled
-            foreach (var job in _db.Job.ToList())
+            foreach (var job in _db.Job.AsNoTracking().ToList())
             {
                 if (Type.GetType(job.JobType) == null)
                 {
                     DeleteJob(job.JobId);
                 }
             }
-            return _db.Job.ToList();
+
+            return _db.Job
+                .AsNoTracking()
+                .ToList();
         }
 
         public Job AddJob(Job job)
@@ -61,24 +64,29 @@ namespace Oqtane.Repository
         {
             return _cache.GetCache($"Job:{jobType}", entry =>
             {
-                return _db.Job.Where(item => item.JobType == jobType).FirstOrDefault();
+                return _db.Job
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.JobType == jobType);
             });
         }
 
         public Job GetJob(int jobId)
         {
-            return _db.Job.Find(jobId);
+            return GetJob(jobId, false);
         }
 
         public Job GetJob(int jobId, bool tracking)
         {
             if (tracking)
             {
-                return _db.Job.Find(jobId);
+                return _db.Job
+                    .Find(jobId);
             }
             else
             {
-                return _db.Job.AsNoTracking().FirstOrDefault(item => item.JobId == jobId);
+                return _db.Job
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.JobId == jobId);
             }
 
         }

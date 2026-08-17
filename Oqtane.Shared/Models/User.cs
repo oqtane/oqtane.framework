@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Xml.Linq;
+using Oqtane.Shared;
 
 namespace Oqtane.Models
 {
@@ -115,7 +116,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string FolderPath
         {
-            get => "Users/" + UserId.ToString() + "/";
+            get => Constants.UserFolderPath + UserId.ToString() + "/";
         }
 
         /// <summary>

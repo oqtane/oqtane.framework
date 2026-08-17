@@ -38,11 +38,17 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (includeGlobalRoles)
             {
-                return db.Role.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
+                return db.Role
+                    .Where(item => item.SiteId == siteId || item.SiteId == null)
+                    .AsNoTracking()
+                    .ToList();
             }
             else
             {
-                return db.Role.Where(item => item.SiteId == siteId).ToList();
+                return db.Role
+                    .Where(item => item.SiteId == siteId)
+                    .AsNoTracking()
+                    .ToList();
             }
         }
 
@@ -66,7 +72,7 @@ namespace Oqtane.Repository
 
         public Role GetRole(int roleId)
         {
-            return GetRole(roleId, true);
+            return GetRole(roleId, false);
         }
 
         public Role GetRole(int roleId, bool tracking)
@@ -74,11 +80,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.Role.Find(roleId);
+                return db.Role
+                    .Find(roleId);
             }
             else
             {
-                return db.Role.AsNoTracking().FirstOrDefault(item => item.RoleId == roleId);
+                return db.Role
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.RoleId == roleId);
             }
         }
 

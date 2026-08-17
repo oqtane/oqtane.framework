@@ -120,8 +120,6 @@ namespace Oqtane.Models
             };
         }
 
-        [Obsolete("The Role property is deprecated", false)]
-        [NotMapped]
         [JsonIgnore] // exclude from API payload
         public Role Role { get; set; }
     }
