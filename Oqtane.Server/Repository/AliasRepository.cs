@@ -124,9 +124,15 @@ namespace Oqtane.Repository
 
         public Alias GetAlias(int tenantId, int siteId)
         {
-            return _db.Alias
-                .AsNoTracking()
-                .FirstOrDefault(item => item.TenantId == tenantId && item.SiteId == siteId);
+            var aliases = GetAliases().Where(item => item.TenantId == tenantId && item.SiteId == siteId).ToList();
+            if (aliases.Any(item => item.IsDefault))
+            {
+                return aliases.FirstOrDefault(item => item.IsDefault);
+            }
+            else
+            {
+                return aliases.FirstOrDefault();
+            }
         }
 
         public void DeleteAlias(int aliasId)
