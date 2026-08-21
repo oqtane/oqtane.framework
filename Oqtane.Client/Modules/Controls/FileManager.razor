@@ -53,13 +53,27 @@
                     {
                         <div class="row mt-2">
                             <div class="col">
-                                @if (UploadMultiple)
+                                @if (UploadOnSelect)
                                 {
-                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                    @if (UploadMultiple)
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple @onchange="UploadFiles" />
+                                    }
+                                    else
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" @onchange="UploadFiles" />
+                                    }
                                 }
                                 else
                                 {
-                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                    @if (UploadMultiple)
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                    }
+                                    else
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                    }
                                 }
                                 @if (MaxUploadFileSize > 0)
                                 {
@@ -69,7 +83,10 @@
                                 }
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
+                                @if (ShowUploadButton)
+                                {
+                                    <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
+                                }
                                 @if (FileId != -1 && !UploadMultiple)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
@@ -146,7 +163,13 @@
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
 
     [Parameter]
-    public bool ShowUpload { get; set; } = true; // optional - for indicating whether a Upload controls should be displayed - default is true
+    public bool ShowUpload { get; set; } = true; // optional - indicates if the file upload/delete and progress indicator section should be visible - default is true
+
+    [Parameter]
+    public bool ShowUploadButton { get; set; } = true; // optional - for indicating whether an Upload button should be displayed - default is true
+
+    [Parameter]
+    public bool UploadOnSelect { get; set; } = false; // optional - for indicating whether files should be uploaded immediatey upon user selection - default is false
 
     [Parameter]
     public bool ShowFolders { get; set; } = true; // optional - for indicating whether a list of folders should be displayed - default is true
@@ -195,6 +218,10 @@
         _fileinputid = "FileInput_" + _guid;
         _progressinfoid = "ProgressInfo_" + _guid;
         _progressbarid = "ProgressBar_" + _guid;
+        if (UploadOnSelect)
+        {
+            ShowUploadButton = false;
+        }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -392,7 +419,7 @@
         StateHasChanged();
     }
 
-    private async Task UploadFiles()
+    public async Task<int> UploadFiles()
     {
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
@@ -451,7 +478,7 @@
                             await logger.LogInformation("File Upload Failed From .NET MAUI Due To Missing Security Token. Token Options Must Be Set In User Settings.");
                             _message = "Security Token Not Specified";
                             _messagetype = MessageType.Error;
-                            return;
+                            return -1;
                         }
                     }
 
@@ -548,6 +575,7 @@
             _message = Localizer["Message.File.NotSelected"];
             _messagetype = MessageType.Warning;
         }
+        return FileId;
     }
 
     private async Task DeleteFile()
