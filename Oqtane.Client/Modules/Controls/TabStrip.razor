@@ -16,7 +16,7 @@
                         }
                         else
                         {
-							<a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick:preventDefault="true">
+							<a class="nav-link" data-bs-toggle="tab" href="#@(Id + tabPanel.Name)" role="tab" @onclick="async () => await SelectPanelAsync(tabPanel)" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }
@@ -48,6 +48,8 @@
 
     [Parameter]
     public string TabContentClass { get; set; } = "app-tab-content"; // optional - to extend the TabContent div.
+
+    public EventCallback<string> OnTabChanged { get; set; } // optional - event callback to notify parent component when tab is changed
 
 	protected override void OnInitialized()
 	{
@@ -167,5 +169,13 @@
         }
 
         return authorized;
+    }
+
+    private async Task SelectPanelAsync(TabPanel tabPanel)
+    {
+        if (OnTabChanged.HasDelegate && !string.IsNullOrEmpty(tabPanel?.Name))
+        {
+            await OnTabChanged.InvokeAsync(tabPanel.Name);
+        }
     }
 }
