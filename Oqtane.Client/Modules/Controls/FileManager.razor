@@ -629,7 +629,12 @@
     {
         if (FileId == -1 && !ShowUploadButton)
         {
-            await UploadFiles();
+            var interop = new Interop(JSRuntime);
+            var uploads = await interop.GetFiles(_fileinputid);
+            if (uploads.Length > 0)
+            {
+                await UploadFiles();
+            }
         }
         return FileId;
     }
@@ -640,7 +645,12 @@
     {
         if (FileId == -1 && !ShowUploadButton)
         {
-            await UploadFiles();
+            var interop = new Interop(JSRuntime);
+            var uploads = await interop.GetFiles(_fileinputid);
+            if (uploads.Length > 0)
+            {
+                await UploadFiles();
+            }
         }
         return _file;
     }
