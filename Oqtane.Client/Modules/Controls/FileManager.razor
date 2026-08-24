@@ -68,11 +68,11 @@
                                 {
                                     @if (UploadMultiple)
                                     {
-                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple @onchange="FileSelected" />
                                     }
                                     else
                                     {
-                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" @onchange="FileSelected" />
                                     }
                                 }
                                 @if (MaxUploadFileSize > 0)
@@ -169,6 +169,9 @@
     public bool ShowUploadButton { get; set; } = true; // optional - for indicating whether an Upload button should be displayed - default is true
 
     [Parameter]
+    public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
+
+    [Parameter]
     public bool UploadOnSelect { get; set; } = false; // optional - for indicating whether files should be uploaded immediatey upon user selection - default is false
 
     [Parameter]
@@ -182,9 +185,6 @@
 
     [Parameter]
     public bool ShowSuccess { get; set; } = false; // optional - for indicating whether a success message should be displayed upon successful upload - default is false
-
-    [Parameter]
-    public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
 
     [Parameter]
     public bool AnonymizeUploadFilenames { get; set; } = false; // optional - indicate if file names should be anonymized on upload - default false
@@ -419,7 +419,18 @@
         StateHasChanged();
     }
 
-    public async Task<int> UploadFiles()
+    private async Task FileSelected(ChangeEventArgs e)
+    {
+        if (!ShowUploadButton)
+        {
+            FileId = -1;
+            await SetImage();
+            await OnSelectFile.InvokeAsync(FileId);
+            StateHasChanged();
+        }
+    }
+
+    public async Task UploadFiles()
     {
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
@@ -478,7 +489,7 @@
                             await logger.LogInformation("File Upload Failed From .NET MAUI Due To Missing Security Token. Token Options Must Be Set In User Settings.");
                             _message = "Security Token Not Specified";
                             _messagetype = MessageType.Error;
-                            return -1;
+                            return;
                         }
                     }
 
@@ -575,7 +586,6 @@
             _message = Localizer["Message.File.NotSelected"];
             _messagetype = MessageType.Warning;
         }
-        return FileId;
     }
 
     private async Task DeleteFile()
@@ -615,9 +625,27 @@
 
     public int GetFileId() => FileId;
 
-    public int GetFolderId() => FolderId;
+    public async Task<int> GetFileIdAsync()
+    {
+        if (FileId == -1 && !ShowUploadButton)
+        {
+            await UploadFiles();
+        }
+        return FileId;
+    }
 
     public File GetFile() => _file;
+
+    public async Task<File> GetFileAsync()
+    {
+        if (FileId == -1 && !ShowUploadButton)
+        {
+            await UploadFiles();
+        }
+        return _file;
+    }
+
+    public int GetFolderId() => FolderId;
 
     public async Task Refresh()
     {
