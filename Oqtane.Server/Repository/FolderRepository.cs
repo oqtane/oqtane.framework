@@ -20,6 +20,8 @@ namespace Oqtane.Repository
         Folder GetFolder(int folderId, bool tracking);
         Folder GetFolder(int siteId, string path);
         void DeleteFolder(int folderId);
+        string GetFolderPath(int folderId);
+        string GetFolderPath(Folder folder);
     }
 
     public class FolderRepository : IFolderRepository
@@ -266,6 +268,22 @@ namespace Oqtane.Repository
 
         private string BuildMappedPath(Folder folder)
         {
+            var path = string.Empty;
+            if (folder.ParentId != null)
+            {
+                var parentFolder = GetFolder(folder.ParentId.Value);
+                if (parentFolder != null)
+                {
+                    var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
+                    path = parentFolder.FolderConfigId != folder.FolderConfigId ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
+                }
+            }
+
+            return path;
+        }
+
+        public string GetFolderPath(int folderId)
+        {
             using var db = _dbContextFactory.CreateDbContext();
             var folder = db.Folder
                 .AsNoTracking()
@@ -278,14 +296,13 @@ namespace Oqtane.Repository
             string path = "";
             switch (folder.Type)
             {
-                var parentFolder = GetFolder(folder.ParentId.Value);
-                if (parentFolder != null)
-                {
-                    var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
-                    path = parentFolder.FolderConfigId != folder.FolderConfigId ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
-                }
+                case FolderTypes.Private:
+                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
+                case FolderTypes.Public:
+                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
             }
-
             return path;
         }
     }
