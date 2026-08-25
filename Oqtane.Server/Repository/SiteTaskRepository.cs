@@ -28,14 +28,19 @@ namespace Oqtane.Repository
         public IEnumerable<SiteTask> GetSiteTasks(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SiteTask.Where(item => item.SiteId == siteId && !item.IsCompleted)
-                .OrderBy(item => item.CreatedOn).ToList();
+            return db.SiteTask
+                .Where(item => item.SiteId == siteId && !item.IsCompleted)
+                .OrderBy(item => item.CreatedOn)
+                .AsNoTracking()
+                .ToList();
         }
 
         public SiteTask GetSiteTask(int siteTaskId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SiteTask.SingleOrDefault(item => item.SiteTaskId == siteTaskId);
+            return db.SiteTask
+                .AsNoTracking()
+                .FirstOrDefault(item => item.SiteTaskId == siteTaskId);
         }
 
         public SiteTask AddSiteTask(SiteTask siteTask)

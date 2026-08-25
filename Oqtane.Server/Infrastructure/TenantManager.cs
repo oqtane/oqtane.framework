@@ -11,6 +11,7 @@ namespace Oqtane.Infrastructure
     {
         Alias GetAlias();
         Tenant GetTenant();
+        int GetTenantId();
         void SetAlias(Alias alias);
         void SetAlias(int tenantId, int siteId);
         void SetTenant(int tenantId);
@@ -88,6 +89,16 @@ namespace Oqtane.Infrastructure
             return null;
         }
 
+        public int GetTenantId()
+        {
+            var alias = _siteState?.Alias;
+            if (alias != null)
+            {
+                return alias.TenantId;
+            }
+            return -1;
+        }
+
         // background processes can set the alias using the SiteState service
         public void SetAlias(Alias alias)
         {
@@ -96,7 +107,7 @@ namespace Oqtane.Infrastructure
 
         public void SetAlias(int tenantId, int siteId)
         {
-            _siteState.Alias = _aliasRepository.GetAliases().ToList().FirstOrDefault(item => item.TenantId == tenantId && item.SiteId == siteId);
+            _siteState.Alias = _aliasRepository.GetAlias(tenantId, siteId);
         }
 
         public void SetTenant(int tenantId)

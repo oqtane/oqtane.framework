@@ -108,7 +108,14 @@ else
     {
         try
         {
-            await LoadFolders();
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _folders = _folders.Where(item => !item.Path.StartsWith($"{Constants.UserFolderPath}{PageState.User.UserId}/")).ToList();
+
+            if (_folderId == -1 && _folders.Count > 0)
+            {
+                _folderId = _folders[0].FolderId;
+                await GetFiles();
+            }
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);

@@ -89,7 +89,16 @@ namespace Oqtane.Repository
             return _cache.GetCache(GetCacheKey(), entry =>
             {
                 using var db = _factory.CreateDbContext();
-                return db.Site.OrderBy(item => item.Name).ToList();
+                var sites = db.Site
+                    .OrderBy(item => item.Name)
+                    .AsNoTracking()
+                    .ToList();
+                var tenantId = _tenantManager.GetTenantId();
+                foreach (var site in sites)
+                {
+                    site.TenantId = tenantId;
+                }
+                return sites;
             });
         }
 
@@ -115,13 +124,13 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId)
         {
-            return GetSite(siteId, true);
+            return GetSite(siteId, false);
         }
 
         public Site GetSite(int siteId, bool tracking)
         {
-            // note that tracking parameter is no longer relevant
-            return GetSites().FirstOrDefault(item => item.SiteId == siteId);
+            // note that tracking parameter is no longer relevant as it is retrieving from cache
+            return GetSites().FirstOrDefault(item => item.SiteId == siteId); ;
         }
 
         public void DeleteSite(int siteId)
@@ -294,16 +303,8 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId,
-                ParentId = folder.FolderId,
-                Name = "Users",
-                Type = FolderTypes.Private,
-                Path = "Users/",
-                MappedPath = "Users/",
-                Order = 3,
-                ImageSizes = "",
-                Capacity = 0,
-                IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Constants.UserFolderPath, Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
+                MappedPath = Constants.UserFolderPath,
                 FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
@@ -325,7 +326,8 @@ namespace Oqtane.Repository
                 var section = _config.GetSection("Installation:SiteTemplate");
                 if (section.Exists())
                 {
-                    if(string.IsNullOrEmpty(section.Value)){
+                    if (string.IsNullOrEmpty(section.Value))
+                    {
                         site.SiteTemplateType = Constants.DefaultSiteTemplate;
                     }
                     else

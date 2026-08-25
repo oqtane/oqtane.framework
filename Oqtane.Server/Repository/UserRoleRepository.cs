@@ -47,7 +47,9 @@ namespace Oqtane.Repository
             return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1).ToList();
+                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1)
+                .AsNoTracking()
+                .ToList();
         }
 
         public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
@@ -58,7 +60,9 @@ namespace Oqtane.Repository
                 return db.UserRole
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
-                    .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.UserId == userId).ToList();
+                    .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.UserId == userId)
+                    .AsNoTracking()
+                    .ToList();
             });
         }
 
@@ -68,11 +72,16 @@ namespace Oqtane.Repository
             return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.Role.Name == roleName).ToList();
+                .Where(item => (item.Role.SiteId == siteId || item.Role.SiteId == null || siteId == -1) && item.Role.Name == roleName)
+                .AsNoTracking()
+                .ToList();
         }
 
         public UserRole AddUserRole(UserRole userRole)
         {
+            userRole.User = null;
+            userRole.Role = null;
+
             userRole.EffectiveDate = userRole.EffectiveDate.HasValue ? DateTime.SpecifyKind(userRole.EffectiveDate.Value, DateTimeKind.Utc) : userRole.EffectiveDate;
             userRole.ExpiryDate = userRole.ExpiryDate.HasValue ? DateTime.SpecifyKind(userRole.ExpiryDate.Value, DateTimeKind.Utc) : userRole.ExpiryDate;
 
@@ -99,6 +108,9 @@ namespace Oqtane.Repository
 
         public UserRole UpdateUserRole(UserRole userRole)
         {
+            userRole.User = null;
+            userRole.Role = null;
+
             userRole.EffectiveDate = userRole.EffectiveDate.HasValue ? DateTime.SpecifyKind(userRole.EffectiveDate.Value, DateTimeKind.Utc) : userRole.EffectiveDate;
             userRole.ExpiryDate = userRole.ExpiryDate.HasValue ? DateTime.SpecifyKind(userRole.ExpiryDate.Value, DateTimeKind.Utc) : userRole.ExpiryDate;
 
@@ -118,7 +130,7 @@ namespace Oqtane.Repository
 
         public UserRole GetUserRole(int userRoleId)
         {
-            return GetUserRole(userRoleId, true);
+            return GetUserRole(userRoleId, false);
         }
 
         public UserRole GetUserRole(int userRoleId, bool tracking)
@@ -133,16 +145,17 @@ namespace Oqtane.Repository
             }
             else
             {
-                return db.UserRole.AsNoTracking()
+                return db.UserRole
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
+                    .AsNoTracking()
                     .FirstOrDefault(item => item.UserRoleId == userRoleId);
             }
         }
 
         public UserRole GetUserRole(int userId, int roleId)
         {
-            return GetUserRole(userId, roleId, true);
+            return GetUserRole(userId, roleId, false);
         }
 
         public UserRole GetUserRole(int userId, int roleId, bool tracking)
@@ -157,9 +170,10 @@ namespace Oqtane.Repository
             }
             else
             {
-                return db.UserRole.AsNoTracking()
+                return db.UserRole
                     .Include(item => item.Role) // eager load roles
                     .Include(item => item.User) // eager load users
+                    .AsNoTracking()
                     .FirstOrDefault(item => item.UserId == userId && item.RoleId == roleId);
             }
         }

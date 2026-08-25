@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Infrastructure;
@@ -12,6 +13,7 @@ namespace Oqtane.Repository
     public interface IFolderRepository
     {
         IEnumerable<Folder> GetFolders(int siteId);
+        IEnumerable<Folder> GetFolders(int siteId, int userId);
         Folder AddFolder(Folder folder);
         Folder UpdateFolder(Folder folder);
         Folder GetFolder(int folderId);
@@ -37,13 +39,54 @@ namespace Oqtane.Repository
 
         public IEnumerable<Folder> GetFolders(int siteId)
         {
+            return GetFolders(siteId, -1);
+        }
+
+        public IEnumerable<Folder> GetFolders(int siteId, int userId)
+        {
             using var db = _dbContextFactory.CreateDbContext();
-            var permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
-            var folders = db.Folder.Include(i => i.FolderConfig).Where(item => item.SiteId == siteId).ToList();
-            foreach (var folder in folders)
-            {
-                folder.PermissionList = permissions.Where(item => item.EntityId == folder.FolderId).ToList();
-            }
+            var folders = db.Folder
+                .Include(i => i.FolderConfig)
+                .Where(item => item.SiteId == siteId && (!item.Path.StartsWith(Constants.UserFolderPath) || item.Path == Constants.UserFolderPath || item.Path.StartsWith($"{Constants.UserFolderPath}{userId}/")))
+                .Select(item => new Folder
+                {
+                    FolderId = item.FolderId,
+                    SiteId = item.SiteId,
+                    ParentId = item.ParentId,
+                    Type = item.Type,
+                    Name = item.Name,
+                    Path = item.Path,
+                    Order = item.Order,
+                    ImageSizes = item.ImageSizes,
+                    Capacity = item.Capacity,
+                    IsSystem = item.IsSystem,
+                    CacheControl = item.CacheControl,
+                    CreatedBy = item.CreatedBy,
+                    CreatedOn = item.CreatedOn,
+                    ModifiedBy = item.ModifiedBy,
+                    ModifiedOn = item.ModifiedOn,
+                    PermissionList = db.Permission
+                        .Include(p => p.Role)
+                        .Where(p => p.EntityName == EntityNames.Folder && p.EntityId == item.FolderId)
+                        .Select(p => new Permission
+                        {
+                            PermissionId = p.PermissionId,
+                            SiteId = p.SiteId,
+                            EntityName = p.EntityName,
+                            EntityId = p.EntityId,
+                            PermissionName = p.PermissionName,
+                            RoleId = p.RoleId,
+                            RoleName = p.Role.Name,
+                            UserId = p.UserId,
+                            IsAuthorized = p.IsAuthorized,
+                            CreatedBy = p.CreatedBy,
+                            CreatedOn = p.CreatedOn,
+                            ModifiedBy = p.ModifiedBy,
+                            ModifiedOn = p.ModifiedOn
+                        })
+                        .ToList()
+                })
+                .ToList();
             return GetFoldersHierarchy(folders);
         }
 
@@ -113,37 +156,103 @@ namespace Oqtane.Repository
 
         public Folder GetFolder(int folderId)
         {
-            return GetFolder(folderId, true);
+            return GetFolder(folderId, false);
         }
 
         public Folder GetFolder(int folderId, bool tracking)
         {
+            // note that tracking parameter is ignored as query uses a projection
             using var db = _dbContextFactory.CreateDbContext();
-            Folder folder;
-            if (tracking)
-            {
-                folder = db.Folder.Include(i => i.FolderConfig).FirstOrDefault(item => item.FolderId == folderId);
-            }
-            else
-            {
-                folder = db.Folder.AsNoTracking().Include(i => i.FolderConfig).Where(item => item.FolderId == folderId).FirstOrDefault();
-            }
-            if (folder != null)
-            {
-                folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
-            }
-            return folder;
+            return db.Folder
+                .Include(i => i.FolderConfig)
+                .Where(item => item.FolderId == folderId)
+                .Select(item => new Folder
+                {
+                    FolderId = item.FolderId,
+                    SiteId = item.SiteId,
+                    ParentId = item.ParentId,
+                    Type = item.Type,
+                    Name = item.Name,
+                    Path = item.Path,
+                    Order = item.Order,
+                    ImageSizes = item.ImageSizes,
+                    Capacity = item.Capacity,
+                    IsSystem = item.IsSystem,
+                    CacheControl = item.CacheControl,
+                    CreatedBy = item.CreatedBy,
+                    CreatedOn = item.CreatedOn,
+                    ModifiedBy = item.ModifiedBy,
+                    ModifiedOn = item.ModifiedOn,
+                    PermissionList = db.Permission
+                        .Include(p => p.Role)
+                        .Where(p => p.EntityName == EntityNames.Folder && p.EntityId == item.FolderId)
+                        .Select(p => new Permission
+                        {
+                            PermissionId = p.PermissionId,
+                            SiteId = p.SiteId,
+                            EntityName = p.EntityName,
+                            EntityId = p.EntityId,
+                            PermissionName = p.PermissionName,
+                            RoleId = p.RoleId,
+                            RoleName = p.Role.Name,
+                            UserId = p.UserId,
+                            IsAuthorized = p.IsAuthorized,
+                            CreatedBy = p.CreatedBy,
+                            CreatedOn = p.CreatedOn,
+                            ModifiedBy = p.ModifiedBy,
+                            ModifiedOn = p.ModifiedOn
+                        })
+                        .ToList()
+                })
+                .FirstOrDefault();
         }
 
         public Folder GetFolder(int siteId, string path)
         {
+            // note that tracking parameter is ignored as query uses a projection
             using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder.Include(i => i.FolderConfig).Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
-            if (folder != null)
-            {
-                folder.PermissionList = _permissions.GetPermissions(folder.SiteId, EntityNames.Folder, folder.FolderId)?.ToList();
-            }
-            return folder;
+            return db.Folder
+                .Include(i => i.FolderConfig)
+                .Where(item => item.SiteId == siteId && item.Path == path)
+                .Select(item => new Folder
+                {
+                    FolderId = item.FolderId,
+                    SiteId = item.SiteId,
+                    ParentId = item.ParentId,
+                    Type = item.Type,
+                    Name = item.Name,
+                    Path = item.Path,
+                    Order = item.Order,
+                    ImageSizes = item.ImageSizes,
+                    Capacity = item.Capacity,
+                    IsSystem = item.IsSystem,
+                    CacheControl = item.CacheControl,
+                    CreatedBy = item.CreatedBy,
+                    CreatedOn = item.CreatedOn,
+                    ModifiedBy = item.ModifiedBy,
+                    ModifiedOn = item.ModifiedOn,
+                    PermissionList = db.Permission
+                        .Include(p => p.Role)
+                        .Where(p => p.EntityName == EntityNames.Folder && p.EntityId == item.FolderId)
+                        .Select(p => new Permission
+                        {
+                            PermissionId = p.PermissionId,
+                            SiteId = p.SiteId,
+                            EntityName = p.EntityName,
+                            EntityId = p.EntityId,
+                            PermissionName = p.PermissionName,
+                            RoleId = p.RoleId,
+                            RoleName = p.Role.Name,
+                            UserId = p.UserId,
+                            IsAuthorized = p.IsAuthorized,
+                            CreatedBy = p.CreatedBy,
+                            CreatedOn = p.CreatedOn,
+                            ModifiedBy = p.ModifiedBy,
+                            ModifiedOn = p.ModifiedOn
+                        })
+                        .ToList()
+                })
+                .FirstOrDefault();
         }
 
         public void DeleteFolder(int folderId)
@@ -157,8 +266,17 @@ namespace Oqtane.Repository
 
         private string BuildMappedPath(Folder folder)
         {
-            var path = string.Empty;
-            if(folder.ParentId != null)
+            using var db = _dbContextFactory.CreateDbContext();
+            var folder = db.Folder
+                .AsNoTracking()
+                .FirstOrDefault(item => item.FolderId == folderId);
+            return GetFolderPath(folder);
+        }
+
+        public string GetFolderPath(Folder folder)
+        {
+            string path = "";
+            switch (folder.Type)
             {
                 var parentFolder = GetFolder(folder.ParentId.Value);
                 if (parentFolder != null)

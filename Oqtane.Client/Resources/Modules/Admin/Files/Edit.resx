@@ -206,5 +206,10 @@
   </data>
   <data name="EditConfig" xml:space="preserve">
     <value>Edit Config</value>
+  <data name="Path.Text" xml:space="preserve">
+    <value>Path:</value>
+  </data>
+  <data name="Path.HelpText" xml:space="preserve">
+    <value>The folder path</value>
   </data>
 </root>

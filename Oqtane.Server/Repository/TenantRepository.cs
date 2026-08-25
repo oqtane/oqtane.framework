@@ -31,7 +31,9 @@ namespace Oqtane.Repository
         {
             return _cache.GetCache("Tenants", entry =>
             {
-                return _db.Tenant.ToList();
+                return _db.Tenant
+                    .AsNoTracking()
+                    .ToList();
             });
         }
 

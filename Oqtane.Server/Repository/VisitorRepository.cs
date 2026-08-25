@@ -29,13 +29,17 @@ namespace Oqtane.Repository
         public IEnumerable<Visitor> GetVisitors(int siteId, DateTime fromDate)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Visitor.AsNoTracking()
+            return db.Visitor
                 .Include(item => item.User) // eager load users
-                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate).ToList();
+                .Where(item => item.SiteId == siteId && item.VisitedOn >= fromDate)
+                .AsNoTracking()
+                .ToList();
         }
 
         public Visitor AddVisitor(Visitor visitor)
         {
+            visitor.User = null;
+            
             using var db = _dbContextFactory.CreateDbContext();
             db.Visitor.Add(visitor);
             db.SaveChanges();
@@ -44,6 +48,8 @@ namespace Oqtane.Repository
 
         public Visitor UpdateVisitor(Visitor visitor)
         {
+            visitor.User = null;
+
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(visitor).State = EntityState.Modified;
             db.SaveChanges();
@@ -53,13 +59,17 @@ namespace Oqtane.Repository
         public Visitor GetVisitor(int visitorId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Visitor.Find(visitorId);
+            return db.Visitor
+                .AsNoTracking()
+                .FirstOrDefault(item => item.VisitorId == visitorId);
         }
 
         public Visitor GetVisitor(int siteId, string IPAddress)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Visitor.FirstOrDefault(item => item.SiteId == siteId && item.IPAddress == IPAddress);
+            return db.Visitor
+                .AsNoTracking()
+                .FirstOrDefault(item => item.SiteId == siteId && item.IPAddress == IPAddress);
         }
 
         public void DeleteVisitor(int visitorId)

@@ -65,7 +65,15 @@ namespace Oqtane.Services
         Task DownloadPackageAsync(string packageId, string version);
 
         /// <summary>
-        /// Installs all packages located in //TODO: 2dm where?
+        /// Validates the account credentials with the package manager
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<Result> ValidateAccountAsync(string email, string password);
+
+        /// <summary>
+        /// Installs all packages located in /packages folder
         /// </summary>
         /// <returns></returns>
         Task InstallPackagesAsync();
@@ -106,6 +114,11 @@ namespace Oqtane.Services
         public async Task DownloadPackageAsync(string packageId, string version)
         {
             await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&download=true&install=true");
+        }
+
+        public async Task<Result> ValidateAccountAsync(string email, string password)
+        {
+            return await GetJsonAsync<Result>($"{Apiurl}/validate?email={WebUtility.UrlEncode(email)}&password={WebUtility.UrlEncode(password)}");
         }
 
         public async Task InstallPackagesAsync()

@@ -161,7 +161,7 @@
     private string _hostEmail = string.Empty;
     private string _hostName = string.Empty;
     private List<SiteTemplate> _templates;
-    private string _template = Constants.DefaultSiteTemplate;
+    private string _template = "";
     private bool _register = true;
     private string _message = string.Empty;
     private string _loadingDisplay = "display: none;";
@@ -187,6 +187,7 @@
         LoadDatabaseConfigComponent();
 
         _templates = await SiteTemplateService.GetSiteTemplatesAsync();
+        _template = _templates.First(item => item.IsDefault).TypeName;
     }
 
     private void DatabaseChanged(ChangeEventArgs eventArgs)

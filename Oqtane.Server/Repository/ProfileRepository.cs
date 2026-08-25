@@ -26,7 +26,10 @@ namespace Oqtane.Repository
         public IEnumerable<Profile> GetProfiles(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null).ToList();
+            return db.Profile
+                .Where(item => item.SiteId == siteId || item.SiteId == null)
+                .AsNoTracking()
+                .ToList();
         }
 
         public Profile AddProfile(Profile profile)
@@ -47,7 +50,7 @@ namespace Oqtane.Repository
 
         public Profile GetProfile(int profileId)
         {
-            return GetProfile(profileId, true);
+            return GetProfile(profileId, false);
         }
 
         public Profile GetProfile(int profileId, bool tracking)
@@ -55,11 +58,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.Profile.Find(profileId);
+                return db.Profile
+                    .Find(profileId);
             }
             else
             {
-                return db.Profile.AsNoTracking().FirstOrDefault(item => item.ProfileId == profileId);
+                return db.Profile
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.ProfileId == profileId);
             }
         }
 

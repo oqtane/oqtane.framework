@@ -45,11 +45,22 @@ namespace Oqtane.Controllers
             var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
             if (!string.IsNullOrEmpty(url))
             {
+                url += $"/api/registry/packages/" +
+                    $"?id={_configManager.GetInstallationId()}" +
+                    $"&type={type.ToLower()}" +
+                    $"&version={Constants.Version}" +
+                    $"&search={WebUtility.UrlEncode(search)}" +
+                    $"&price={price}" +
+                    $"&package={package}" +
+                    $"&sort={sort}" +
+                    $"&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}" +
+                    $"&token={WebUtility.UrlEncode(_configManager.GetSetting("PackageRegistryToken", ""))}";
+
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={WebUtility.UrlEncode(search)}&price={price}&package={package}&sort={sort}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
+                    packages = await GetJson<List<Package>>(client, url);
                 }
             }
             return packages;
@@ -64,11 +75,18 @@ namespace Oqtane.Controllers
             var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
             if (!string.IsNullOrEmpty(url))
             {
+                url += $"/api/registry/updates/" +
+                    $"?id={_configManager.GetInstallationId()}" +
+                    $"&version={Constants.Version}" +
+                    $"&type={type}" +
+                    $"&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}" +
+                    $"&token={WebUtility.UrlEncode(_configManager.GetSetting("PackageRegistryToken", ""))}";
+
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, url + $"/api/registry/updates/?id={_configManager.GetInstallationId()}&version={Constants.Version}&type={type}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
+                    packages = await GetJson<List<Package>>(client, url);
                 }
             }
             return packages;
@@ -83,11 +101,19 @@ namespace Oqtane.Controllers
             var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
             if (!string.IsNullOrEmpty(url))
             {
+                url += $"/api/registry/package/" +
+                    $"?id={_configManager.GetInstallationId()}" +
+                    $"&package={packageid}" +
+                    $"&version={version}" +
+                    $"&download={download}" +
+                    $"&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}" +
+                    $"&token={WebUtility.UrlEncode(_configManager.GetSetting("PackageRegistryToken", ""))}";
+
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    package = await GetJson<Package>(client, url + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}&email={WebUtility.UrlEncode(GetPackageRegistryEmail())}");
+                    package = await GetJson<Package>(client, url);
                 }
 
                 if (package != null && bool.Parse(install))
@@ -112,6 +138,29 @@ namespace Oqtane.Controllers
                 }
             }
             return package;
+        }
+
+        // GET: api/<controller>/validate?email=x&password=y
+        [HttpGet("validate")]
+        public async Task<Result> Get(string email, string password)
+        {
+            // get packages
+            Result result = new Result();
+            var url = _configManager.GetSetting("PackageRegistryUrl", Constants.PackageRegistryUrl);
+            if (!string.IsNullOrEmpty(url))
+            {
+                url += $"/api/registry/validate" +
+                    $"?email={WebUtility.UrlEncode(email)}" +
+                    $"&password={WebUtility.UrlEncode(password)}";
+
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                    result = await GetJson<Result>(client, url);
+                }
+            }
+            return result;
         }
 
         private string GetPackageRegistryEmail()

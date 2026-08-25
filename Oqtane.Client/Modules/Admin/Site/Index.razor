@@ -11,7 +11,7 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 @inject ITimeZoneService TimeZoneService
-@inject ILocalizationService LocalizationService
+@inject ILanguageService LanguageService
 @inject IServiceProvider ServiceProvider
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
@@ -44,13 +44,13 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content" ResourceKey="Culture">Language:</Label>
+                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc..." ResourceKey="Culture">Culture:</Label>
                 <div class="col-sm-9">
                     <select id="culture" class="form-select" @bind="@_culturecode">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
-                        @foreach (var culture in _cultures)
+                        @foreach (var language in _languages)
                         {
-                            <option value="@culture.Name">@culture.DisplayName</option>
+                            <option value="@language.Code">@language.Name</option>
                         }
                     </select>
                 </div>
@@ -500,7 +500,7 @@
                                         <option value="-1">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
                                         @foreach (var site in _sites)
                                         {
-                                            <option value="@site.SiteId">@site.Name</option>
+                                            <option value="@site.SiteId">@site.Name  @(site.SiteId == _primarySiteId ? $" ({Localizer["Primary"]})" : $" ({Localizer["Secondary"]})")</option>
                                         }
                                     </select>
                                     @if (!_addSiteGroupMember)
@@ -601,7 +601,7 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pages;
     private List<Models.TimeZone> _timezones;
-    private IEnumerable<Models.Culture> _cultures;
+    private IEnumerable<Models.Language> _languages;
 
     private string _name = string.Empty;
     private string _timezoneid = string.Empty;
@@ -669,6 +669,7 @@
     private int _siteId;
     private string _groupName = string.Empty;
     private string _groupType = SiteGroupTypes.Synchronization;
+    private int _primarySiteId = -1;
     private string _primary = "True";
     private string _synchronized = string.Empty;
     private bool _addSiteGroup = false;
@@ -700,7 +701,7 @@
             if (site != null)
             {
                 _timezones = TimeZoneService.GetTimeZones();
-                _cultures = await LocalizationService.GetNeutralCulturesAsync();
+                _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
 
                 _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
@@ -1254,6 +1255,7 @@
             {
                 _groupName = group.Name;
                 _groupType = group.Type;
+                _primarySiteId = group.PrimarySiteId;
                 _siteId = -1;
                 _primary = "False";
                 _addSiteGroupMember = false;
@@ -1279,18 +1281,6 @@
             // include sites which are members
             _sites = _sites.Where(item => siteGroupMembers.Any(item2 => item2.SiteId == item.SiteId)).ToList();
             var group = _siteGroups.FirstOrDefault(item => item.SiteGroupId == _siteGroupId);
-            foreach (var site in _sites)
-            {
-                if (group.PrimarySiteId == site.SiteId)
-                {
-                    site.Name += $" ({Localizer["Primary"]})";
-                }
-                else
-                {
-                    site.Name += $" ({Localizer["Secondary"]})";
-                }                
-            }
-
             var siteGroupMember = siteGroupMembers.FirstOrDefault(item => item.SiteId == _siteId);
             if (siteGroupMember != null)
             {
@@ -1315,6 +1305,8 @@
     private async Task AddSiteGroup()
     {
         _groupName = "";
+        _groupType = SiteGroupTypes.Synchronization;
+        _primarySiteId = -1;
         _siteId = PageState.Site.SiteId;
         _primary = "True";
         _synchronized = "";

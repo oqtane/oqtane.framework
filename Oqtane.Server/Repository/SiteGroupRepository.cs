@@ -27,7 +27,9 @@ namespace Oqtane.Repository
         public IEnumerable<SiteGroup> GetSiteGroups()
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.SiteGroup.ToList();
+            return db.SiteGroup
+                .AsNoTracking()
+                .ToList();
         }
 
         public SiteGroup AddSiteGroup(SiteGroup siteGroup)
@@ -48,7 +50,7 @@ namespace Oqtane.Repository
 
         public SiteGroup GetSiteGroup(int siteGroupId)
         {
-            return GetSiteGroup(siteGroupId, true);
+            return GetSiteGroup(siteGroupId, false);
         }
 
         public SiteGroup GetSiteGroup(int siteGroupId, bool tracking)
@@ -56,11 +58,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.SiteGroup.FirstOrDefault(item => item.SiteGroupId == siteGroupId);
+                return db.SiteGroup
+                    .FirstOrDefault(item => item.SiteGroupId == siteGroupId);
             }
             else
             {
-                return db.SiteGroup.AsNoTracking().FirstOrDefault(item => item.SiteGroupId == siteGroupId);
+                return db.SiteGroup
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.SiteGroupId == siteGroupId);
             }
         }
 

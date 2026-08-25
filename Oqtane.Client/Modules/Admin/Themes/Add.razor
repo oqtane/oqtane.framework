@@ -4,21 +4,29 @@
 @inject IFileService FileService
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
+@inject ISystemService SystemService
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
-    <TabPanel Name="Download" ResourceKey="Download">
+    <TabPanel Name="Download" ResourceKey="Download" Heading="Themes">
+        @if (!_registryaccount && _initialized)
+        {
+            <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Marketplace.Disconnected"]" />
+        }
         <div class="row justify-content-center mb-3">
             <div class="text-center">
                 <div class="form-check form-check-inline">
                     <input id="free" class="form-check-input" type="radio" checked="@(_price == "free")" name="Price" @onchange="@(() => PriceChanged("free"))" />
                     <label class="form-check-label" for="free">@SharedLocalizer["Free"]</label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input id="paid" class="form-check-input" type="radio" checked="@(_price == "paid")" name="Price" @onchange="@(() => PriceChanged("paid"))" />
-                    <label class="form-check-label" for="paid">@SharedLocalizer["Paid"]</label>
-                </div>
+                @if (_registryaccount && _initialized)
+                {
+                    <div class="form-check form-check-inline">
+                        <input id="paid" class="form-check-input" type="radio" checked="@(_price == "paid")" name="Price" @onchange="@(() => PriceChanged("paid"))" />
+                        <label class="form-check-label" for="paid">@SharedLocalizer["Paid"]</label>
+                    </div>
+                }
             </div>
         </div>
         <div class="row justify-content-center mb-3">
@@ -39,7 +47,7 @@
                     <br />
                     <div class="row mb-3">
                         <div class="col-sm-4">
-                            <h3>@((_packages != null) ? _packages.Count : 0) @SharedLocalizer["Search.Results"]</h3>
+                            <h3 class="text-nowrap">@((_packages != null) ? _packages.Count : 0) @SharedLocalizer["Search.Results"]</h3>
                         </div>
                         <div class="col-sm-4">
                             &nbsp;
@@ -126,8 +134,61 @@
                 }
             </div>
         </div>
-        <br />
-        <ModuleMessage Type="MessageType.Info" Message="@SharedLocalizer["Oqtane.Marketplace"]" />
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    </TabPanel>
+    <TabPanel Name="Settings" ResourceKey="Settings" Heading="Marketplace">
+        <div class="container">
+            <ModuleMessage Type="@_registrytype" Message="@_registrymessage" />
+            @if (_registryaccount)
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Label>
+                    <div class="col-sm-9">
+                        <input id="registryurl" class="form-control" @bind="@_registryurl" disabled />
+                    </div>
+                </div>                
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Label>
+                    <div class="col-sm-9">
+                        <input id="registryemail" class="form-control" @bind="@_registryemail" disabled />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Label>
+                    <div class="col-sm-9">
+                        <input id="registryurl" class="form-control" @bind="@_registryurl" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Label>
+                    <div class="col-sm-9">
+                        <input id="registryemail" class="form-control" @bind="@_registryemail" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="registrypassword" HelpText="The password you use to sign in to the Marketplace" ResourceKey="RegistryPassword">Password: </Label>
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <input id="registrypassword" type="@_passwordType" class="form-control" @bind="@_registrypassword" />
+                            <button type="button" class="btn btn-secondary" @onclick="@TogglePassword" tabindex="-1">@_togglePassword</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <br /><br />
+        @if (!_registryaccount)
+        {
+            <button type="button" class="btn btn-success me-1" @onclick="Save">@SharedLocalizer["Save"]</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary me-1" @onclick="Edit">@SharedLocalizer["Edit"]</button>
+        }
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
         <div class="container">
@@ -138,6 +199,7 @@
                 </div>
             </div>
         </div>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
 </TabStrip>
 
@@ -146,9 +208,9 @@
     <div class="app-actiondialog">
         <div class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content" style="margin: 10% auto; width: 60%;">
                     <div class="modal-header">
-                        <h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
+                        <h5 class="modal-title">@SharedLocalizer["License Agreement"]</h5>
                         <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
                     </div>
                     <div class="modal-body">
@@ -174,8 +236,6 @@
     </div>
 }
 
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
 @code {
     private bool _initialized = false;
     private List<Theme> _themes;
@@ -189,12 +249,47 @@
     private string _packageid = "";
     private string _version = "";
 
+    private string _registrymessage = "";
+    private MessageType _registrytype;
+    private string _registryurl = "";
+    private string _registryemail = "";
+    private string _registrypassword = "";
+    private string _passwordType = "password";
+    private string _togglePassword = string.Empty;
+    private bool _registryaccount = false;
+
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            _togglePassword = SharedLocalizer["ShowPassword"];
+
+            var systeminfo = await SystemService.GetSystemInfoAsync("configuration");
+            if (systeminfo != null)
+            {
+                if (systeminfo.ContainsKey("PackageRegistryUrl"))
+                {
+                    _registryurl = systeminfo["PackageRegistryUrl"].ToString();
+                }
+                if (systeminfo.ContainsKey("PackageRegistryEmail"))
+                {
+                    _registryemail = systeminfo["PackageRegistryEmail"].ToString();
+                }
+                _registryaccount = systeminfo.ContainsKey("PackageRegistryToken") && !string.IsNullOrEmpty(systeminfo["PackageRegistryToken"].ToString());
+                if (_registryaccount)
+                {
+                    _registrymessage = SharedLocalizer["Marketplace.Connected"];
+                    _registrytype = MessageType.Success;
+                }
+                else
+                {
+                    _registrymessage = SharedLocalizer["Oqtane.Marketplace"];
+                    _registrytype = MessageType.Info;
+                }
+            }
+            
             _themes = await ThemeService.GetThemesAsync(PageState.Site.SiteId);
             await LoadPackages();
             _initialized = true;
@@ -289,15 +384,18 @@
     {
         try
         {
+            ShowProgressIndicator();
             await PackageService.DownloadPackageAsync(_packageid, _version);
             await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _version);
 			AddModuleMessage(string.Format(Localizer["Success.Theme.Download"], NavigateUrl("admin/system")), MessageType.Success);
             _productname = "";
             _license = "";
             StateHasChanged();
+            HideProgressIndicator();
         }
         catch (Exception ex)
         {
+            HideProgressIndicator();
             await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _version);
             AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
         }
@@ -307,4 +405,50 @@
     {
         AddModuleMessage(string.Format(Localizer["Success.Theme.Upload"], NavigateUrl("admin/system")), MessageType.Success);
     }
+
+    private async Task Save()
+    {
+        var settings = new Dictionary<string, object>();
+        settings.Add("PackageRegistryUrl", _registryurl);
+        settings.Add("PackageRegistryEmail", _registryemail);
+        await SystemService.UpdateSystemInfoAsync(settings);
+
+        if (!string.IsNullOrEmpty(_registryemail) && !string.IsNullOrEmpty(_registrypassword))
+        {
+            var result = await PackageService.ValidateAccountAsync(_registryemail, _registrypassword);
+            if (result.Success)
+            {
+                settings = new Dictionary<string, object>();
+                settings.Add("PackageRegistryToken", result.Message);
+                await SystemService.UpdateSystemInfoAsync(settings);
+                _registryaccount = true;
+                _registrymessage = SharedLocalizer["Marketplace.Connected"];
+                _registrytype = MessageType.Success;
+            }
+            else
+            {
+                _registrymessage = SharedLocalizer["Marketplace.Validation"];
+                _registrytype = MessageType.Warning;
+            }
+        }
+    }
+
+    private void Edit()
+    {
+        _registryaccount = false;
+    }
+
+    private void TogglePassword()
+    {
+        if (_passwordType == "password")
+        {
+            _passwordType = "text";
+            _togglePassword = SharedLocalizer["HidePassword"];
+        }
+        else
+        {
+            _passwordType = "password";
+            _togglePassword = SharedLocalizer["ShowPassword"];
+        }
+    }   
 }

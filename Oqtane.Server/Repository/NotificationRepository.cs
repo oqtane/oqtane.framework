@@ -34,17 +34,21 @@ namespace Oqtane.Repository
             if (toUserId == -1 && fromUserId == -1)
             {
                 return db.Notification
-                    .Where(item => item.SiteId == siteId)
-                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
-                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
+                    .Where(item => item.SiteId == siteId &&
+                        (item.IsDelivered == false && item.IsDeleted == false) &&
+                        (item.SendOn == null || item.SendOn < System.DateTime.UtcNow))
+                    .AsNoTracking()
                     .ToList();
             }
-
-            return db.Notification
-                .Where(item => item.SiteId == siteId)
-                .Where(item => item.ToUserId == toUserId || toUserId == -1)
-                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
-                .ToList();
+            else
+            {
+                return db.Notification
+                    .Where(item => item.SiteId == siteId &&
+                        (item.ToUserId == toUserId || toUserId == -1) &&
+                        (item.FromUserId == fromUserId || fromUserId == -1))
+                    .AsNoTracking()
+                    .ToList();
+            }
         }
 
         public IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId, int count, bool isRead)
@@ -53,23 +57,27 @@ namespace Oqtane.Repository
             if (toUserId == -1 && fromUserId == -1)
             {
                 return db.Notification
-                    .Where(item => item.SiteId == siteId)
-                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
-                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
-                    .Where(item => item.IsRead == isRead)
+                    .Where(item => item.SiteId == siteId &&
+                        (item.IsDelivered == false && item.IsDeleted == false) &&
+                        (item.SendOn == null || item.SendOn < System.DateTime.UtcNow) &&
+                        (item.IsRead == isRead))
                     .OrderByDescending(item => item.CreatedOn)
-                    .ToList()
-                    .Take(count);
+                    .Take(count)
+                    .AsNoTracking()
+                    .ToList();
             }
-
-            return db.Notification
-                .Where(item => item.SiteId == siteId)
-                .Where(item => item.ToUserId == toUserId || toUserId == -1)
-                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
-                .Where(item => item.IsRead == isRead)
-                .OrderByDescending(item => item.CreatedOn)
-                .ToList()
-                .Take(count);
+            else
+            {
+                return db.Notification
+                    .Where(item => item.SiteId == siteId &&
+                        (item.ToUserId == toUserId || toUserId == -1) &&
+                        (item.FromUserId == fromUserId || fromUserId == -1) &&
+                        (item.IsRead == isRead))
+                    .OrderByDescending(item => item.CreatedOn)
+                    .Take(count)
+                    .AsNoTracking()
+                    .ToList();
+            }
         }
 
         public int GetNotificationCount(int siteId, int fromUserId, int toUserId, bool isRead)
@@ -78,22 +86,24 @@ namespace Oqtane.Repository
             if (toUserId == -1 && fromUserId == -1)
             {
                 return db.Notification
-                    .Where(item => item.SiteId == siteId)
-                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
-                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
-                    .Where(item => item.IsRead == isRead)
-                    .ToList()
+                    .Where(item => item.SiteId == siteId &&
+                        (item.IsDelivered == false && item.IsDeleted == false) &&
+                        (item.SendOn == null || item.SendOn < System.DateTime.UtcNow) &&
+                        (item.IsRead == isRead))
+                    .AsNoTracking()
                     .Count();
 
             }
-
-            return db.Notification
-                .Where(item => item.SiteId == siteId)
-                .Where(item => item.ToUserId == toUserId || toUserId == -1)
-                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
-                .Where(item => item.IsRead == isRead)
-                .ToList()
-                .Count();
+            else
+            {
+                return db.Notification
+                    .Where(item => item.SiteId == siteId &&
+                        (item.ToUserId == toUserId || toUserId == -1) &&
+                        (item.FromUserId == fromUserId || fromUserId == -1) &&
+                        (item.IsRead == isRead))
+                    .AsNoTracking()
+                    .Count();
+            }
         }
 
 
@@ -114,7 +124,7 @@ namespace Oqtane.Repository
         }
         public Notification GetNotification(int notificationId)
         {
-            return GetNotification(notificationId, true);
+            return GetNotification(notificationId, false);
         }
 
         public Notification GetNotification(int notificationId, bool tracking)
@@ -126,7 +136,9 @@ namespace Oqtane.Repository
             }
             else
             {
-                return db.Notification.AsNoTracking().FirstOrDefault(item => item.NotificationId == notificationId);
+                return db.Notification
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.NotificationId == notificationId);
             }
         }
 

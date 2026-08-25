@@ -1,22 +1,23 @@
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Oqtane.Security;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
-using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Options;
-using System.IO;
-using System.Text.RegularExpressions;
-using System;
+using Oqtane.Security;
+using Oqtane.Services;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -26,6 +27,7 @@ namespace Oqtane.Controllers
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly IVisitorCookieService _visitorCookieService;
         private readonly ISyncManager _syncManager;
 
         private readonly IOptions<CookieAuthenticationOptions> _cookieOptions;
@@ -47,7 +49,7 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, 
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, IVisitorCookieService visitorCookieService, ITenantManager tenantManager, ISyncManager syncManager, 
             IOptions<CookieAuthenticationOptions> cookieOptions, IOptionsSnapshot<CookieAuthenticationOptions> cookieOptionsSnapshot, IOptionsMonitorCache<CookieAuthenticationOptions> cookieOptionsMonitorCache,
             IOptions<OpenIdConnectOptions> oidcOptions, IOptionsSnapshot<OpenIdConnectOptions> oidcOptionsSnapshot, IOptionsMonitorCache<OpenIdConnectOptions> oidcOptionsMonitorCache,
             IOptions<OAuthOptions> oauthOptions, IOptionsSnapshot<OAuthOptions> oauthOptionsSnapshot, IOptionsMonitorCache<OAuthOptions> oauthOptionsMonitorCache,
@@ -57,6 +59,7 @@ namespace Oqtane.Controllers
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _visitorCookieService = visitorCookieService;
             _syncManager = syncManager;
             _cookieOptions = cookieOptions;
             _cookieOptionsSnapshot = cookieOptionsSnapshot;
@@ -454,8 +457,7 @@ namespace Oqtane.Controllers
                     authorized = User.IsInRole(RoleNames.Admin);
                     if (!authorized)
                     {
-                        var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                        authorized = (entityId == GetVisitorCookieId(HttpContext.Request.Cookies[visitorCookieName]));
+                        authorized = (entityId == _visitorCookieService.GetVisitor(_alias.SiteId).VisitorId);
                     }
                     break;
                 default: // custom entity
@@ -503,8 +505,7 @@ namespace Oqtane.Controllers
                 case EntityNames.Visitor:
                     if (!User.IsInRole(RoleNames.Admin))
                     {
-                        var visitorCookieName = Constants.VisitorCookiePrefix + _alias.SiteId.ToString();
-                        filter = (entityId != GetVisitorCookieId(Request.Cookies[visitorCookieName]));
+                        filter = (entityId != _visitorCookieService.GetVisitor(_alias.SiteId).VisitorId);
                     }
                     break;
                 default: // custom entity
@@ -512,18 +513,6 @@ namespace Oqtane.Controllers
                     break;
             }
             return filter;
-        }
-
-        private int GetVisitorCookieId(string visitorCookie)
-        {
-            var visitorId = -1;
-            if (visitorCookie != null)
-            {
-                // visitor cookies now contain the visitor id and an expiry date separated by a pipe symbol
-                visitorCookie = (visitorCookie.Contains("|")) ? visitorCookie.Split('|')[0] : visitorCookie;
-                visitorId = int.TryParse(visitorCookie, out int _visitorId) ? _visitorId : -1;
-            }
-            return visitorId;
         }
 
         private void AddSyncEvent(string EntityName, int EntityId, int SettingId, string Action)

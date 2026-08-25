@@ -44,7 +44,9 @@ namespace Oqtane.Repository
         public IEnumerable<User> GetUsers()
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.User.ToList();
+            return db.User
+                .AsNoTracking()
+                .ToList();
         }
 
         public User AddUser(User user)
@@ -63,7 +65,7 @@ namespace Oqtane.Repository
             }
 
             // add folder for user
-            var folder = _folders.GetFolder(user.SiteId, "Users/");
+            var folder = _folders.GetFolder(user.SiteId, Constants.UserFolderPath);
             if (folder != null)
             {
                 _folders.AddFolder(new Folder
@@ -71,12 +73,13 @@ namespace Oqtane.Repository
                     SiteId = folder.SiteId,
                     ParentId = folder.FolderId,
                     Name = "My Folder",
-                    Type = FolderTypes.Private,
-                    Path = $"Users/{user.UserId}/",
-                    MappedPath = $"Users/{user.UserId}/",
+                    Type = folder.Type,
+                    Path = $"{Constants.UserFolderPath}{user.UserId}/",
+                    MappedPath = $"{Constants.UserFolderPath}{user.UserId}/",
                     Order = 1,
-                    ImageSizes = "",
-                    Capacity = Constants.UserFolderCapacity,
+                    ImageSizes = folder.ImageSizes,
+                    Capacity = folder.Capacity,
+                    CacheControl = folder.CacheControl,                     
                     IsSystem = true,
                     FolderConfigId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId),
                     PermissionList = new List<Permission>
@@ -114,7 +117,7 @@ namespace Oqtane.Repository
 
         public User GetUser(int userId)
         {
-            return GetUser(userId, true);
+            return GetUser(userId, false);
         }
 
         public User GetUser(int userId, bool tracking)
@@ -122,11 +125,14 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             if (tracking)
             {
-                return db.User.Find(userId);
+                return db.User
+                    .Find(userId);
             }
             else
             {
-                return db.User.AsNoTracking().FirstOrDefault(item => item.UserId == userId);
+                return db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.UserId == userId);
             }
         }
 
@@ -141,11 +147,15 @@ namespace Oqtane.Repository
             User user = null;
             if (!string.IsNullOrEmpty(username))
             {
-                user = db.User.Where(item => item.Username == username).FirstOrDefault();
+                user = db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.Username == username);
             }
             if (user == null && !string.IsNullOrEmpty(email))
             {
-                user = db.User.Where(item => item.Email == email).FirstOrDefault();
+                user = db.User
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.Email == email);
             }
             return user;
         }

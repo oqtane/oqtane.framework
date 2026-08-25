@@ -53,13 +53,27 @@
                     {
                         <div class="row mt-2">
                             <div class="col">
-                                @if (UploadMultiple)
+                                @if (UploadOnSelect)
                                 {
-                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                    @if (UploadMultiple)
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple @onchange="UploadFiles" />
+                                    }
+                                    else
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" @onchange="UploadFiles" />
+                                    }
                                 }
                                 else
                                 {
-                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                    @if (UploadMultiple)
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple @onchange="FileSelected" />
+                                    }
+                                    else
+                                    {
+                                        <input type="file" id="@_fileinputid" name="file" accept="@_filter" @onchange="FileSelected" />
+                                    }
                                 }
                                 @if (MaxUploadFileSize > 0)
                                 {
@@ -69,7 +83,10 @@
                                 }
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
+                                @if (ShowUploadButton)
+                                {
+                                    <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
+                                }
                                 @if (FileId != -1 && !UploadMultiple)
                                 {
                                     <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
@@ -146,7 +163,16 @@
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
 
     [Parameter]
-    public bool ShowUpload { get; set; } = true; // optional - for indicating whether a Upload controls should be displayed - default is true
+    public bool ShowUpload { get; set; } = true; // optional - indicates if the file upload/delete and progress indicator section should be visible - default is true
+
+    [Parameter]
+    public bool ShowUploadButton { get; set; } = true; // optional - for indicating whether an Upload button should be displayed - default is true
+
+    [Parameter]
+    public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
+
+    [Parameter]
+    public bool UploadOnSelect { get; set; } = false; // optional - for indicating whether files should be uploaded immediatey upon user selection - default is false
 
     [Parameter]
     public bool ShowFolders { get; set; } = true; // optional - for indicating whether a list of folders should be displayed - default is true
@@ -159,9 +185,6 @@
 
     [Parameter]
     public bool ShowSuccess { get; set; } = false; // optional - for indicating whether a success message should be displayed upon successful upload - default is false
-
-    [Parameter]
-    public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
 
     [Parameter]
     public bool AnonymizeUploadFilenames { get; set; } = false; // optional - indicate if file names should be anonymized on upload - default false
@@ -195,6 +218,10 @@
         _fileinputid = "FileInput_" + _guid;
         _progressinfoid = "ProgressInfo_" + _guid;
         _progressbarid = "ProgressBar_" + _guid;
+        if (UploadOnSelect)
+        {
+            ShowUploadButton = false;
+        }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -251,13 +278,20 @@
             File file = await FileService.GetFileAsync(FileId);
             if (file != null)
             {
-                FolderId = file.FolderId;
+                if (_folders.Any(item => item.FolderId == file.FolderId))
+                {
+                    FolderId = file.FolderId;
+                }
+                else
+                {
+                    FolderId = -1; // file exists but user does not have permission to folder
+                }
             }
             else
             {
-                _message = "FileId " + FileId.ToString() + " Does Not Exist";
+                _message = "File Does Not Exist Or You Do Not Have Permission To View It";
                 _messagetype = MessageType.Error;
-                FileId = -1; // file does not exist
+                FileId = -1;
             }
         }
 
@@ -385,7 +419,18 @@
         StateHasChanged();
     }
 
-    private async Task UploadFiles()
+    private async Task FileSelected(ChangeEventArgs e)
+    {
+        if (!ShowUploadButton)
+        {
+            FileId = -1;
+            await SetImage();
+            await OnSelectFile.InvokeAsync(FileId);
+            StateHasChanged();
+        }
+    }
+
+    public async Task UploadFiles()
     {
         _message = string.Empty;
         var interop = new Interop(JSRuntime);
@@ -478,34 +523,43 @@
 
                     if (success)
                     {
-                        await logger.LogInformation("File Upload Succeeded {Files}", uploads);
-                        if (ShowSuccess)
-                        {
-                            _message = Localizer["Success.File.Upload"];
-                            _messagetype = MessageType.Success;
-                        }
-
+                        // verify file was uploaded (it may have been removed if folder exceeded capacity)
                         FileId = -1;
                         if (Folder != Constants.PackagesFolder && !AnonymizeUploadFilenames)
                         {
-                            // set FileId to first file in upload collection
-                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Split(":")[0]);
+                            // get first file in upload collection (removing ":size" suffix)
+                            var file = await FileService.GetFileAsync(int.Parse(folder), uploads[0].Substring(0, uploads[0].LastIndexOf(":")));
                             if (file != null)
                             {
                                 FileId = file.FileId;
                             }
                         }
+                        if (FileId != -1 || (Folder == Constants.PackagesFolder || AnonymizeUploadFilenames))
+                        {
+                            await logger.LogInformation("File Upload Succeeded {Files}", uploads);
+                            if (ShowSuccess)
+                            {
+                                _message = Localizer["Success.File.Upload"];
+                                _messagetype = MessageType.Success;
+                            }
 
-                        await SetImage();
+                            await SetImage();
 
-                        await OnUpload.InvokeAsync(FileId);
+                            await OnUpload.InvokeAsync(FileId);
 #pragma warning disable CS0618
-                        await OnSelect.InvokeAsync(FileId);
+                            await OnSelect.InvokeAsync(FileId);
 #pragma warning restore CS0618
-                        await OnSelectFile.InvokeAsync(FileId);
+                            await OnSelectFile.InvokeAsync(FileId);
 
-                        await GetFiles();
-                        StateHasChanged();
+                            await GetFiles();
+                            StateHasChanged();
+                        }
+                        else                        
+                        {
+                            await logger.LogError("File Upload Failed {Files}", uploads);
+                            _message = Localizer["Error.Folder.Capacity"];
+                            _messagetype = MessageType.Error;
+                        }
                     }
                     else
                     {
@@ -571,9 +625,37 @@
 
     public int GetFileId() => FileId;
 
-    public int GetFolderId() => FolderId;
+    public async Task<int> GetFileIdAsync()
+    {
+        if (FileId == -1 && !ShowUploadButton)
+        {
+            var interop = new Interop(JSRuntime);
+            var uploads = await interop.GetFiles(_fileinputid);
+            if (uploads.Length > 0)
+            {
+                await UploadFiles();
+            }
+        }
+        return FileId;
+    }
 
     public File GetFile() => _file;
+
+    public async Task<File> GetFileAsync()
+    {
+        if (FileId == -1 && !ShowUploadButton)
+        {
+            var interop = new Interop(JSRuntime);
+            var uploads = await interop.GetFiles(_fileinputid);
+            if (uploads.Length > 0)
+            {
+                await UploadFiles();
+            }
+        }
+        return _file;
+    }
+
+    public int GetFolderId() => FolderId;
 
     public async Task Refresh()
     {

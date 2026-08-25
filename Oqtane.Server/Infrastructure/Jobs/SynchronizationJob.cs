@@ -307,9 +307,9 @@ namespace Oqtane.Infrastructure
             var folderProviderFactory = provider.GetRequiredService<IFolderProviderFactory>();
             var log = "";
 
-            // get folders (ignore personalized)
-            var primaryFolders = folderRepository.GetFolders(primarySiteId).Where(item => !item.Path.StartsWith("Users/"));
-            var secondaryFolders = folderRepository.GetFolders(secondarySiteId).Where(item => !item.Path.StartsWith("Users/")).ToList();
+            // get folders
+            var primaryFolders = folderRepository.GetFolders(primarySiteId).ToList();
+            var secondaryFolders = folderRepository.GetFolders(secondarySiteId).ToList();
 
             // iterate through folders 
             foreach (var primaryFolder in primaryFolders)

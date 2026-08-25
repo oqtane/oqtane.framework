@@ -1,3 +1,4 @@
+using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Net;
@@ -149,6 +150,14 @@ namespace Oqtane.Services
         Task<string> GetTokenAsync();
 
         /// <summary>
+        /// Get token for current user
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<string> GetTokenAsync(string username, string password);
+
+        /// <summary>
         /// Get personal access token for current user (administrators only)
         /// </summary>
         /// <returns></returns>
@@ -282,12 +291,12 @@ namespace Oqtane.Services
 
         public async Task<bool> ForgotPasswordAsync(string username)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword/{WebUtility.UrlEncode(username)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotpassword/{Uri.EscapeDataString(username)}");
         }
 
         public async Task<bool> ForgotUsernameAsync(string email)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername/{WebUtility.UrlEncode(email)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/forgotusername/{Uri.EscapeDataString(email)}");
         }
 
         public async Task<User> ResetPasswordAsync(User user, string token)
@@ -307,12 +316,17 @@ namespace Oqtane.Services
 
         public async Task<bool> ValidatePasswordAsync(string password)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/validate/{WebUtility.UrlEncode(password)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/validate/{Uri.EscapeDataString(password)}");
         }
 
         public async Task<string> GetTokenAsync()
         {
             return await GetStringAsync($"{Apiurl}/token");
+        }
+
+        public async Task<string> GetTokenAsync(string username, string password)
+        {
+            return await GetStringAsync($"{Apiurl}/token?username={WebUtility.UrlEncode(username)}&password={WebUtility.UrlEncode(password)}");
         }
 
         public async Task<string> GetPersonalAccessTokenAsync()
@@ -374,7 +388,7 @@ namespace Oqtane.Services
 
         public async Task<bool> SendLoginLinkAsync(string email, string returnurl)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{WebUtility.UrlEncode(email)}?returnurl={WebUtility.UrlEncode(returnurl)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/loginlink/{Uri.EscapeDataString(email)}?returnurl={WebUtility.UrlEncode(returnurl)}");
         }
     }
 }

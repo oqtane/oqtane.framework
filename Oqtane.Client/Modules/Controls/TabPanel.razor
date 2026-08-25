@@ -1,7 +1,7 @@
 @namespace Oqtane.Modules.Controls
 @inherits LocalizableComponent
 
-@if (Name == Parent.ActiveTab)
+@if (Name.ToLower() == Parent.ActiveTab.ToLower())
 {
     <div id="@(Parent.Id + Name)" class="tab-pane fade show active" role="tabpanel">
         @ChildContent

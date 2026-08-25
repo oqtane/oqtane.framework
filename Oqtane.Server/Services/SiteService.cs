@@ -154,9 +154,6 @@ namespace Oqtane.Services
 
                 // installation date used for fingerprinting static assets
                 site.Fingerprint = Utilities.GenerateSimpleHash(_configManager.GetSetting("InstallationDate", DateTime.UtcNow.ToString("yyyyMMddHHmm")));
-
-                // set tenant
-                site.TenantId = alias.TenantId;
             }
             else
             {

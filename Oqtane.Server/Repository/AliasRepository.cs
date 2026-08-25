@@ -16,6 +16,7 @@ namespace Oqtane.Repository
         Alias GetAlias(int aliasId);
         Alias GetAlias(int aliasId, bool tracking);
         Alias GetAlias(string url);
+        Alias GetAlias(int tenantId, int siteId);
         void DeleteAlias(int aliasId);
     }
 
@@ -34,7 +35,9 @@ namespace Oqtane.Repository
         {
             return _cache.GetCache("Aliases", entry =>
             {
-                return _db.Alias.ToList();
+                return _db.Alias
+                    .AsNoTracking()
+                    .ToList();
             });
         }
 
@@ -58,18 +61,21 @@ namespace Oqtane.Repository
 
         public Alias GetAlias(int aliasId)
         {
-            return GetAlias(aliasId, true);
+            return GetAlias(aliasId, false);
         }
 
         public Alias GetAlias(int aliasId, bool tracking)
         {
             if (tracking)
             {
-                return _db.Alias.Find(aliasId);
+                return _db.Alias
+                    .Find(aliasId);
             }
             else
             {
-                return _db.Alias.AsNoTracking().FirstOrDefault(item => item.AliasId == aliasId);
+                return _db.Alias
+                    .AsNoTracking()
+                    .FirstOrDefault(item => item.AliasId == aliasId);
             }
         }
 
@@ -114,6 +120,19 @@ namespace Oqtane.Repository
             }
 
             return alias;
+        }
+
+        public Alias GetAlias(int tenantId, int siteId)
+        {
+            var aliases = GetAliases().Where(item => item.TenantId == tenantId && item.SiteId == siteId).ToList();
+            if (aliases.Any(item => item.IsDefault))
+            {
+                return aliases.FirstOrDefault(item => item.IsDefault);
+            }
+            else
+            {
+                return aliases.FirstOrDefault();
+            }
         }
 
         public void DeleteAlias(int aliasId)
