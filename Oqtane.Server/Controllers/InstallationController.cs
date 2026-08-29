@@ -51,6 +51,15 @@ namespace Oqtane.Controllers
             _themes = themes;
         }
 
+        // GET api/<controller>
+        [HttpGet]
+        public async Task<Dictionary<string, string>> Get()
+        {
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+            settings.Add("InstallerLogo", _configManager.GetSetting(SettingKeys.InstallationSection, SettingKeys.InstallerLogoKey, "installer-logo.png"));
+            return settings;
+        }
+
         // POST api/<controller>
         [HttpPost]
         public async Task<Installation> Post([FromBody] InstallConfig config)

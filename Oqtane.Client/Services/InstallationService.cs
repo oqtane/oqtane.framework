@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using System;
 using System.Net;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Oqtane.Services
 {
@@ -15,6 +16,12 @@ namespace Oqtane.Services
     /// </summary>
     public interface IInstallationService
     {
+        /// <summary>
+        /// Returns a dictionary of specific installer settings from appsettings.json 
+        /// </summary>
+        /// <returns></returns>
+        Task<Dictionary<string, string>> GetSettingsAsync();
+
         /// <summary>
         /// Returns a status/message object with the current installation state 
         /// </summary>
@@ -58,7 +65,12 @@ namespace Oqtane.Services
 
         private string ApiUrl => (_siteState.Alias == null)
             ? CreateApiUrl("Installation", null, ControllerRoutes.ApiRoute) // tenant agnostic needed for initial installation
-            : CreateApiUrl("Installation", _siteState.Alias); 
+            : CreateApiUrl("Installation", _siteState.Alias);
+
+        public async Task<Dictionary<string, string>> GetSettingsAsync()
+        {
+            return await GetJsonAsync<Dictionary<string, string>>($"{ApiUrl}");
+        }
 
         public async Task<Installation> IsInstalled()
         {
