@@ -2,6 +2,7 @@
 @using Oqtane.Interfaces
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
+@inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IDatabaseService DatabaseService
@@ -14,7 +15,7 @@
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
-            <img src="installer-logo.png" />
+            <img src="@_installerLogo" />
             <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version (.NET @Environment.Version.Major)</div>
         </div>
     </div>
@@ -143,6 +144,8 @@
 </div>
 
 @code {
+    private string _installerLogo;
+
     private List<Database> _databases;
     private string _databaseName;
     private Type _databaseConfigType;
@@ -167,10 +170,13 @@
     private string _loadingDisplay = "display: none;";
 
     protected override async Task OnInitializedAsync()
-    {
+    {        
         // include CSS
         var content = $"<link rel=\"stylesheet\" href=\"{Constants.BootstrapStylesheetUrl}\" integrity=\"{Constants.BootstrapStylesheetIntegrity}\" crossorigin=\"anonymous\" type=\"text/css\"/>";
         SiteState.AppendHeadContent(content);
+
+        var settings = await InstallationService.GetSettingsAsync();
+        _installerLogo = settings[SettingKeys.InstallerLogoKey];
 
         _togglePassword = SharedLocalizer["ShowPassword"];
         _toggleConfirmPassword = SharedLocalizer["ShowPassword"];

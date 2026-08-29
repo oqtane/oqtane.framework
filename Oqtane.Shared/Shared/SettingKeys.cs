@@ -18,6 +18,7 @@ namespace Oqtane.Shared
         public const string SiteTemplateKey = "SiteTemplate";
         public const string DefaultThemeKey = "DefaultTheme";
         public const string DefaultContainerKey = "DefaultContainer";
+        public const string InstallerLogoKey = "InstallerLogo";
 
         public const string AvailableDatabasesSection = "AvailableDatabases";
 
