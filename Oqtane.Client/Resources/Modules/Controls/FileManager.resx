@@ -129,7 +129,7 @@
   <data name="Error.File.Upload" xml:space="preserve">
     <value>File Upload Failed</value>
   </data>
-    <data name="Error.Folder.Capacity" xml:space="preserve">
+  <data name="Error.Folder.Capacity" xml:space="preserve">
     <value>File Upload Failed As Folder Capacity Exceeded</value>
   </data>
   <data name="Message.File.NotSelected" xml:space="preserve">
@@ -152,5 +152,11 @@
   </data>
   <data name="Message.File.TooLarge" xml:space="preserve">
     <value>File(s) {0} exceed(s) the maximum upload size of {1} MB</value>
+  </data>
+  <data name="DeleteFile.Header" xml:space="preserve">
+    <value>Delete File</value>
+  </data>
+  <data name="Confirm.File.Delete" xml:space="preserve">
+    <value>Are You Sure You Wish To Permanently Delete The File {0}?</value>
   </data>
 </root>

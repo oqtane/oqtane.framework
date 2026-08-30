@@ -87,9 +87,9 @@
                                 {
                                     <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
                                 }
-                                @if (FileId != -1 && !UploadMultiple)
+                                @if (FileId != -1 && !UploadMultiple && ShowDeleteButton)
                                 {
-                                    <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
+                                    <ActionDialog Header="Delete File" Message="@string.Format(Localizer["Confirm.File.Delete"], _file?.Name)" Action="Delete" Security="SecurityAccessLevel.Anonymous" Class="btn btn-danger mx-1" OnClick="@(async () => await DeleteFile())" ResourceKey="DeleteFile" ResourceType="@_resourceType" />
                                 }
                             </div>
                         </div>
@@ -130,6 +130,7 @@
 
 @code {
     private bool _initialized = false;
+    private string _resourceType;
     private List<Folder> _folders = new List<Folder>();
     private List<File> _files = new List<File>();
     private string _fileinputid = string.Empty;
@@ -167,6 +168,9 @@
 
     [Parameter]
     public bool ShowUploadButton { get; set; } = true; // optional - for indicating whether an Upload button should be displayed - default is true
+
+    [Parameter]
+    public bool ShowDeleteButton { get; set; } = true; // optional - for indicating whether a Delete button should be displayed for files - default is true
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
@@ -213,6 +217,7 @@
 
     protected override void OnInitialized()
     {
+        _resourceType = typeof(FileManager).FullName;
         // create unique id for component
         _guid = Guid.NewGuid().ToString("N");
         _fileinputid = "FileInput_" + _guid;
