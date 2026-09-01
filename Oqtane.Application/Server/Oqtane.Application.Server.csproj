@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oqtane.Server" Version="10.2.4" />
+    <PackageReference Include="Oqtane.Server" Version="10.2.5" />
   </ItemGroup>
 	
 </Project>
