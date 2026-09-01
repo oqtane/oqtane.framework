@@ -183,6 +183,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOqtaneServerScopedServices(this IServiceCollection services)
         {
             services.AddScoped<Oqtane.Shared.SiteState>();
+            services.AddScoped<IHttpContext, ServerHttpContext>();
             services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, Oqtane.Services.ThemeService>();
