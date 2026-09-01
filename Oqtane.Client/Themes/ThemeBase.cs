@@ -1,15 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Enums;
+using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
@@ -25,6 +26,9 @@ namespace Oqtane.Themes
 
         [Inject]
         protected SiteState SiteState { get; set; }
+
+        [Inject]
+        protected IHttpContext HttpContext { get; set; }
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
