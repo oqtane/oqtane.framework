@@ -27,6 +27,7 @@ namespace Oqtane.Themes
         [Inject]
         protected SiteState SiteState { get; set; }
 
+        // can only be used in Static render mode and during Pre-rendering in Interactive render mode
         [Inject]
         protected IHttpContext HttpContext { get; set; }
 
