@@ -135,6 +135,7 @@
     {
         try
         {
+            ShowProgressIndicator();
             await FileService.UnzipFileAsync(_fileId);
             NavigationManager.NavigateTo(NavigateUrl());
         }
@@ -142,6 +143,10 @@
         {
             await logger.LogError(ex, "Error Unzipping File {FileId} {Error}", _fileId, ex.Message);
             AddModuleMessage(Localizer["Error.File.Unzip"], MessageType.Error);
+        }
+        finally
+        {
+            HideProgressIndicator();
         }
     }
 }

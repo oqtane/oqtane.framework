@@ -101,6 +101,10 @@ namespace Oqtane.Infrastructure
             // get configuration
             if (install == null)
             {
+                // random delay to prevent instances from starting up concurrently (ie. thundering herd)
+                int randomDelay = new Random().Next(0, 2000);
+                Task.Delay(randomDelay);
+
                 // startup or automated installation
                 install = new InstallConfig
                 {

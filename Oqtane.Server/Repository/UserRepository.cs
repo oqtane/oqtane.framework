@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -24,13 +25,20 @@ namespace Oqtane.Repository
         private readonly IFolderRepository _folders;
         private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userroles;
+        private readonly IFolderProviderFactory _folderProviderFactory;
 
-        public UserRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
+        public UserRepository(
+            IDbContextFactory<TenantDBContext> dbContextFactory,
+            IFolderRepository folders,
+            IRoleRepository roles,
+            IUserRoleRepository userroles,
+            IFolderProviderFactory folderProviderFactory)
         {
             _dbContextFactory = dbContextFactory;
             _folders = folders;
             _roles = roles;
             _userroles = userroles;
+            _folderProviderFactory = folderProviderFactory;
         }
             
         public IEnumerable<User> GetUsers()
@@ -67,11 +75,13 @@ namespace Oqtane.Repository
                     Name = "My Folder",
                     Type = folder.Type,
                     Path = $"{Constants.UserFolderPath}{user.UserId}/",
+                    MappedPath = $"{Constants.UserFolderPath}{user.UserId}/",
                     Order = 1,
                     ImageSizes = folder.ImageSizes,
                     Capacity = folder.Capacity,
                     CacheControl = folder.CacheControl,                     
                     IsSystem = true,
+                    FolderConfigId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId),
                     PermissionList = new List<Permission>
                     {
                         new Permission(PermissionNames.Browse, user.UserId, true),

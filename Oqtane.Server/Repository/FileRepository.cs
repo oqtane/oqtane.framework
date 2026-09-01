@@ -20,8 +20,6 @@ namespace Oqtane.Repository
         File GetFile(int folderId, string fileName);
         File GetFile(int siteId, string folderPath, string fileName);
         void DeleteFile(int fileId);
-        string GetFilePath(int fileId);
-        string GetFilePath(File file);
     }
 
     public class FileRepository : IFileRepository
@@ -56,12 +54,14 @@ namespace Oqtane.Repository
                 files = db.File
                     .Where(item => item.FolderId == folderId)
                     .Include(item => item.Folder)
+                    .ThenInclude(i => i.FolderConfig)
                     .ToList();
             }
             else
             {
                 files = db.File
                     .Include(item => item.Folder)
+                    .ThenInclude(i => i.FolderConfig)
                     .Where(item => item.FolderId == folderId)
                     .AsNoTracking()
                     .ToList();
@@ -114,12 +114,14 @@ namespace Oqtane.Repository
             {
                 file = db.File
                     .Include(item => item.Folder)
+                    .ThenInclude(i => i.FolderConfig)
                     .FirstOrDefault(item => item.FileId == fileId);
             }
             else
             {
                 file = db.File
                     .Include(item => item.Folder)
+                    .ThenInclude(i => i.FolderConfig)
                     .AsNoTracking()
                     .FirstOrDefault(item => item.FileId == fileId);
             }
@@ -136,6 +138,7 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             var file = db.File
                 .Include(item => item.Folder)
+                .ThenInclude(i => i.FolderConfig)
                 .AsNoTracking()
                 .FirstOrDefault(item => item.FolderId == folderId && item.Name.ToLower() == fileName.ToLower());
 
@@ -153,6 +156,7 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             var file = db.File
                 .Include(item => item.Folder)
+                .ThenInclude(i => i.FolderConfig)
                 .AsNoTracking()
                 .FirstOrDefault(item => item.Folder.SiteId == siteId && item.Folder.Path.ToLower() == folderPath && item.Name.ToLower() == fileName);
 

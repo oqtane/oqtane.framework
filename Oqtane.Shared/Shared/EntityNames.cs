@@ -5,6 +5,7 @@ namespace Oqtane.Shared
         public const string Alias = "Alias";
         public const string File = "File";
         public const string Folder = "Folder";
+        public const string FolderConfig = "FolderConfig";
         public const string Job = "Job";
         public const string Language = "Language";
         public const string Module = "Module";
