@@ -29,7 +29,7 @@ namespace Oqtane.Repository
         private List<SiteTemplate> LoadSiteTemplates()
         {
             var defaultSiteTemplate = _configManager.GetSetting("Installation:SiteTemplate", "");
-            if (string.IsNullOrEmpty(defaultSiteTemplate))
+            if (string.IsNullOrEmpty(defaultSiteTemplate) || Type.GetType(defaultSiteTemplate) == null)
             {
                 defaultSiteTemplate = Constants.DefaultSiteTemplate;
             }
