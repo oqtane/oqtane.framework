@@ -113,11 +113,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(Permissions))
-        {
-            PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);			
-        }
-
         _roles = await RoleService.GetRolesAsync(ModuleState.SiteId, true);
         _roles.RemoveAll(item => item.Name == RoleNames.Host); // remove host role
 
@@ -131,9 +126,19 @@
         else
         {
             _permissionnames = PermissionNames.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        } 
+
+        if (!string.IsNullOrEmpty(Permissions))
+        {
+            PermissionList = JsonSerializer.Deserialize<List<Permission>>(Permissions);			
         }
 
         // initialize permissions
+        await LoadPermissions();
+    }
+
+    private async Task LoadPermissions()
+    {
         _permissions = new List<Permission>();
         if (PermissionList != null && PermissionList.Any())
         {
@@ -175,7 +180,7 @@
                     _permissions.Add(new Permission(ModuleState.SiteId, EntityName, permissionname, RoleNames.Admin, null, true));
                 }
             }
-        }
+        }          
     }
 
     private string GetPermissionName(string permissionName)
@@ -273,43 +278,49 @@
         return value;
     }
 
-	private async Task<Dictionary<string, string>> GetUsers(string filter)
-	{
-		var users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
+    private async Task<Dictionary<string, string>> GetUsers(string filter)
+    {
+        var users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId, RoleNames.Registered);
         return users.Where(item => item.User.DisplayName.Contains(filter, StringComparison.OrdinalIgnoreCase) || item.User.Username.Contains(filter, StringComparison.OrdinalIgnoreCase))
-			.ToDictionary(item => item.UserId.ToString(), item => item.User.DisplayName + " (" + item.User.Username + ")");
-	}
+            .ToDictionary(item => item.UserId.ToString(), item => item.User.DisplayName + " (" + item.User.Username + ")");
+    }
 
-	private async Task AddUser()
-	{
-		if (!string.IsNullOrEmpty(_user.Key))
-		{
-			var user = await UserService.GetUserAsync(int.Parse(_user.Key), ModuleState.SiteId);
-			if (user != null && !_users.Any(item => item.UserId == user.UserId))
-			{
-				_users.Add(user);
-			}
-		}
-		else
-		{
-			_message = Localizer["Message.Username.DontExist"];
-		}
-		_user.Clear();
-	}
+    private async Task AddUser()
+    {
+        if (!string.IsNullOrEmpty(_user.Key))
+        {
+            var user = await UserService.GetUserAsync(int.Parse(_user.Key), ModuleState.SiteId);
+            if (user != null && !_users.Any(item => item.UserId == user.UserId))
+            {
+                _users.Add(user);
+            }
+        }
+        else
+        {
+            _message = Localizer["Message.Username.DontExist"];
+        }
+        _user.Clear();
+    }
 
-	public string GetPermissions()
-	{
-		ValidatePermissions();
-		return JsonSerializer.Serialize(_permissions);
-	}
+    public string GetPermissions()
+    {
+        ValidatePermissions();
+        return JsonSerializer.Serialize(_permissions);
+    }
 
-	public List<Permission> GetPermissionList()
-	{
-		ValidatePermissions();
-		return _permissions;
-	}
+    public List<Permission> GetPermissionList()
+    {
+        ValidatePermissions();
+        return _permissions;
+    }
 
-	private void ValidatePermissions()
+    public async Task SetPermissions(List<Permission> permissions)
+    {
+        _permissions = permissions;
+        await LoadPermissions();
+    }
+
+    private void ValidatePermissions()
 	{
 		if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
 		{

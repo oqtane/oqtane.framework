@@ -19,7 +19,7 @@ else
         <TabPanel Name="Files" Heading="Files" ResourceKey="Files">
             <div class="row">
                 <div class="col-md mb-1">
-                    <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" />
+                    <ActionLink Action="Edit" Text="Add Folder" Parameters="@($"parentid=" + _folderId.ToString())" Class="btn btn-secondary" ResourceKey="AddFolder" />
                 </div>
                 <div class="col-md-8 mb-1">
                     <div class="input-group">
