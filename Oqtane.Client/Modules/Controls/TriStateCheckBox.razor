@@ -18,7 +18,7 @@
     [Parameter]
     public Func<bool?, bool?> OnChange { get; set; }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         _value = Value;
         SetImage();

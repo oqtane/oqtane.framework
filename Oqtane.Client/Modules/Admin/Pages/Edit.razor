@@ -235,9 +235,9 @@
                         <div class="row mb-1 align-items-center">
                             <PermissionGrid EntityName="@EntityNames.Page" PermissionList="@_permissions" @ref="_permissionGrid" />
                         </div>
-                        <br /><br />
+                        <hr />
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="updatemodulepermissions" HelpText="Specify if changes made to page permissions should be propagated to the modules on this page" ResourceKey="UpdateModulePermissions">Update Module Permissions? </Label>
+                            <Label Class="col-sm-3" For="updatemodulepermissions" HelpText="Specify if changes made to page permissions should be propagated to the modules on this page" ResourceKey="UpdateModulePermissions">Update Modules? </Label>
                             <div class="col-sm-9">
                                 <select id="updatemodulepermissions" class="form-select" @bind="@_updatemodulepermissions" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>

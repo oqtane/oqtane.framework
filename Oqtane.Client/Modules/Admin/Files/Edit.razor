@@ -12,64 +12,109 @@
         <TabPanel Name="Settings" ResourceKey="Settings" Heading="Settings">
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
-                        <div class="col-sm-9">
-                            @if (_parentId == -1)
-                            {
-                                <select id="parent" class="form-select" @bind="@_parentId" required>
-                                    <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
-                                </select>
-                            }
-                            else
-                            {
-                                <select id="parent" class="form-select" @bind="@_parentId" required>
-                                @foreach (Folder folder in _folders)
-                                {
-                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                }
-                                </select>
-                            }
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
-                        <div class="col-sm-9">
-                            @if (_isSystem)
-                            {
-                                <input id="name" class="form-control" @bind="@_name" disabled />
-                            }
-                            else
-                            {
-                                <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
-                            }
-                        </div>
-                    </div>
-                    @if (PageState.QueryString.ContainsKey("id"))
+                    @if (!_isSystem)
                     {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+                            <div class="col-sm-9">
+                                @if (_parentId == -1)
+                                {
+                                    <select id="parent" class="form-select" @bind="@_parentId" required>
+                                        <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <select id="parent" class="form-select" value="@_parentId" @onchange="(e => ParentChanged(e))" required>
+                                        @foreach (Folder folder in _folders)
+                                        {
+                                            @if (folder.FolderId != _folderId)
+                                            {
+                                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                            }
+                                        }
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+                            <div class="col-sm-9">
+                                @if (_isSystem)
+                                {
+                                    <input id="name" class="form-control" @bind="@_name" disabled />
+                                }
+                                else
+                                {
+                                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
+                                }
+                            </div>
+                        </div>
+                        @if (_folderId != -1)
+                        {
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Label>
+                                <div class="col-sm-9">
+                                    <input id="path" class="form-control" @bind="@_path" disabled />
+                                </div>
+                            </div>
+                        }
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Type">Type: </Label>
+                            <div class="col-sm-9">
+                                @if (_folderId != -1)
+                                {
+                                    <input id="type" class="form-control" @bind="@_type" disabled />
+                                }
+                                else
+                                {
+                                    <select id="type" class="form-select" @bind="@_type" required>
+                                        <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
+                                        <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+                            <div class="col-sm-9">
+                                <select id="parent" class="form-select" value="@_parentId" disabled>
+                                    @if (_parentId == -1)
+                                    {
+                                        <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
+                                    }
+                                    @foreach (Folder folder in _folders)
+                                    {
+                                        @if (folder.FolderId != _folderId)
+                                        {
+                                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+                            <div class="col-sm-9">
+                                <input id="name" class="form-control" @bind="@_name" disabled />
+                            </div>
+                        </div>
                         <div class="row mb-1 align-items-center">
                             <Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Label>
                             <div class="col-sm-9">
                                 <input id="path" class="form-control" @bind="@_path" disabled />
                             </div>
                         </div>
-                    }
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Type">Type: </Label>
-                        <div class="col-sm-9">
-                            @if (PageState.QueryString.ContainsKey("id"))
-                            {
-                                <input id="type" class="form-control" readonly @bind="@_type" />
-                            }
-                            else
-                            {
-                                <select id="type" class="form-select" @bind="@_type" required>
-                                    <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
-                                    <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
-                                </select>
-                            }
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Type">Type: </Label>
+                            <div class="col-sm-9">
+                                <input id="type" class="form-control" @bind="@_type" disabled />
+                            </div>
                         </div>
-                    </div>
+                    }
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Label>
                         <div class="col-sm-9">
@@ -89,32 +134,43 @@
                         </div>
                     </div>
                 </div>
-                @if (PageState.QueryString.ContainsKey("id"))
+                @if (_folderId != -1)
                 {
                     <br />
                     <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
                 }
             </form>
         </TabPanel>
-        <TabPanel Name="Permissions" ResourceKey="Permissions" Heading="Permissions">
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" PermissionList="@_permissions" @ref="_permissionGrid" />
+        @if (!_isSystem)
+        {
+            <TabPanel Name="Permissions" ResourceKey="Permissions" Heading="Permissions">
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" PermissionList="@_permissions" @ref="_permissionGrid" />
+                    </div>
+                    @if (_folderId != -1 && _parentId != -1)
+                    {
+                        <hr />
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="updatesubfolders" HelpText="Specify if permission changes made to this folder should be propagated to subfolders" ResourceKey="UpdateSubfolders">Update Subfolders? </Label>
+                            <div class="col-sm-9">
+                                <select id="updatesubfolders" class="form-select" @bind="@_updatesubfolders" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>                            
+                    }
                 </div>
-            </div>
-        </TabPanel>
+            </TabPanel>
+        }
     </TabStrip>
 
     <br />
-    @if (!_isSystem)
+    <button type="button" class="btn btn-success me-1" @onclick="SaveFolder">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary me-1" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    @if (!_isSystem && _folderId != -1)
     {
-        <button type="button" class="btn btn-success" @onclick="SaveFolder">@SharedLocalizer["Save"]</button>
-        @((MarkupString)"&nbsp;")
-    }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
-    {
-        @((MarkupString)"&nbsp;")
         <ActionDialog Header="Delete Folder" Message="Are You Sure You Wish To Delete This Folder?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
 }
@@ -132,15 +188,13 @@
     private string _cachecontrol = string.Empty;
     private string _imagesizes = string.Empty;
     private bool _isSystem;
-    private List<Permission> _permissions = null;
     private string _createdBy;
     private DateTime _createdOn;
     private string _modifiedBy;
     private DateTime _modifiedOn;
-
-#pragma warning disable 649
     private PermissionGrid _permissionGrid;
-#pragma warning restore 649
+    private List<Permission> _permissions = null;
+    private string _updatesubfolders = "False";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -175,7 +229,15 @@
             }
             else
             {
-                _parentId = _folders[0].FolderId;
+                if (PageState.QueryString.ContainsKey("parentid"))
+                {
+                    _parentId = int.Parse(PageState.QueryString["parentid"]);
+                }
+                else
+                {
+                    _parentId = _folders[0].FolderId;
+                }
+                await LoadParent();          
             }
         }
         catch (Exception ex)
@@ -185,13 +247,36 @@
         }
     }
 
+    private async Task ParentChanged(ChangeEventArgs eventArgs)
+    {
+        _parentId = int.Parse((string)eventArgs.Value);
+        if (_folderId == -1)
+        {
+            await LoadParent();          
+            await _permissionGrid.SetPermissions(_permissions);
+        }
+    }
+
+    private async Task LoadParent()
+    {
+        var folder = await FolderService.GetFolderAsync(_parentId);
+        if (folder != null)
+        {
+            _type = folder.Type;
+            _capacity = folder.Capacity.ToString();
+            _cachecontrol = folder.CacheControl;
+            _imagesizes = folder.ImageSizes;
+            _permissions = folder.PermissionList;
+        }            
+    }
+
     private async Task SaveFolder()
     {
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-            if (_name == string.Empty || _parentId == -1)
+            if (_name == string.Empty)
             {
                 AddModuleMessage(Localizer["Message.Required.FolderParent"], MessageType.Warning);
                 return;
@@ -239,7 +324,15 @@
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
                 folder.IsSystem = _isSystem;
-                folder.PermissionList = _permissionGrid.GetPermissionList();
+                if (!folder.IsSystem)
+                {
+                    folder.PermissionList = _permissionGrid.GetPermissionList();                    
+                }
+                else
+                {
+                    folder.PermissionList = _permissions;
+                }
+                folder.UpdateSubfolderPermissions = bool.Parse(_updatesubfolders);
 
                 if (_folderId != -1)
                 {

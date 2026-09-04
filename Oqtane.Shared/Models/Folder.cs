@@ -86,6 +86,12 @@ namespace Oqtane.Models
         [NotMapped]
         public bool HasChildren { get; set; }
 
+        /// <summary>
+        /// Indicates if subfolder permissions should be updated to be consistent with parent folder
+        /// </summary>
+        [NotMapped]
+        public bool UpdateSubfolderPermissions { get; set; }
+
         #region Deprecated Properties
 
         [Obsolete("The Permissions property is deprecated. Use PermissionList instead", false)]
