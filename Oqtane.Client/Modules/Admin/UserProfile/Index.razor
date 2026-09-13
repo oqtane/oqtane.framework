@@ -599,21 +599,13 @@
                     user.DisplayName = (_displayname == string.Empty ? _username : _displayname);
                     user.TimeZoneId = _timezoneid;
                     user.CultureCode = _culturecode;
-
-                    _photofileid = _filemanager.GetFileId();
-                    _userSettings = SettingService.SetSetting(_userSettings, $"PhotoFileId:{ModuleState.SiteId}", (_photofileid != -1) ? _photofileid.ToString() : "");
-                    if (_photofileid != -1)
-                    {
-                        _photo = await FileService.GetFileAsync(_photofileid);
-                    }
-                    else
-                    {
-                        _photo = null;
-                    }
+                    user.PhotoFileId = null; // now stored in UserSettings
 
                     user = await UserService.UpdateUserAsync(user);
                     if (user != null)
                     {
+                        _photofileid = _filemanager.GetFileId();
+                        _userSettings = SettingService.SetSetting(_userSettings, $"PhotoFileId:{ModuleState.SiteId}", (_photofileid != -1) ? _photofileid.ToString() : "");
                         await SettingService.UpdateUserSettingsAsync(_userSettings, PageState.User.UserId);
                         await logger.LogInformation("User Profile Saved");
 
