@@ -54,6 +54,7 @@ namespace Oqtane.Managers
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly IFileRepository _files;
         private readonly IProfileRepository _profiles;
         private readonly ISettingRepository _settings;
         private readonly ISiteRepository _sites;
@@ -62,7 +63,7 @@ namespace Oqtane.Managers
         private readonly ICacheManager _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
@@ -72,6 +73,7 @@ namespace Oqtane.Managers
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
+            _files = files;
             _profiles = profiles;
             _settings = settings;
             _sites = sites;
@@ -323,9 +325,13 @@ namespace Oqtane.Managers
                     var setting = _settings.GetSetting(EntityNames.User, user.UserId, $"PhotoFileId:{user.SiteId}");
                     if (setting == null)
                     {
-                        _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = $"PhotoFileId:{user.SiteId}", SettingValue = user.PhotoFileId.ToString(), IsPrivate = false });
+                        // validate file belongs to a folder in this site
+                        var file = _files.GetFile(user.PhotoFileId.Value);
+                        if (file != null && file.Folder.SiteId == user.SiteId)
+                        {
+                            _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = $"PhotoFileId:{user.SiteId}", SettingValue = user.PhotoFileId.ToString(), IsPrivate = false });
+                        }
                     }
-                    user.PhotoFileId = null;
                 }
 
                 user = _users.UpdateUser(user);
