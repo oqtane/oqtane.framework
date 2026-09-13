@@ -317,6 +317,17 @@ namespace Oqtane.Managers
                     }
                 }
 
+                if (user.PhotoFileId != null)
+                {
+                    // PhotoFileId is stored in Settings as it is specific to a site/folder
+                    var setting = _settings.GetSetting(EntityNames.User, user.UserId, $"PhotoFileId:{user.SiteId}");
+                    if (setting == null)
+                    {
+                        _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = $"PhotoFileId:{user.SiteId}", SettingValue = user.PhotoFileId.ToString(), IsPrivate = false });
+                    }
+                    user.PhotoFileId = null;
+                }
+
                 user = _users.UpdateUser(user);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Update);
                 _syncManager.AddSyncEvent(_tenantManager.GetAlias(), EntityNames.User, user.UserId, SyncEventActions.Reload);
