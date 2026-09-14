@@ -462,12 +462,12 @@ namespace Oqtane.Services
 
         public async Task AddOrUpdateSettingAsync(string entityName, int entityId, string settingName, string settingValue, bool isPrivate)
         {
-            await PutAsync($"{Apiurl}/{entityName}/{entityId}/{settingName}/{settingValue}/{isPrivate}");
+            await PutAsync($"{Apiurl}/{entityName}/{entityId}/{Uri.EscapeDataString(settingName)}/{Uri.EscapeDataString(settingValue)}/{isPrivate}");
         }
 
         public async Task DeleteSettingAsync(string entityName, int entityId, string settingName)
         {
-            await DeleteAsync($"{Apiurl}/{entityName}/{entityId}/{settingName}");
+            await DeleteAsync($"{Apiurl}/{entityName}/{entityId}/{Uri.EscapeDataString(settingName)}");
         }
 
         public async Task<List<Setting>> GetSettingsAsync(string entityName, int entityId, string settingName)
