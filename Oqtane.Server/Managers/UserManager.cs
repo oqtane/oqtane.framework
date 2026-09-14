@@ -32,7 +32,7 @@ namespace Oqtane.Managers
         Task<bool> ForgotUsername(string email);
         Task<User> ResetPassword(User user, string token);
         User VerifyTwoFactor(User user, string token);
-        Task<UserValidateResult> ValidateUser(string username, string email, string password);
+        Task<bool> ValidateUsername(string username);
         Task<bool> ValidatePassword(string password);
         Task<Dictionary<string, string>> ImportUsers(int siteId, string filePath, bool notify);
         Task<List<UserPasskey>> GetPasskeys(int userId, int siteId);
@@ -54,6 +54,7 @@ namespace Oqtane.Managers
         private readonly ITenantManager _tenantManager;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly IFileRepository _files;
         private readonly IProfileRepository _profiles;
         private readonly ISettingRepository _settings;
         private readonly ISiteRepository _sites;
@@ -62,7 +63,7 @@ namespace Oqtane.Managers
         private readonly ICacheManager _cache;
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer)
         {
             _users = users;
             _roles = roles;
@@ -72,6 +73,7 @@ namespace Oqtane.Managers
             _tenantManager = tenantManager;
             _notifications = notifications;
             _folders = folders;
+            _files = files;
             _profiles = profiles;
             _settings = settings;
             _sites = sites;
@@ -98,7 +100,8 @@ namespace Oqtane.Managers
                     }
                     user.Settings = _settings.GetSettings(EntityNames.User, user.UserId)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-                    user.FolderId = _folders.GetFolder(siteid, user.FolderPath).FolderId;
+                    var folder = _folders.GetFolder(siteid, user.FolderPath, user.UserId);
+                    user.FolderId = (folder != null) ? folder.FolderId : -1;
                 }
                 return user;
             });
@@ -313,6 +316,21 @@ namespace Oqtane.Managers
                         string body = "Dear " + user.DisplayName + ",\n\nIn Order To Verify The Email Address Associated To Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                         var notification = new Notification(user.SiteId, user, "User Account Verification", body);
                         _notifications.AddNotification(notification);
+                    }
+                }
+
+                if (user.PhotoFileId != null)
+                {
+                    // PhotoFileId is stored in Settings as it is specific to a site/folder
+                    var setting = _settings.GetSetting(EntityNames.User, user.UserId, $"PhotoFileId:{user.SiteId}");
+                    if (setting == null)
+                    {
+                        // validate file belongs to a folder in this site
+                        var file = _files.GetFile(user.PhotoFileId.Value);
+                        if (file != null && file.Folder.SiteId == user.SiteId)
+                        {
+                            _settings.AddSetting(new Setting { EntityName = EntityNames.User, EntityId = user.UserId, SettingName = $"PhotoFileId:{user.SiteId}", SettingValue = user.PhotoFileId.ToString(), IsPrivate = false });
+                        }
                     }
                 }
 
@@ -642,30 +660,15 @@ namespace Oqtane.Managers
             return user;
         }
 
-        public async Task<UserValidateResult> ValidateUser(string username, string email, string password)
+        public async Task<bool> ValidateUsername(string username)
         {
-            var validateResult = new UserValidateResult { Succeeded = true };
-
-            //validate username
             var allowedChars = _identityUserManager.Options.User.AllowedUserNameCharacters;
             if (string.IsNullOrWhiteSpace(username) || (!string.IsNullOrEmpty(allowedChars) && username.Any(c => !allowedChars.Contains(c))))
             {
-                validateResult.Succeeded = false;
-                validateResult.Errors.Add("Message.Username.Invalid", string.Empty);
+                return false;
             }
-
-            //validate password
-            var passwordValidator = new PasswordValidator<IdentityUser>();
-            var passwordResult = await passwordValidator.ValidateAsync(_identityUserManager, null, password);
-            if (!passwordResult.Succeeded)
-            {
-                validateResult.Succeeded = false;
-                validateResult.Errors.Add("Message.Password.Invalid", string.Empty);
-            }
-
-            return validateResult;
+            return true;
         }
-
         public async Task<bool> ValidatePassword(string password)
         {
             var validator = new PasswordValidator<IdentityUser>();

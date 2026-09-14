@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Server</id>
-    <version>10.2.5</version>
+    <version>10.2.6</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,14 +12,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.5</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.6</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
       <group targetFramework="net10.0">
-        <dependency id="Oqtane.Client" version="10.2.5" exclude="Build,Analyzers" />
-        <dependency id="Oqtane.Shared" version="10.2.5" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Client" version="10.2.6" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Shared" version="10.2.6" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="10.0.12" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.12" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="10.0.12" exclude="Build,Analyzers" />
@@ -30,10 +30,10 @@
         <dependency id="HtmlAgilityPack" version="1.13.0" exclude="Build,Analyzers" />
         <dependency id="Swashbuckle.AspNetCore" version="10.2.3" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="4.17.0" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache" version="2.7.2" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.7.2" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.7.2" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.7.2" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache" version="2.8.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.8.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.8.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.8.0" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="26.7.0" exclude="Build,Analyzers" />
         <dependency id="MySql.EntityFrameworkCore" version="10.0.9" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="10.0.1" exclude="Build,Analyzers" />

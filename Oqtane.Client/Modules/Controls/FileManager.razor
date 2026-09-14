@@ -44,7 +44,7 @@
                     }
                     else
                     {
-                        if (FileId != -1 && _file != null && !UploadMultiple)
+                        if (ShowFile && FileId != -1 && _file != null && !UploadMultiple)
                         {
                             <input class="form-control" @bind="@_file.Name" disabled />
                         }
@@ -162,6 +162,9 @@
 
     [Parameter]
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
+
+    [Parameter]
+    public bool ShowFile { get; set; } = true; // optional - for indicating whether a filename should be displayed when ShowFiles is false - default is true
 
     [Parameter]
     public bool ShowUpload { get; set; } = true; // optional - indicates if the file upload/delete and progress indicator section should be visible - default is true

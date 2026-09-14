@@ -128,13 +128,11 @@ namespace Oqtane.Services
         Task<User> VerifyTwoFactorAsync(User user, string token);
 
         /// <summary>
-        /// Validate identity user info.
+        /// Validate a users username against the .NET Identity options  
         /// </summary>
         /// <param name="username"></param>
-        /// <param name="email"></param>
-        /// <param name="password"></param>
         /// <returns></returns>
-        Task<UserValidateResult> ValidateUserAsync(string username, string email, string password);
+        Task<bool> ValidateUsernameAsync(string username);
 
         /// <summary>
         /// Validate a users password against the password policy 
@@ -309,14 +307,14 @@ namespace Oqtane.Services
             return await PostJsonAsync<User>($"{Apiurl}/twofactor?token={token}", user);
         }
 
-        public async Task<UserValidateResult> ValidateUserAsync(string username, string email, string password)
+        public async Task<bool> ValidateUsernameAsync(string username)
         {
-            return await GetJsonAsync<UserValidateResult>($"{Apiurl}/validateuser?username={WebUtility.UrlEncode(username)}&email={WebUtility.UrlEncode(email)}&password={WebUtility.UrlEncode(password)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/validateusername/{Uri.EscapeDataString(username)}");
         }
 
         public async Task<bool> ValidatePasswordAsync(string password)
         {
-            return await GetJsonAsync<bool>($"{Apiurl}/validate/{Uri.EscapeDataString(password)}");
+            return await GetJsonAsync<bool>($"{Apiurl}/validatepassword/{Uri.EscapeDataString(password)}");
         }
 
         public async Task<string> GetTokenAsync()

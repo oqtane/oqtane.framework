@@ -574,68 +574,62 @@
     {
         try
         {
-            if (_username != string.Empty && _email != string.Empty)
+            var message = "";
+            if (!Utilities.IsValidEmail(_email))
             {
-                if (_password == _confirm)
+                message += ((message == "") ? "" : " ") + Localizer["Message.Email.Invalid"];
+            }
+            if (!string.IsNullOrEmpty(_password) && !await UserService.ValidatePasswordAsync(_password))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Password.Invalid"];
+            }
+            if (_password != _confirm)
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Password.NoMatch"];
+            }
+            if (string.IsNullOrEmpty(message))
+            {
+                if (ValidateProfiles())
                 {
-                    if (ValidateProfiles())
+                    var user = PageState.User;
+                    user.Username = _username;
+                    user.Password = _password;
+                    user.TwoFactorRequired = bool.Parse(_twofactor);
+                    user.Email = _email;
+                    user.DisplayName = (_displayname == string.Empty ? _username : _displayname);
+                    user.TimeZoneId = _timezoneid;
+                    user.CultureCode = _culturecode;
+                    _photofileid = _filemanager.GetFileId();
+                    user.PhotoFileId = (_photofileid != -1) ? _photofileid : null;
+
+                    user = await UserService.UpdateUserAsync(user);
+                    if (user != null)
                     {
-                        var user = PageState.User;
-                        user.Username = _username;
-                        user.Password = _password;
-                        user.TwoFactorRequired = bool.Parse(_twofactor);
-                        user.Email = _email;
-                        user.DisplayName = (_displayname == string.Empty ? _username : _displayname);
-                        user.TimeZoneId = _timezoneid;
-                        user.CultureCode = _culturecode;
-                        user.PhotoFileId = _filemanager.GetFileId();
-                        if (user.PhotoFileId == -1)
-                        {
-                            user.PhotoFileId = null;
-                        }
-                        if (user.PhotoFileId != null)
-                        {
-                            _photofileid = user.PhotoFileId.Value;
-                            _photo = await FileService.GetFileAsync(_photofileid);
-                        }
-                        else
-                        {
-                            _photofileid = -1;
-                            _photo = null;
-                        }
+                        // update user profile settings
+                        await SettingService.UpdateUserSettingsAsync(_userSettings, PageState.User.UserId);
+                        await logger.LogInformation("User Profile Saved");
 
-                        user = await UserService.UpdateUserAsync(user);
-                        if (user != null)
+                        if (!string.IsNullOrEmpty(PageState.ReturnUrl))
                         {
-                            await SettingService.UpdateUserSettingsAsync(_userSettings, PageState.User.UserId);
-                            await logger.LogInformation("User Profile Saved");
-
-                            if (!string.IsNullOrEmpty(PageState.ReturnUrl))
-                            {
-                                NavigationManager.NavigateTo(PageState.ReturnUrl);
-                            }
-                            else // legacy behavior
-                            {
-                                AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
-                                StateHasChanged();
-                            }
+                            NavigationManager.NavigateTo(PageState.ReturnUrl);
                         }
-                        else
+                        else // legacy behavior
                         {
-                            AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                            AddModuleMessage(Localizer["Success.Profile.Update"], MessageType.Success);
+                            StateHasChanged();
                         }
-
-                        await SetCultureAsync(_culturecode);
                     }
-                }
-                else
-                {
-                    AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                    }
+
+                    await SetCultureAsync(_culturecode);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
+                AddModuleMessage(message, MessageType.Warning);
             }
 
             await ScrollToPageTop();

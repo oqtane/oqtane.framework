@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -19,6 +20,7 @@ namespace Oqtane.Repository
         Folder GetFolder(int folderId);
         Folder GetFolder(int folderId, bool tracking);
         Folder GetFolder(int siteId, string path);
+        Folder GetFolder(int siteId, string path, int userId);
         void DeleteFolder(int folderId);
         string GetFolderPath(int folderId);
         string GetFolderPath(Folder folder);
@@ -248,6 +250,41 @@ namespace Oqtane.Repository
                         .ToList()
                 })
                 .FirstOrDefault();
+        }
+
+        public Folder GetFolder(int siteId, string path, int userId)
+        {
+            var folder = GetFolder(siteId, path);
+            if (folder == null && path.StartsWith(Constants.UserFolderPath) && path.Length != Constants.UserFolderPath.Length && userId != -1)
+            {
+                // get the parent user folder for this site 
+                folder = GetFolder(siteId, Constants.UserFolderPath);
+                if (folder != null)
+                {
+                    // create the user folder on this site (using the parent properties as defaults)
+                    AddFolder(new Folder
+                    {
+                        SiteId = folder.SiteId,
+                        ParentId = folder.FolderId,
+                        Name = "My Folder",
+                        Type = folder.Type,
+                        Path = path,
+                        Order = 1,
+                        ImageSizes = folder.ImageSizes,
+                        Capacity = folder.Capacity,
+                        CacheControl = folder.CacheControl,
+                        IsSystem = true,
+                        PermissionList = new List<Permission>
+                        {
+                            new Permission(PermissionNames.Browse, userId, true),
+                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                            new Permission(PermissionNames.Edit, userId, true)
+                        }
+                    });
+                }
+                folder = GetFolder(siteId, path);
+            }
+            return folder;
         }
 
         public void DeleteFolder(int folderId)

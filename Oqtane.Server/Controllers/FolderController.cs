@@ -109,35 +109,7 @@ namespace Oqtane.Controllers
             {
                 folderPath += "/";
             }
-            Folder folder = _folders.GetFolder(siteId, folderPath);
-            if (folder == null && User.IsInRole(RoleNames.Host) && path.StartsWith(Constants.UserFolderPath))
-            {
-                // create the user folder on this site for the host user
-                var userId = int.Parse(path.ReplaceMultiple(new string[] { "Users", "/" }, ""));
-                folder = _folders.GetFolder(siteId, Constants.UserFolderPath);
-                if (folder != null)
-                {
-                    folder = _folders.AddFolder(new Folder
-                    {
-                        SiteId = folder.SiteId,
-                        ParentId = folder.FolderId,
-                        Name = "My Folder",
-                        Type = folder.Type,
-                        Path = path,
-                        Order = 1,
-                        ImageSizes = folder.ImageSizes,
-                        Capacity = folder.Capacity,
-                        CacheControl = folder.CacheControl,
-                        IsSystem = true,
-                        PermissionList = new List<Permission>
-                        {
-                            new Permission(PermissionNames.Browse, userId, true),
-                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                            new Permission(PermissionNames.Edit, userId, true)
-                        }
-                    });
-                }
-            }
+            Folder folder = _folders.GetFolder(siteId, folderPath, _userPermissions.GetUser(User).UserId);
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, folder.PermissionList))
             {
                 return folder;

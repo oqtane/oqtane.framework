@@ -204,7 +204,16 @@
     {
         try
         {
-            if (_username != string.Empty && _email != string.Empty)
+            var message = "";
+            if (string.IsNullOrEmpty(_username) || !await UserService.ValidateUsernameAsync(_username))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Username.Invalid"];
+            }
+            if (string.IsNullOrEmpty(_email) || !Utilities.IsValidEmail(_email))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Email.Invalid"];
+            }
+            if (string.IsNullOrEmpty(message))
             {
                 if (ValidateProfiles())
                 {
@@ -231,13 +240,13 @@
                     else
                     {
                         await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                        AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
+                        AddModuleMessage(Localizer["Error.User.Add"], MessageType.Error);
                     }
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
+                AddModuleMessage(message, MessageType.Warning);
             }
         }
         catch (Exception ex)

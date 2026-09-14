@@ -151,7 +151,12 @@ namespace Oqtane.Controllers
                     var parent = _notifications.GetNotification(notification.ParentId.Value);
                     if (parent != null && parent.ToUserId == User.UserId())
                     {
-                        notification.ThreadId = (parent.ThreadId != null) ? parent.ThreadId : parent.NotificationId;
+                        if (parent.ThreadId == null)
+                        {
+                            parent.ThreadId = parent.NotificationId;
+                            _notifications.UpdateNotification(parent);
+                        }
+                        notification.ThreadId = parent.ThreadId;
                     }
                     else
                     {

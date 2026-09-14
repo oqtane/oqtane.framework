@@ -21,14 +21,12 @@ namespace Oqtane.Repository
     public class UserRepository : IUserRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly IFolderRepository _folders;
         private readonly IRoleRepository _roles;
         private readonly IUserRoleRepository _userroles;
 
-        public UserRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IFolderRepository folders, IRoleRepository roles, IUserRoleRepository userroles)
+        public UserRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IRoleRepository roles, IUserRoleRepository userroles)
         {
             _dbContextFactory = dbContextFactory;
-            _folders = folders;
             _roles = roles;
             _userroles = userroles;
         }
@@ -54,31 +52,6 @@ namespace Oqtane.Repository
                 int siteId = user.SiteId;
                 user = db.User.AsNoTracking().First(item => item.Username == user.Username);
                 user.SiteId = siteId;
-            }
-
-            // add folder for user
-            var folder = _folders.GetFolder(user.SiteId, Constants.UserFolderPath);
-            if (folder != null)
-            {
-                _folders.AddFolder(new Folder
-                {
-                    SiteId = folder.SiteId,
-                    ParentId = folder.FolderId,
-                    Name = "My Folder",
-                    Type = folder.Type,
-                    Path = $"{Constants.UserFolderPath}{user.UserId}/",
-                    Order = 1,
-                    ImageSizes = folder.ImageSizes,
-                    Capacity = folder.Capacity,
-                    CacheControl = folder.CacheControl,                     
-                    IsSystem = true,
-                    PermissionList = new List<Permission>
-                    {
-                        new Permission(PermissionNames.Browse, user.UserId, true),
-                        new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                        new Permission(PermissionNames.Edit, user.UserId, true)
-                    }
-                });
             }
 
             // add auto assigned roles to user for site
