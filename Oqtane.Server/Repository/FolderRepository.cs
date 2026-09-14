@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -33,15 +34,15 @@ namespace Oqtane.Repository
         private readonly IPermissionRepository _permissions;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenants;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IServiceProvider _serviceProvider;
 
-        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IFolderProviderFactory folderProviderFactory)
+        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IServiceProvider serviceProvider)
         {
             _dbContextFactory = dbContextFactory;
             _permissions = permissions;
             _environment = environment;
             _tenants = tenants;
-            _folderProviderFactory = folderProviderFactory;
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<Folder> GetFolders(int siteId)
@@ -293,7 +294,7 @@ namespace Oqtane.Repository
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
-                        FolderConfigId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId),
+                        FolderConfigId = _serviceProvider.GetRequiredService<IFolderProviderFactory>().GetDefaultConfigId(folder.SiteId),
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
