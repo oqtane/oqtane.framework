@@ -351,7 +351,20 @@
     {
         try
         {
-            if (_username != string.Empty && _email != string.Empty)
+            var message = "";
+            if (string.IsNullOrEmpty(_username) || !await UserService.ValidateUsernameAsync(_username))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Username.Invalid"];
+            }
+            if (string.IsNullOrEmpty(_email) || !Utilities.IsValidEmail(_email))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Email.Invalid"];
+            }
+            if (!string.IsNullOrEmpty(_password) && !await UserService.ValidatePasswordAsync(_password))
+            {
+                message += ((message == "") ? "" : " ") + Localizer["Message.Password.Invalid"];
+            }
+            if (string.IsNullOrEmpty(message))
             {
                 if (_password == _confirm)
                 {
@@ -380,7 +393,7 @@
                         }
                         else
                         {
-                            AddModuleMessage(Localizer["Message.Password.Complexity"], MessageType.Error);
+                            AddModuleMessage(Localizer["Error.User.Save"], MessageType.Error);
                         }
                     }
                 }
@@ -391,7 +404,7 @@
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
+                AddModuleMessage(message, MessageType.Warning);
             }
         }
         catch (Exception ex)

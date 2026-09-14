@@ -126,9 +126,6 @@
   <data name="Identity.Name" xml:space="preserve">
     <value>Identity</value>
   </data>
-  <data name="Message.Required.ProfileInfo" xml:space="preserve">
-    <value>You Must Provide A Username, Email Address And All Required Profile Information</value>
-  </data>
   <data name="Message.Username.Exists" xml:space="preserve">
     <value>Username Already Exists</value>
   </data>
@@ -173,5 +170,11 @@
   </data>
   <data name="CultureCode.HelpText" xml:space="preserve">
     <value />
+  </data>
+  <data name="Message.Username.Invalid" xml:space="preserve">
+    <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits And No Spaces.</value>
+  </data>
+  <data name="Message.Email.Invalid" xml:space="preserve">
+    <value>The Email Provided Is Not Valid</value>
   </data>
 </root>

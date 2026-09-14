@@ -12,6 +12,8 @@ namespace Oqtane.Models
     /// </summary>
     public class User : ModelBase, IDeletable
     {
+        int? _photoFileId;
+
         /// <summary>
         /// ID of this User.
         /// </summary>
@@ -68,6 +70,29 @@ namespace Oqtane.Models
         public DateTime? TwoFactorExpiry { get; set; }
 
         /// <summary>
+        /// Reference to a <see cref="File"/> containing the users photo.
+        /// </summary>
+        public int? PhotoFileId
+        {
+            get
+            {
+                if (Settings != null && Settings.ContainsKey($"PhotoFileId:{SiteId}") && int.TryParse(Settings[$"PhotoFileId:{SiteId}"].Replace("[Public]", "").Replace("[Private]", ""), out int photoFileId))
+                {
+                    return photoFileId;
+                }
+                else
+                {
+                    return _photoFileId; // legacy location 
+                }
+            }
+            set
+            {
+                _photoFileId = value;
+            }
+        }
+
+
+        /// <summary>
         /// A token indicating if a user's security properties have been modified
         /// </summary>
         [NotMapped]
@@ -119,27 +144,6 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public int FolderId { get; set; }
-
-        /// <summary>
-        /// Reference to a <see cref="File"/> containing the users photo.
-        /// </summary>
-        [NotMapped]
-        public int? PhotoFileId
-        {
-            get
-            {
-                if (Settings != null && Settings.ContainsKey($"PhotoFileId:{SiteId}") && int.TryParse(Settings[$"PhotoFileId:{SiteId}"].Replace("[Public]", "").Replace("[Private]", ""), out int photoFileId))
-                {
-                    return photoFileId;
-                }
-                return null;
-            }
-            set
-            {
-                // not implemented (retained for backward compatibility)
-                // note that the PhotoFileId column in the User database table still exists and the legacy data can be manually migrated to the Setting table if required
-            }
-        }
 
         /// <summary>
         /// Information if this user's email address is confirmed (set during user creation)

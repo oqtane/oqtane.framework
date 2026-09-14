@@ -252,8 +252,20 @@
 
         if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && !string.IsNullOrEmpty(_hostPassword) && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@") && !string.IsNullOrEmpty(_hostName))
         {
-            var result = await UserService.ValidateUserAsync(_hostUsername, _hostEmail, _hostPassword);
-            if (result.Succeeded)
+            _message = "";
+            if (!await UserService.ValidateUsernameAsync(_hostUsername))
+            {
+                _message += ((_message == "") ? "" : " ") + Localizer["Message.Username.Invalid"];
+            }
+            if (!Utilities.IsValidEmail(_hostEmail))
+            {
+                _message += ((_message == "") ? "" : " ") + Localizer["Message.Email.Invalid"];
+            }
+            if (!await UserService.ValidatePasswordAsync(_hostPassword))
+            {
+                _message += ((_message == "") ? "" : " ") + Localizer["Message.Password.Invalid"];
+            }
+            if (string.IsNullOrEmpty(_message))
             {
                 _loadingDisplay = "";
                 StateHasChanged();
@@ -263,22 +275,22 @@
                 var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
                 var config = new InstallConfig
-                    {
-                        DatabaseType = database.DBType,
-                        ConnectionString = connectionString,
-                        Aliases = uri.Authority,
-                        HostUsername = _hostUsername,
-                        HostPassword = _hostPassword,
-                        HostEmail = _hostEmail,
-                        HostName = _hostName,
-                        TenantName = TenantNames.Master,
-                        IsNewTenant = true,
-                        SiteName = Constants.DefaultSite,
-                        Register = _register,
-                        SiteTemplate = _template,
-                        RenderMode = "", // provided by appsettings.json
-                        Runtime = "" // provided by appsettings.json
-                    };
+                {
+                    DatabaseType = database.DBType,
+                    ConnectionString = connectionString,
+                    Aliases = uri.Authority,
+                    HostUsername = _hostUsername,
+                    HostPassword = _hostPassword,
+                    HostEmail = _hostEmail,
+                    HostName = _hostName,
+                    TenantName = TenantNames.Master,
+                    IsNewTenant = true,
+                    SiteName = Constants.DefaultSite,
+                    Register = _register,
+                    SiteTemplate = _template,
+                    RenderMode = "", // provided by appsettings.json
+                    Runtime = "" // provided by appsettings.json
+                };
 
                 var installation = await InstallationService.Install(config);
                 if (installation.Success)
@@ -291,10 +303,6 @@
                     _loadingDisplay = "display: none;";
                 }
             }
-            else
-            {
-                _message = string.Join("<br />", result.Errors.Select(i => !string.IsNullOrEmpty(i.Value) ? i.Value : Localizer[i.Key]));
-			}
 		}
 		else
 		{

@@ -120,17 +120,11 @@
   <data name="Message.Password.NoMatch" xml:space="preserve">
     <value>Passwords Entered Do Not Match</value>
   </data>
-  <data name="Message.Password.Complexity" xml:space="preserve">
-    <value>Password Provided Does Not Meet The Complexity Policy</value>
-  </data>
   <data name="Confirm.Delete" xml:space="preserve">
     <value>Is Deleted?</value>
   </data>
   <data name="Error.User.Load" xml:space="preserve">
     <value>Error Loading User</value>
-  </data>
-  <data name="Message.Required.ProfileInfo" xml:space="preserve">
-    <value>You Must Provide A Username, Password, Email Address, And All Required Profile Information</value>
   </data>
   <data name="Error.User.Save" xml:space="preserve">
     <value>Error Saving User</value>
@@ -257,5 +251,14 @@
   </data>
   <data name="CultureCode.HelpText" xml:space="preserve">
     <value>The user's preferred language. Note that you will only be able to choose from languages supported on this site.</value>
+  </data>
+  <data name="Message.Email.Invalid" xml:space="preserve">
+    <value>The Email Provided Is Not Valid.</value>
+  </data>
+  <data name="Message.Password.Invalid" xml:space="preserve">
+    <value>The Password Provided Does Not Meet The Complexity Policy. </value>
+  </data>
+  <data name="Message.Username.Invalid" xml:space="preserve">
+    <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits And No Spaces.</value>
   </data>
 </root>

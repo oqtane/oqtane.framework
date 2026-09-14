@@ -152,45 +152,53 @@
         {
             try
             {
-                bool _isEmailValid = Utilities.IsValidEmail(_email);
-
-                if (_isEmailValid)
+                var message = "";
+                if (!await UserService.ValidateUsernameAsync(_username))
                 {
-                    if (_password == _confirm)
+                    message += ((message == "") ? "" : " ") + Localizer["Message.Username.Invalid"];
+                }
+                if (!Utilities.IsValidEmail(_email))
+                {
+                    message += ((message == "") ? "" : " ") + Localizer["Message.Email.Invalid"];
+                }
+                if (!await UserService.ValidatePasswordAsync(_password))
+                {
+                    message += ((message == "") ? "" : " ") + Localizer["Message.Password.Invalid"];
+                }
+                if (_password != _confirm)
+                {
+                    message += ((message == "") ? "" : " ") + Localizer["Message.Password.NoMatch"];
+                }
+                if (string.IsNullOrEmpty(message))
+                {
+                    var user = new User
                     {
-                        var user = new User
-                        {
-                            SiteId = PageState.Site.SiteId,
-                            Username = _username,
-                            Password = _password,
-                            Email = _email,
-                            DisplayName = (_displayname == string.Empty ? _username : _displayname),
-                            TimeZoneId = _timezoneid,
-                            CultureCode = _culturecode,
-							PhotoFileId = null
-                        };
-                        user = await UserService.AddUserAsync(user);
+                        SiteId = PageState.Site.SiteId,
+                        Username = _username,
+                        Password = _password,
+                        Email = _email,
+                        DisplayName = (_displayname == string.Empty ? _username : _displayname),
+                        TimeZoneId = _timezoneid,
+                        CultureCode = _culturecode,
+						PhotoFileId = null
+                    };
+                    user = await UserService.AddUserAsync(user);
 
-                        if (user != null)
-                        {
-                            await logger.LogInformation("User Created {Username} {Email}", _username, _email);
-                            _userCreated = true;
-                             AddModuleMessage(Localizer["Info.User.AccountCreate"], MessageType.Info);
-                        }
-                        else
-                        {
-                            await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                            AddModuleMessage(Localizer["Error.User.AddInfo"], MessageType.Error);
-                        }
+                    if (user != null)
+                    {
+                        await logger.LogInformation("User Created {Username} {Email}", _username, _email);
+                        _userCreated = true;
+                        AddModuleMessage(Localizer["Info.User.AccountCreate"], MessageType.Info);
                     }
                     else
                     {
-                        AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
+                        await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
+                        AddModuleMessage(Localizer["Error.User.AddInfo"], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+                    AddModuleMessage(message, MessageType.Warning);
                 }
             }
             catch (Exception ex)

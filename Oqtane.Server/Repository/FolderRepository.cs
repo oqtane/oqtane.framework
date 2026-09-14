@@ -275,7 +275,7 @@ namespace Oqtane.Repository
         public Folder GetFolder(int siteId, string path, int userId)
         {
             var folder = GetFolder(siteId, path);
-            if (folder == null && path.StartsWith(Constants.UserFolderPath) && userId != -1)
+            if (folder == null && path.StartsWith(Constants.UserFolderPath) && path.Length != Constants.UserFolderPath.Length && userId != -1)
             {
                 // get the parent user folder for this site 
                 folder = GetFolder(siteId, Constants.UserFolderPath);

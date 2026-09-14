@@ -136,7 +136,7 @@
     <value>Please Enter All Required Fields. Ensure Passwords Match And Email Address Provided Is Valid.</value>
   </data>
   <data name="Message.Password.Invalid" xml:space="preserve">
-    <value>The Password Provided Does Not Meet The Complexity Policy. Passwords Must Be At Least 6 Characters In Length And Contain Uppercase, Lowercase, Numeric, And Punctuation Characters.</value>
+    <value>The Password Provided Does Not Meet The Complexity Policy. </value>
   </data>
   <data name="Register" xml:space="preserve">
     <value>Please Register Me For Major Product Updates And Security Bulletins</value>
@@ -184,12 +184,15 @@
     <value>Select a site template</value>
   </data>
   <data name="Message.Username.Invalid" xml:space="preserve">
-    <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits.</value>
+    <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits And No Spaces.</value>
   </data>
   <data name="Name.Text" xml:space="preserve">
     <value>Full Name:</value>
   </data>
   <data name="Name.HelpText" xml:space="preserve">
     <value>Provide the full name of the host user</value>
+  </data>
+  <data name="Message.Email.Invalid" xml:space="preserve">
+    <value>The Email Provided Is Not Valid.</value>
   </data>
 </root>
