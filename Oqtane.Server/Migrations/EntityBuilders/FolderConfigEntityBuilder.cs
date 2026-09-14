@@ -25,7 +25,7 @@ namespace Oqtane.Migrations.EntityBuilders
         protected override FolderConfigEntityBuilder BuildTable(ColumnsBuilder table)
         {
             FolderConfigId = AddAutoIncrementColumn(table, "FolderConfigId");
-            SiteId = AddIntegerColumn(table,"SiteId");
+            SiteId = AddIntegerColumn(table,"SiteId", true);
             Name = AddStringColumn(table,"Name", 50);
             Provider = AddStringColumn(table, "Provider", 50);
 

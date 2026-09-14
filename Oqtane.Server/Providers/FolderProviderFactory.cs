@@ -21,13 +21,11 @@ namespace Oqtane.Providers
 
         public int GetDefaultConfigId(int siteId)
         {
-            var defaultConfig = _folderConfigRepository.GetFolderConfigs(siteId)
-                .FirstOrDefault(fp => fp.Name == Constants.DefaultFolderProvider);
+            var defaultConfig = _folderConfigRepository.GetFolderConfigs(siteId).FirstOrDefault(fp => fp.Name == Constants.DefaultFolderProvider);
             if(defaultConfig == null)
             {
                 defaultConfig = new Models.FolderConfig
                 {
-                    SiteId = siteId,
                     Name = Constants.DefaultFolderProvider,
                     Provider = Constants.DefaultFolderProvider
                 };

@@ -69,7 +69,7 @@ namespace Oqtane.Controllers
         public FolderConfig Get(int id)
         {
             var folderConfig = _folderConfigs.GetFolderConfig(id);
-            if (folderConfig != null && folderConfig.SiteId == _alias.SiteId)
+            if (folderConfig != null && folderConfig.SiteId.GetValueOrDefault(_alias.SiteId) == _alias.SiteId)
             {
                 return folderConfig;
             }
@@ -112,7 +112,7 @@ namespace Oqtane.Controllers
         public IDictionary<string, string> GetSettings(int id)
         {
             var folderConfig = _folderConfigs.GetFolderConfig(id);
-            if (folderConfig != null && folderConfig.SiteId == _alias.SiteId)
+            if (folderConfig != null && folderConfig.SiteId.GetValueOrDefault(_alias.SiteId) == _alias.SiteId)
             {
                 return _folderConfigs.GetSettings(id);
             }
@@ -138,12 +138,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folderConfig.SiteId == _alias.SiteId)
             {
-                if(folderConfig.Provider == Constants.DefaultFolderProvider)
+                if(folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
                 {
-                    throw new ArgumentException("Default folder provider cannot be added as a folder config.");
+                    throw new ArgumentException("Can't add system default folder config.");
                 }
 
-                var exsiting = _folderConfigs.GetFolderConfigs(folderConfig.SiteId)
+                var exsiting = _folderConfigs.GetFolderConfigs(folderConfig.SiteId.Value)
                     .Any(fpc => fpc.Name.Equals(folderConfig.Name, StringComparison.OrdinalIgnoreCase));
                 if(exsiting)
                 {
@@ -214,7 +214,7 @@ namespace Oqtane.Controllers
             var folderConfig = _folderConfigs.GetFolderConfig(id);
             if (folderConfig != null && folderConfig.SiteId == _alias.SiteId)
             {
-                if (folderConfig.Provider == Constants.DefaultFolderProvider)
+                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
                 {
                     throw new ArgumentException("Default folder provider cannot be deleted.");
                 }

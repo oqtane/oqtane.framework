@@ -19,7 +19,7 @@ namespace Oqtane.Models
         /// <summary>
         /// Reference to the <see cref="Site"/>.
         /// </summary>
-        public int SiteId { get; set; }
+        public int? SiteId { get; set; }
 
         /// <summary>
         /// Folder Provider Name

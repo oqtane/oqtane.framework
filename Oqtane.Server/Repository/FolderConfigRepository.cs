@@ -47,7 +47,7 @@ namespace Oqtane.Repository
         public IEnumerable<FolderConfig> GetFolderConfigs(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.FolderConfig.AsNoTracking().Where(i => i.SiteId == siteId).ToList();
+            return db.FolderConfig.AsNoTracking().Where(i => i.SiteId == siteId || i.SiteId == null).ToList();
         }
 
         public FolderConfig GetFolderConfig(int folderConfigId)
@@ -135,13 +135,13 @@ namespace Oqtane.Repository
             if (folderConfig != null)
             {
                 //avoid to delete the default folder provider
-                if (folderConfig.Provider == Constants.DefaultFolderProvider)
+                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
                 {
                     throw new SecurityException("Cannot delete default folder provider");
                 }
 
                 //remove all the folders
-                _folderRepository.GetFolders(folderConfig.SiteId)
+                _folderRepository.GetFolders(folderConfig.SiteId.Value)
                     .Where(i => i.FolderConfigId == folderConfigId)
                     .ToList()
                     .ForEach(item =>
