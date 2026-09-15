@@ -170,7 +170,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folderConfig.SiteId == _alias.SiteId && folderConfig.FolderConfigId == id && _folderConfigs.GetFolderConfig(folderConfig.FolderConfigId) != null)
             {
-                if (folderConfig.Provider == Constants.DefaultFolderProvider)
+                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
                 {
                     throw new ArgumentException("Default folder provider cannot be updated.");
                 }
