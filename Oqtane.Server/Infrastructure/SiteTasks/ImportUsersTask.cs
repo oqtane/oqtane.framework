@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Managers;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure
@@ -24,9 +25,8 @@ namespace Oqtane.Infrastructure
                 var file = fileRepository.GetFile(fileId);
                 if (file != null)
                 {
-                    var filePath = fileRepository.GetFilePath(file);
-                    log += $"Importing Users From {filePath}<br />";
-                    var result = await userManager.ImportUsers(site.SiteId, filePath, notify);
+                    log += $"Importing Users From {file.Name}<br />";
+                    var result = await userManager.ImportUsers(site.SiteId, file, notify);
                     if (result["Success"] == "True")
                     {
                         log += $"{result["Users"]} Users Imported<br />";

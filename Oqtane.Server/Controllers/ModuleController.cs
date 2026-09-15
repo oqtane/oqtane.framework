@@ -10,6 +10,8 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System.Net;
 using System.IO;
+using Oqtane.Providers;
+using System.Threading.Tasks;
 
 namespace Oqtane.Controllers
 {
@@ -26,9 +28,22 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private readonly Alias _alias;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IFolderRepository folders, IFileRepository files, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public ModuleController(
+            IModuleRepository modules,
+            IPageModuleRepository pageModules,
+            IPageRepository pages,
+            IModuleDefinitionRepository moduleDefinitions,
+            ISettingRepository settings,
+            IFolderRepository folders,
+            IFileRepository files,
+            IUserPermissions userPermissions,
+            ITenantManager tenantManager,
+            ISyncManager syncManager,
+            ILogManager logger,
+            IFolderProviderFactory folderProviderFactory)
         {
             _modules = modules; 
             _pageModules = pageModules;
@@ -40,6 +55,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
+            _folderProviderFactory = folderProviderFactory;
             _alias = tenantManager.GetAlias();
         }
 
@@ -256,7 +272,7 @@ namespace Oqtane.Controllers
         // POST api/<controller>/export?moduleid=x&pageid=y&folderid=z&filename=a
         [HttpPost("export")]
         [Authorize(Roles = RoleNames.Registered)]
-        public int Export(int moduleid, int pageid, int folderid, string filename)
+        public async Task<int> Export(int moduleid, int pageid, int folderid, string filename)
         {
             var fileid = -1;
             var module = _modules.GetModule(moduleid);
@@ -268,31 +284,26 @@ namespace Oqtane.Controllers
 
                 // get folder
                 var folder = _folders.GetFolder(folderid, false);
-                string folderPath = _folders.GetFolderPath(folder);
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
+                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
 
                 // create json file
                 filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";
-                string filepath = Path.Combine(folderPath, filename);
-                if (System.IO.File.Exists(filepath))
-                {
-                    System.IO.File.Delete(filepath);
-                }
-                System.IO.File.WriteAllText(filepath, content);
+                using var stream  = new MemoryStream();
+                using var writer = new StreamWriter(stream);
+                writer.Write(content);
 
+                await folderProvider.AddFileAsync(folder, filename, stream);
+                var fileSize = (int)stream.Length;
                 // register file
                 var file = _files.GetFile(folderid, filename);
                 if (file == null)
                 {
-                    file = new Models.File { FolderId = folderid, Name = filename, Extension = "json", Size = (int)new FileInfo(filepath).Length, ImageWidth = 0, ImageHeight = 0 };
+                    file = new Models.File { FolderId = folderid, Name = filename, Extension = "json", Size = fileSize, ImageWidth = 0, ImageHeight = 0 };
                     _files.AddFile(file);
                 }
                 else
                 {
-                    file.Size = (int)new FileInfo(filepath).Length;
+                    file.Size = fileSize;
                     _files.UpdateFile(file);
                 }
                 fileid = file.FileId;

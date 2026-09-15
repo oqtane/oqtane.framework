@@ -117,91 +117,37 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Error.File.Load" xml:space="preserve">
-    <value>Error Loading Files</value>
+  <data name="Error.FolderConfig.Load" xml:space="preserve">
+    <value>Error Loading Folder Config</value>
   </data>
-  <data name="UploadFiles.Heading" xml:space="preserve">
-    <value>Upload Files</value>
+  <data name="Error.FolderConfig.Save" xml:space="preserve">
+    <value>Error Saving Folder Config</value>
   </data>
-  <data name="Confirm.File.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete {0}?</value>
+  <data name="Error.FolderConfig.Delete" xml:space="preserve">
+    <value>Error Deleting Folder Config</value>
   </data>
-  <data name="NoFiles" xml:space="preserve">
-    <value>No Files Exist In Selected Folder</value>
+  <data name="Provider.Text" xml:space="preserve">
+    <value>Provider:</value>
   </data>
-  <data name="Success.File.Delete" xml:space="preserve">
-    <value>File {0} Deleted</value>
+  <data name="Provider.HelpText" xml:space="preserve">
+    <value>Select the folder provider.</value>
   </data>
-  <data name="Error.File.Delete" xml:space="preserve">
-    <value>Error Deleting File {0}</value>
+  <data name="FolderConfig.Text" xml:space="preserve">
+    <value>Folder Config:</value>
   </data>
-  <data name="EditFolder.Text" xml:space="preserve">
-    <value>Edit Folder</value>
+  <data name="FolderConfig.HelpText" xml:space="preserve">
+    <value>Select the folder config.</value>
   </data>
-  <data name="AddFolder.Text" xml:space="preserve">
-    <value>Add Folder</value>
+  <data name="ConfigName.Text" xml:space="preserve">
+    <value>Config Name:</value>
   </data>
-  <data name="Details.Text" xml:space="preserve">
-    <value>Edit</value>
+  <data name="ConfigName.HelpText" xml:space="preserve">
+    <value>Enter the folder config name.</value>
   </data>
-  <data name="DeleteFile.Header" xml:space="preserve">
-    <value>Delete File</value>
+  <data name="Message.Required.ConfigName" xml:space="preserve">
+    <value>Config Name is Required</value>
   </data>
-  <data name="Folder" xml:space="preserve">
-    <value>Folder</value>
-  </data>
-  <data name="Modified" xml:space="preserve">
-    <value>Modified</value>
-  </data>
-  <data name="Size" xml:space="preserve">
-    <value>Size</value>
-  </data>
-  <data name="Type" xml:space="preserve">
-    <value>Type</value>
-  </data>
-  <data name="DeleteFile.Text" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="UploadFiles.Text" xml:space="preserve">
-    <value>Upload Files</value>
-  </data>
-  <data name="Files.Heading" xml:space="preserve">
-    <value>Files</value>
-  </data>
-  <data name="ImageExtensions.Text" xml:space="preserve">
-    <value>Image Extensions:</value>
-  </data>
-  <data name="ImageExtensions.HelpText" xml:space="preserve">
-    <value>Enter a comma separated list of image file extensions</value>
-  </data>
-  <data name="UploadableFileExtensions.Text" xml:space="preserve">
-    <value>Uploadable File Extensions:</value>
-  </data>
-  <data name="UploadableFileExtensions.HelpText" xml:space="preserve">
-    <value>Enter a comma separated list of uploadable file extensions</value>
-  </data>
-  <data name="MaxChunkSize.Text" xml:space="preserve">
-    <value>Max Upload Chunk Size (MB):</value>
-  </data>
-  <data name="MaxChunkSize.HelpText" xml:space="preserve">
-    <value>Files are split into chunks to streamline the upload process. Specify the maximum chunk size in MB (note that higher chunk sizes should only be used on faster networks).</value>
-  </data>
-  <data name="Success.SaveSiteSettings" xml:space="preserve">
-    <value>Settings Saved Successfully</value>
-  </data>
-  <data name="Error.SaveSiteSettings" xml:space="preserve">
-    <value>Error Saving Settings</value>
-  </data>
-  <data name="Success.Folder.Sync" xml:space="preserve">
-    <value>Folder  Sync Successfully</value>
-  </data>
-  <data name="Error.Folder.Sync" xml:space="preserve">
-    <value>Error Sync Folder</value>
-  </data>
-  <data name="SyncFolder" xml:space="preserve">
-    <value>Sync Folder</value>
-  </data>
-  <data name="SyncFolderRecursively" xml:space="preserve">
-    <value>Sync Folder Recursively</value>
+  <data name="Message.FolderConfig.Duplicate" xml:space="preserve">
+    <value>Folder Config Name Specified Already Exists</value>
   </data>
 </root>
