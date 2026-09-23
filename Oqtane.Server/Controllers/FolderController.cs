@@ -136,10 +136,15 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId)
             {
-                List<Permission> permissions;
+                List<Permission> permissions = new List<Permission>();
                 if (folder.ParentId != null)
                 {
-                    permissions = _folders.GetFolder(folder.ParentId.Value).PermissionList;
+                    // validate parent folder exists and belongs to this site
+                    var parent = _folders.GetFolder(folder.ParentId.Value);
+                    if (parent != null && parent.SiteId == _alias.SiteId)
+                    {
+                        permissions = parent.PermissionList;
+                    }
                 }
                 else
                 {
