@@ -1,16 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using Azure;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Managers;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
@@ -20,19 +19,35 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class FolderController : Controller
     {
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private readonly IFolderRepository _folders;
+        private readonly IFolderConfigRepository _folderConfigs;
         private readonly IUserPermissions _userPermissions;
         private readonly IFileRepository _files;
+        private readonly IFolderManager _folderManager;
         private readonly IPermissionRepository _permissionRepository;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, IFileRepository files, IPermissionRepository permissionRepository, ISyncManager syncManager, ILogManager logger, ITenantManager tenantManager)
+        public FolderController(
+            IFolderProviderFactory folderProviderFactory,
+            IFolderRepository folders,
+            IFolderConfigRepository folderConfigs,
+            IUserPermissions userPermissions,
+            IFileRepository files,
+            IFolderManager folderManager,
+            ISyncManager syncManager,
+            ILogManager logger,
+            ITenantManager tenantManager,
+            IPermissionRepository permissionRepository)
         {
+            _folderProviderFactory = folderProviderFactory;
             _folders = folders;
+            _folderConfigs = folderConfigs;
             _userPermissions = userPermissions;
             _files = files;
+            _folderManager = folderManager;
             _permissionRepository = permissionRepository;
             _syncManager = syncManager;
             _logger = logger;
@@ -132,7 +147,7 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = RoleNames.Registered)]
-        public Folder Post([FromBody] Folder folder)
+        public async Task<Folder> Post([FromBody] Folder folder)
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId)
             {
@@ -165,7 +180,15 @@ namespace Oqtane.Controllers
                         {
                             folder.Path = folder.Path + "/";
                         }
+                        if(folder.FolderConfigId <= 0)
+                        {
+                            folder.FolderConfigId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId);
+                        }
+
                         folder = _folders.AddFolder(folder);
+                        //create the folder in the provider
+                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        await folderProvider.CreateFolderAsync(folder);
                         _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
@@ -195,7 +218,7 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = RoleNames.Registered)]
-        public Folder Put(int id, [FromBody] Folder folder)
+        public async Task<Folder> PutAsync(int id, [FromBody] Folder folder)
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId && folder.FolderId == id && _folders.GetFolder(folder.FolderId, false) != null && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
@@ -204,6 +227,14 @@ namespace Oqtane.Controllers
                     if (folder.ParentId != null)
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
+
+                        if(parent.FolderConfigId != _folderProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.FolderConfigId != parent.FolderConfigId)
+                        {
+                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Not Valid {Folder}", folder);
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                            return null;
+                        }
+
                         folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
                         if (!folder.Path.EndsWith("/"))
                         {
@@ -211,13 +242,20 @@ namespace Oqtane.Controllers
                         }
                     }
 
-                    Folder _folder = _folders.GetFolder(id, false);
-                    if (_folder.Path != folder.Path && Directory.Exists(_folders.GetFolderPath(_folder)))
+                    var _folder = _folders.GetFolder(id, false);
+                    folder = _folders.UpdateFolder(folder);
+
+                    if (folder.Path != _folder.Path) // need to update all child folder's path
                     {
-                        Directory.Move(_folders.GetFolderPath(_folder), _folders.GetFolderPath(folder));
+                        UpdateChildFoldersPath(folder);
                     }
 
-                    folder = _folders.UpdateFolder(folder);
+                    var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                    if (_folder.MappedPath != folder.MappedPath && _folder.FolderConfigId == folder.FolderConfigId && await folderProvider.FolderExistsAsync(_folder))
+                    {
+                        await folderProvider.MoveFolderAsync(_folder, folder.MappedPath);
+                    }
+
                     _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
 
@@ -240,6 +278,7 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 folder = null;
             }
+
             return folder;
         }
 
@@ -279,20 +318,15 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         [Authorize(Roles = RoleNames.Registered)]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
             var folder = _folders.GetFolder(id, false);
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit))
             {
-                var folderPath = _folders.GetFolderPath(folder);
-                if (Directory.Exists(folderPath))
+                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                if (folderProvider != null)
                 {
-                    // remove all files from disk (including thumbnails, etc...)
-                    foreach (var filePath in Directory.GetFiles(folderPath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                    Directory.Delete(folderPath);
+                    await folderProvider.DeleteFolderAsync(folder);
                 }
 
                 // remove files from database
@@ -309,6 +343,38 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Delete Attempt {FolderId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        [HttpPost("sync/{id}/{recursive}/{includeFiles}")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task SyncFolder(int id, bool recursive, bool includeFiles)
+        {
+            var folder = _folders.GetFolder(id, false);
+            if (folder != null && folder.SiteId == _alias.SiteId)
+            {
+                await _folderManager.SyncFolderAsync(folder, recursive, includeFiles);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Sync Attempt {Folder}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+        }
+
+        private void UpdateChildFoldersPath(Folder folder)
+        {
+            var childFolders = _folders.GetFolders(folder.SiteId).Where(i => i.ParentId == folder.FolderId);
+            foreach(var childFolder in childFolders)
+            {
+                childFolder.Path = Utilities.UrlCombine(folder.Path, childFolder.Name);
+                if (!childFolder.Path.EndsWith("/"))
+                {
+                    childFolder.Path = childFolder.Path + "/";
+                }
+                _folders.UpdateFolder(childFolder);
+
+                UpdateChildFoldersPath(childFolder);
             }
         }
     }

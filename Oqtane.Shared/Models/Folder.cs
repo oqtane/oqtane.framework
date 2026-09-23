@@ -42,6 +42,8 @@ namespace Oqtane.Models
         /// </summary>
         public string Path { get; set; }
 
+        public string MappedPath { get; set; }
+
         /// <summary>
         /// Sorting order of the folder ** not used as folders are sorted in alphabetical order **
         /// </summary>
@@ -68,6 +70,11 @@ namespace Oqtane.Models
         public string CacheControl { get; set; }
 
         /// <summary>
+        /// Reference to the <see cref="FolderConfig"/>.
+        /// </summary>
+        public int FolderConfigId { get; set; }
+
+        /// <summary>
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
@@ -86,6 +93,8 @@ namespace Oqtane.Models
         [NotMapped]
         public bool HasChildren { get; set; }
 
+        public FolderConfig FolderConfig { get; set; }
+        
         /// <summary>
         /// Indicates if subfolder permissions should be updated to be consistent with parent folder
         /// </summary>
