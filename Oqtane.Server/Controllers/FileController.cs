@@ -736,6 +736,11 @@ namespace Oqtane.Controllers
                                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                             }
                         }
+                        else
+                        {
+                            imageStream = await folderProvider.GetFileStreamAsync(file.Folder, imagename);
+                        }
+
                         if (imageStream != null)
                         {
                             if (!string.IsNullOrEmpty(file.Folder.CacheControl))
