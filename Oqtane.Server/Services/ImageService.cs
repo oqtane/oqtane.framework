@@ -86,7 +86,7 @@ namespace Oqtane.Services
                         image.Save(imageStream, encoder);
                         imageStream.Position = 0;
 
-                        //await folderProvider.AddFileAsync(file.Folder, imageName, imageStream);
+                        await folderProvider.AddFileAsync(file.Folder, imageName, imageStream);
 
                         return imageStream;
                     }
