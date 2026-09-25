@@ -85,11 +85,11 @@
                             <div class="col-auto">
                                 @if (ShowUploadButton)
                                 {
-                                    <button type="button" class="btn btn-success" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
+                                    <button type="button" class="btn btn-success@(ButtonSizeClass)" @onclick="UploadFiles">@SharedLocalizer["Upload"]</button>
                                 }
                                 @if (FileId != -1 && !UploadMultiple && ShowDeleteButton)
                                 {
-                                    <ActionDialog Header="Delete File" Message="@string.Format(Localizer["Confirm.File.Delete"], _file?.Name)" Action="Delete" Security="SecurityAccessLevel.Anonymous" Class="btn btn-danger mx-1" OnClick="@(async () => await DeleteFile())" ResourceKey="DeleteFile" ResourceType="@_resourceType" />
+                                    <ActionDialog Header="Delete File" Message="@string.Format(Localizer["Confirm.File.Delete"], _file?.Name)" Action="Delete" Security="SecurityAccessLevel.Anonymous" Class="@("btn btn-danger mx-1" + ButtonSizeClass)" ConfirmClass="@("btn btn-danger mx-1" + ButtonSizeClass)" CancelClass="@("btn btn-secondary" + ButtonSizeClass)" OnClick="@(async () => await DeleteFile())" ResourceKey="DeleteFile" ResourceType="@_resourceType" />
                                 }
                             </div>
                         </div>
@@ -145,6 +145,8 @@
     private MessageType _messagetype;
     private bool _uploading = false;
 
+    private string ButtonSizeClass => SmallButtons ? " btn-sm" : string.Empty;
+
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
@@ -174,6 +176,9 @@
 
     [Parameter]
     public bool ShowDeleteButton { get; set; } = true; // optional - for indicating whether a Delete button should be displayed for files - default is true
+
+    [Parameter]
+    public bool SmallButtons { get; set; } = false; // optional - for indicating whether buttons should use the small button size (btn-sm) - default is false
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
