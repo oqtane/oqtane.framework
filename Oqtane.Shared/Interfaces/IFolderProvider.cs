@@ -22,11 +22,6 @@ namespace Oqtane.Providers
         string SettingType { get; }
 
         /// <summary>
-        /// Gets a value indicating whether private folders are supported by the provider.
-        /// </summary>
-        bool SupportsPrivateFolders { get; }
-
-        /// <summary>
         /// Initializes the provider with required settings.
         /// </summary>
         /// <param name="settings">Dictionary of configuration values.</param>
@@ -67,7 +62,7 @@ namespace Oqtane.Providers
 
         Task DeleteFolderAsync(Models.Folder folder);
 
-        Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, string folderType, bool recursive);
+        Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, bool recursive);
 
         #endregion
     }

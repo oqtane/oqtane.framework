@@ -19,20 +19,35 @@ namespace Oqtane.Providers
             _folderConfigRepository = folderConfigRepository;
         }
 
+        /// <summary>
+        /// Gets the default folder configuration ID for a given site. If no default configuration exists, it creates one with the name and provider set to "PublicFolderProvider".
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
         public int GetDefaultConfigId(int siteId)
         {
-            var defaultConfig = _folderConfigRepository.GetFolderConfigs(siteId).FirstOrDefault(fp => fp.Name == Constants.DefaultFolderProvider);
-            if(defaultConfig == null)
+            return GetFolderConfigId(siteId, Constants.PublicFolderProvider);
+        }
+
+        /// <summary>
+        /// Gets the folder configuration ID for a given site. create system configuration if not exists.
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        public int GetFolderConfigId(int siteId, string provider)
+        {
+            var config = _folderConfigRepository.GetFolderConfigs(siteId).FirstOrDefault(fp => fp.Provider == provider);
+            if (config == null && Constants.DefaultFolderProviders.Contains(provider))
             {
-                defaultConfig = new Models.FolderConfig
+                config = new Models.FolderConfig
                 {
-                    Name = Constants.DefaultFolderProvider,
-                    Provider = Constants.DefaultFolderProvider
+                    Name = provider,
+                    Provider = provider
                 };
-                defaultConfig = _folderConfigRepository.AddFolderConfig(defaultConfig);
+                config = _folderConfigRepository.AddFolderConfig(config);
             }
 
-            return defaultConfig.FolderConfigId;
+            return config.FolderConfigId;
         }
 
         public IFolderProvider GetProvider(int folderConfigId)
