@@ -277,7 +277,7 @@
                     _parentId = _folders[0].FolderId;
                 }
 
-                OnParentChanged(_parentId, false);
+                OnParentChanged(_parentId);
 
                 await LoadParent();     
             }
@@ -453,7 +453,7 @@
         }
     }
 
-    private void OnParentChanged(int parentId, bool updateFolderConfig = true)
+    private void OnParentChanged(int parentId)
     {
         _parentId = parentId;
         _canEditFolderConfig = false;
@@ -462,11 +462,8 @@
         {
             _canEditFolderConfig = Constants.DefaultFolderProviders.Contains(parentFolder.FolderConfig.Provider);
 
-            if (updateFolderConfig)
-            {
-                _folderConfigId = parentFolder.FolderConfig.FolderConfigId;
-                OnConfigChanged(parentFolder.FolderConfigId);
-            }
+            _folderConfigId = parentFolder.FolderConfig.FolderConfigId;
+            OnConfigChanged(parentFolder.FolderConfigId);
         }
     }
 
