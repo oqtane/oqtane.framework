@@ -29,6 +29,13 @@ namespace Oqtane.Services
         Task<FolderConfig> GetFolderConfigAsync(int folderConfigId);
 
         /// <summary>
+        /// Retrieve the information of one <see cref="FolderConfig"/>
+        /// </summary>
+        /// <param name="provider">the folder provider name.</param>
+        /// <returns></returns>
+        Task<FolderConfig> GetFolderConfigAsync(string provider);
+
+        /// <summary>
         /// Get folder providers available in the system.
         /// </summary>
         /// <returns></returns>
@@ -97,7 +104,12 @@ namespace Oqtane.Services
 
         public async Task<FolderConfig> GetFolderConfigAsync(int folderConfigId)
         {
-            return await GetJsonAsync<FolderConfig>($"{ApiUrl}/{folderConfigId}");
+            return await GetJsonAsync<FolderConfig>($"{ApiUrl}/id/{folderConfigId}");
+        }
+
+        public async Task<FolderConfig> GetFolderConfigAsync(string provider)
+        {
+            return await GetJsonAsync<FolderConfig>($"{ApiUrl}/provider/{provider}");
         }
 
         public async Task<IDictionary<string, string>> GetProvidersAsync()

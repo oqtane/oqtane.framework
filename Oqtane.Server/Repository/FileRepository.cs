@@ -178,24 +178,6 @@ namespace Oqtane.Repository
             db.SaveChanges();
         }
 
-        public string GetFilePath(int fileId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var file = db.File
-                .AsNoTracking()
-                .FirstOrDefault(item => item.FileId == fileId);
-            return GetFilePath(file);
-        }
-
-        public string GetFilePath(File file)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            if (file == null) return null;
-            var folder = file.Folder ?? db.Folder.AsNoTracking().FirstOrDefault(item => item.FolderId == file.FolderId);
-            var filepath = Path.Combine(_folderRepository.GetFolderPath(folder), file.Name);
-            return filepath;
-        }
-
         private string GetFileUrl(File file, Alias alias)
         {
             return Utilities.FileUrl(alias, file.Folder.Path, file.Name);

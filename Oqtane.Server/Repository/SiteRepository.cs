@@ -266,14 +266,13 @@ namespace Oqtane.Repository
                 SiteId = site.SiteId,
                 ParentId = null,
                 Name = "Root",
-                Type = FolderTypes.Private,
                 Path = "",
                 MappedPath = "",
                 Order = 1,
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
+                FolderConfigId = _folderProviderFactory.GetFolderConfigId(site.SiteId, Constants.PrivateFolderProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -286,7 +285,6 @@ namespace Oqtane.Repository
                 SiteId = site.SiteId,
                 ParentId = folder.FolderId,
                 Name = "Public",
-                Type = FolderTypes.Public,
                 Path = "Public/",
                 MappedPath = "Public/",
                 Order = 1,
@@ -303,9 +301,16 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Constants.UserFolderPath, Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
+                SiteId = site.SiteId,
+                ParentId = folder.FolderId,
+                Name = "Users",
+                Path = Constants.UserFolderPath,
+                Order = 3,
+                ImageSizes = "",
+                Capacity = 0,
+                IsSystem = true,
                 MappedPath = Constants.UserFolderPath,
-                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
+                FolderConfigId = _folderProviderFactory.GetFolderConfigId(site.SiteId, Constants.PrivateFolderProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

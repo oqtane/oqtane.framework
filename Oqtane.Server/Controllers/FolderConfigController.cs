@@ -64,9 +64,9 @@ namespace Oqtane.Controllers
             return folderConfigs;
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public FolderConfig Get(int id)
+        // GET api/<controller>/id/5
+        [HttpGet("id/{id}")]
+        public FolderConfig GetById(int id)
         {
             var folderConfig = _folderConfigs.GetFolderConfig(id);
             if (folderConfig != null && folderConfig.SiteId.GetValueOrDefault(_alias.SiteId) == _alias.SiteId)
@@ -76,6 +76,24 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {FolderConfigId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+
+                return null;
+            }
+        }
+
+        // GET api/<controller>/provider/default
+        [HttpGet("provider/{provider}")]
+        public FolderConfig GetByProvider(string provider)
+        {
+            var folderConfig = _folderConfigs.GetFolderConfigs(_alias.SiteId).FirstOrDefault(i => i.Provider == provider);
+            if (folderConfig != null)
+            {
+                return folderConfig;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {provider}", provider);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 
                 return null;
@@ -138,13 +156,13 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folderConfig.SiteId == _alias.SiteId)
             {
-                if(folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
+                if(Constants.DefaultFolderProviders.Contains(folderConfig.Provider) || !folderConfig.SiteId.HasValue)
                 {
                     throw new ArgumentException("Can't add system default folder config.");
                 }
 
                 var exsiting = _folderConfigs.GetFolderConfigs(folderConfig.SiteId.Value)
-                    .Any(fpc => fpc.Name.Equals(folderConfig.Name, StringComparison.OrdinalIgnoreCase));
+                    .Any(c => c.Name.Equals(folderConfig.Name, StringComparison.OrdinalIgnoreCase));
                 if(exsiting)
                 {
                     throw new ArgumentException("A folder config with the same name already exists.");
@@ -170,7 +188,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folderConfig.SiteId == _alias.SiteId && folderConfig.FolderConfigId == id && _folderConfigs.GetFolderConfig(folderConfig.FolderConfigId) != null)
             {
-                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
+                if (Constants.DefaultFolderProviders.Contains(folderConfig.Provider) || !folderConfig.SiteId.HasValue)
                 {
                     throw new ArgumentException("Default folder provider cannot be updated.");
                 }
@@ -214,7 +232,7 @@ namespace Oqtane.Controllers
             var folderConfig = _folderConfigs.GetFolderConfig(id);
             if (folderConfig != null && folderConfig.SiteId == _alias.SiteId)
             {
-                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
+                if (Constants.DefaultFolderProviders.Contains(folderConfig.Provider) || !folderConfig.SiteId.HasValue)
                 {
                     throw new ArgumentException("Default folder provider cannot be deleted.");
                 }
