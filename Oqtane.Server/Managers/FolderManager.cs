@@ -66,7 +66,6 @@ namespace Oqtane.Managers
                     RemoteExists = _reservedPaths.Any(i => childFolder.Path.StartsWith(i, StringComparison.OrdinalIgnoreCase)),
                     ParentFolderPath = folder.Path,
                     FolderName = childFolder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault(),
-                    FolderType = childFolder.Type,
                     FolderConfigId = childFolder.FolderConfigId
                 });
 
@@ -85,12 +84,7 @@ namespace Oqtane.Managers
             var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
             if (folderProvider != null)
             {
-                if (folderProvider.SupportsPrivateFolders)
-                {
-                    mergeItems.AddRange(await GetRemoteItemsByType(folderProvider, folder, FolderTypes.Private, recursive));
-                }
-
-                var publicItems = await GetRemoteItemsByType(folderProvider, folder, FolderTypes.Public, recursive);
+                var publicItems = await GetRemoteItemsByType(folderProvider, folder, recursive);
                 foreach (var item in publicItems)
                 {
                     if(!mergeItems.Any(i => i.ParentFolderPath.Equals(item.ParentFolderPath, StringComparison.OrdinalIgnoreCase) && i.FolderName.Equals(item.FolderName, StringComparison.OrdinalIgnoreCase)))
@@ -124,10 +118,10 @@ namespace Oqtane.Managers
             return mergeItems;
         }
 
-        private async Task<IList<MergeItem>> GetRemoteItemsByType(IFolderProvider folderProvider, Folder folder, string folderType, bool recursive)
+        private async Task<IList<MergeItem>> GetRemoteItemsByType(IFolderProvider folderProvider, Folder folder, bool recursive)
         {
             var mergeItems = new List<MergeItem>();
-            var subFolders = (await folderProvider.GetSubFoldersAsync(folder, folderType, recursive)).ToList();
+            var subFolders = (await folderProvider.GetSubFoldersAsync(folder, recursive)).ToList();
 
             foreach (var subFolder in subFolders)
             {
@@ -148,7 +142,6 @@ namespace Oqtane.Managers
                     RemoteExists = true,
                     ParentFolderPath = $"{folder.Path}{parentFolderPath}",
                     FolderName = folderName,
-                    FolderType = folderType,
                     FolderConfigId = folder.FolderConfigId
                 });
             }
@@ -197,9 +190,9 @@ namespace Oqtane.Managers
                             ParentId = parentFolder.FolderId,
                             Name = mergeItem.FolderName,
                             Path = $"{parentFolder.Path}{mergeItem.FolderName}/",
-                            Type  = mergeItem.FolderType,
                             Order = order,
                             IsSystem = string.IsNullOrEmpty(parentFolder.Path) ? false : parentFolder.IsSystem,
+                            FolderConfigId = mergeItem.FolderConfigId,
                             PermissionList = parentFolder.PermissionList.Select(i => new Permission
                             {
                                 RoleId = i.RoleId,
@@ -207,7 +200,6 @@ namespace Oqtane.Managers
                                 IsAuthorized = i.IsAuthorized,
                                 PermissionName = i.PermissionName
                             }).ToList(),
-                            FolderConfigId = mergeItem.FolderConfigId
                         };
 
                         _folderRepository.AddFolder(newFolder);

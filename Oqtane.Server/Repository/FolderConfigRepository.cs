@@ -135,7 +135,7 @@ namespace Oqtane.Repository
             if (folderConfig != null)
             {
                 //avoid to delete the default folder provider
-                if (folderConfig.Provider == Constants.DefaultFolderProvider || !folderConfig.SiteId.HasValue)
+                if (Constants.DefaultFolderProviders.Contains(folderConfig.Provider) || !folderConfig.SiteId.HasValue)
                 {
                     throw new SecurityException("Cannot delete default folder provider");
                 }

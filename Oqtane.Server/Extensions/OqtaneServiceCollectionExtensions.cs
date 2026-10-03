@@ -232,7 +232,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // file providers
             services.AddScoped<IFolderProviderFactory, FolderProviderFactory>();
-            services.AddScoped<IFolderProvider, DefaultFileProvider>();
+            services.AddScoped<IFolderProvider, PublicFileProvider>();
+            services.AddScoped<IFolderProvider, PrivateFileProvider>();
 
             services.AddRadzenComponents();
 

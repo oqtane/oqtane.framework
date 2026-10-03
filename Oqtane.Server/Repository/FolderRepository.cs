@@ -24,8 +24,6 @@ namespace Oqtane.Repository
         Folder GetFolder(int siteId, string path);
         Folder GetFolder(int siteId, string path, int userId);
         void DeleteFolder(int folderId);
-        string GetFolderPath(int folderId);
-        string GetFolderPath(Folder folder);
     }
 
     public class FolderRepository : IFolderRepository
@@ -61,7 +59,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -182,7 +179,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -233,7 +229,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -287,14 +282,13 @@ namespace Oqtane.Repository
                         SiteId = folder.SiteId,
                         ParentId = folder.FolderId,
                         Name = "My Folder",
-                        Type = folder.Type,
                         Path = path,
                         Order = 1,
                         ImageSizes = folder.ImageSizes,
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
-                        FolderConfigId = _serviceProvider.GetRequiredService<IFolderProviderFactory>().GetDefaultConfigId(folder.SiteId),
+                        FolderConfigId = _serviceProvider.GetRequiredService<IFolderProviderFactory>().GetFolderConfigId(folder.SiteId, Constants.PrivateFolderProvider),
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
@@ -330,30 +324,6 @@ namespace Oqtane.Repository
                 }
             }
 
-            return path;
-        }
-
-        public string GetFolderPath(int folderId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder
-                .AsNoTracking()
-                .FirstOrDefault(item => item.FolderId == folderId);
-            return GetFolderPath(folder);
-        }
-
-        public string GetFolderPath(Folder folder)
-        {
-            string path = "";
-            switch (folder.Type)
-            {
-                case FolderTypes.Private:
-                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
-                case FolderTypes.Public:
-                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
-            }
             return path;
         }
     }

@@ -338,13 +338,13 @@ namespace Oqtane.Infrastructure
                                 secondaryFolder.ParentId = parentFolder.FolderId;
                             }
                         }
-                        secondaryFolder.Type = primaryFolder.Type;
                         secondaryFolder.Name = primaryFolder.Name;
                         secondaryFolder.Order = primaryFolder.Order;
                         secondaryFolder.ImageSizes = primaryFolder.ImageSizes;
                         secondaryFolder.Capacity = primaryFolder.Capacity;
                         secondaryFolder.ImageSizes = primaryFolder.ImageSizes;
                         secondaryFolder.IsSystem = primaryFolder.IsSystem;
+                        secondaryFolder.FolderConfigId = primaryFolder.FolderConfigId;
                         secondaryFolder.PermissionList = SynchronizePermissions(primaryFolder.PermissionList, secondarySiteId);
 
                         if (folder == null)

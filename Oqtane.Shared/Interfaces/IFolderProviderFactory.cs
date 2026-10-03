@@ -10,5 +10,7 @@ namespace Oqtane.Providers
         IFolderProvider GetProvider(int folderConfigId);
 
         int GetDefaultConfigId(int siteId);
+
+        int GetFolderConfigId(int siteId, string provider);
     }
 }

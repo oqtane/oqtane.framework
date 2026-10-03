@@ -22,7 +22,7 @@
                     else
                     {
                         <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
-                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || i.Key != Constants.DefaultFolderProvider))
+                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || !Constants.DefaultFolderProviders.Contains(i.Key)))
                             {
                                 <option value="@item.Key">@item.Value</option>
                             }
@@ -73,7 +73,10 @@
             _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
 
             //remove default provider from the list
-            _providers.Remove(Constants.DefaultFolderProvider);
+            foreach (var defaultProvider in Constants.DefaultFolderProviders)
+            {
+                _providers.Remove(defaultProvider);
+            }
 
             if (PageState.QueryString.ContainsKey("id"))
             {

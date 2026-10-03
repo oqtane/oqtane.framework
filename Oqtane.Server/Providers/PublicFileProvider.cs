@@ -12,7 +12,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class DefaultFileProvider : IFolderProvider
+    public class PublicFileProvider : IFolderProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
@@ -20,7 +20,13 @@ namespace Oqtane.Providers
         private readonly ITenantManager _tenantManager;
         private readonly ILogManager _logger;
 
-        public DefaultFileProvider(
+        public virtual string Name => Constants.PublicFolderProvider;
+
+        public virtual string DisplayName => "Public File System";
+
+        public virtual string SettingType => null;
+
+        public PublicFileProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
@@ -34,39 +40,32 @@ namespace Oqtane.Providers
             _logger = logger;
         }
 
-        public string Name => Constants.DefaultFolderProvider;
-
-        public string DisplayName => "Default File System";
-
-        public string SettingType => null;
-
-        public bool SupportsPrivateFolders => true;
 
         public void Initialize(IDictionary<string, string> settings)
         {
         }
 
-        public async Task<bool> FileExistsAsync(Models.File file)
+        public virtual async Task<bool> FileExistsAsync(Models.File file)
         {
             var path = GetFilePath(file);
             return System.IO.File.Exists(path);
         }
 
-        public async Task<bool> FileExistsAsync(Models.Folder folder, string fileName)
+        public virtual async Task<bool> FileExistsAsync(Models.Folder folder, string fileName)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             var filePath = Path.Combine(folderPath, fileName);
             return System.IO.File.Exists(filePath);
         }
 
-        public async Task<IList<string>> GetFilesAsync(Folder folder)
+        public virtual async Task<IList<string>> GetFilesAsync(Folder folder)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             var fileNames = new List<string>();
             if (Directory.Exists(folderPath))
             {
                 var files = Directory.GetFiles(folderPath);
-                for(int i = 0; i < files.Length; i++)
+                for (int i = 0; i < files.Length; i++)
                 {
                     fileNames.Add(Path.GetFileName(files[i]));
                 }
@@ -75,13 +74,13 @@ namespace Oqtane.Providers
             return fileNames;
         }
 
-        public async Task<long> GetFileSizeAsync(Models.File file)
+        public virtual async Task<long> GetFileSizeAsync(Models.File file)
         {
             var folder = file.Folder ?? _folderRepository.GetFolder(file.FolderId);
             return await GetFileSizeAsync(folder, file.Name);
         }
 
-        public async Task<long> GetFileSizeAsync(Models.Folder folder, string fileName)
+        public virtual async Task<long> GetFileSizeAsync(Models.Folder folder, string fileName)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             var filePath = Path.Combine(folderPath, fileName);
@@ -95,13 +94,13 @@ namespace Oqtane.Providers
             return size;
         }
 
-        public async Task<Stream> GetFileStreamAsync(Models.File file)
+        public virtual async Task<Stream> GetFileStreamAsync(Models.File file)
         {
             var folder = file.Folder ?? _folderRepository.GetFolder(file.FolderId);
             return await GetFileStreamAsync(folder, file.Name);
         }
 
-        public async Task<Stream> GetFileStreamAsync(Models.Folder folder, string fileName)
+        public virtual async Task<Stream> GetFileStreamAsync(Models.Folder folder, string fileName)
         {
             var filepath = GetFilePath(folder, fileName);
             if (System.IO.File.Exists(filepath))
@@ -112,7 +111,7 @@ namespace Oqtane.Providers
             return null;
         }
 
-        public async Task DeleteFileAsync(Models.File file)
+        public virtual async Task DeleteFileAsync(Models.File file)
         {
             var filepath = GetFilePath(file);
             if (System.IO.File.Exists(filepath))
@@ -121,7 +120,7 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task MoveFileAsync(Models.File file, Models.Folder destinationFolder, string fileName)
+        public virtual async Task MoveFileAsync(Models.File file, Models.Folder destinationFolder, string fileName)
         {
             var sourceFilePath = GetFilePath(file);
             var destinationFolderPath = GetFolderPath(destinationFolder, destinationFolder.Path);
@@ -136,7 +135,7 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task CopyFileAsync(Models.File file, Folder destinationFolder)
+        public virtual async Task CopyFileAsync(Models.File file, Folder destinationFolder)
         {
             var sourceFilePath = GetFilePath(file);
             var destinationFolderPath = GetFolderPath(destinationFolder, destinationFolder.Path);
@@ -151,7 +150,7 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task AddFileAsync(Models.Folder folder, string fileName, Stream fileStream)
+        public virtual async Task AddFileAsync(Models.Folder folder, string fileName, Stream fileStream)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             var filePath = Path.Combine(folderPath, fileName);
@@ -178,19 +177,19 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task<bool> FolderExistsAsync(Models.Folder folder)
+        public virtual async Task<bool> FolderExistsAsync(Models.Folder folder)
         {
             var folderpath = GetFolderPath(folder, folder.Path);
             return Directory.Exists(folderpath);
         }
 
-        public async Task CreateFolderAsync(Models.Folder folder)
+        public virtual async Task CreateFolderAsync(Models.Folder folder)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             CreateDirectory(folderPath);
         }
 
-        public async Task MoveFolderAsync(Models.Folder sourceFolder, string destinationPath)
+        public virtual async Task MoveFolderAsync(Models.Folder sourceFolder, string destinationPath)
         {
             var sourceFolderPath = GetFolderPath(sourceFolder, sourceFolder.Path);
             var destinationFolderPath = GetFolderPath(sourceFolder, destinationPath);
@@ -201,7 +200,7 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task DeleteFolderAsync(Models.Folder folder)
+        public virtual async Task DeleteFolderAsync(Models.Folder folder)
         {
             var folderPath = GetFolderPath(folder, folder.Path);
             if (Directory.Exists(folderPath))
@@ -216,19 +215,19 @@ namespace Oqtane.Providers
             }
         }
 
-        public async Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, string folderType, bool recursive)
+        public virtual async Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, bool recursive)
         {
-            var folderPath = GetFolderPath(parentFolder.SiteId, folderType, parentFolder.Path);
+            var folderPath = GetFolderPath(parentFolder.SiteId, parentFolder.Path);
             IList<string> folders = new List<string>();
 
             if (Directory.Exists(folderPath))
             {
                 var directories = Directory.GetDirectories(folderPath, "*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-                
-                foreach(var directory in directories)
+
+                foreach (var directory in directories)
                 {
                     var relativePath = Path.GetRelativePath(folderPath, directory);
-                    if(!string.IsNullOrEmpty(relativePath))
+                    if (!string.IsNullOrEmpty(relativePath))
                     {
                         folders.Add(relativePath.Replace("\\", "/"));
                     }
@@ -238,24 +237,14 @@ namespace Oqtane.Providers
             return folders;
         }
 
-        private string GetFolderPath(Folder folder, string folderPath)
+        protected virtual string GetFolderPath(Folder folder, string folderPath)
         {
-            return GetFolderPath(folder.SiteId, folder.Type, folderPath);
+            return GetFolderPath(folder.SiteId, folderPath);
         }
 
-        private string GetFolderPath(int siteId, string folderType, string folderPath)
+        protected virtual string GetFolderPath(int siteId, string folderPath)
         {
-            string path = "";
-            switch (folderType)
-            {
-                case FolderTypes.Private:
-                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenantManager.GetTenant().TenantId.ToString(), "Sites", siteId.ToString(), folderPath);
-                    break;
-                case FolderTypes.Public:
-                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenantManager.GetTenant().TenantId.ToString(), "Sites", siteId.ToString(), folderPath);
-                    break;
-            }
-            return path;
+            return Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenantManager.GetTenant().TenantId.ToString(), "Sites", siteId.ToString(), folderPath);
         }
 
         private string GetFilePath(Models.File file)
