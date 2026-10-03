@@ -117,46 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Approve.Title" xml:space="preserve">
-    <value>Approve Content</value>
+  <data name="ContentApprovalEmailBody" xml:space="preserve">
+    <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;New content has been submitted and needs to be reviewed. Please use the link below to complete the process: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to review content&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+  <data name="ContentApprovalEmailSubject" xml:space="preserve">
+    <value>Content Approval Request</value>
   </data>
-  <data name="Comment.Placeholder" xml:space="preserve">
-    <value>Reason for rejecting the content...</value>
+  <data name="ContentPublishedEmailBody" xml:space="preserve">
+    <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;New content has been published. Please use the link below to view the content: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to view content&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
   </data>
-  <data name="Edit.Action" xml:space="preserve">
-    <value>Edit Content</value>
+  <data name="ContentPublishedEmailSubject" xml:space="preserve">
+    <value>Content Published Notification</value>
   </data>
-  <data name="Edit.Text" xml:space="preserve">
-    <value>Edit Content</value>
+  <data name="ContentRejectedEmailBody" xml:space="preserve">
+    <value>Dear [UserDisplayName]&lt;br&gt;&lt;br&gt;New content has been reviewed and rejected for the following reason:&lt;br&gt;&lt;br&gt;[Comment]&lt;br&gt;&lt;br&gt;Please use the link below to view the content: &lt;b&gt;&lt;a href="[URL]"&gt;&lt;br&gt;&lt;br&gt;Click here to view content&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Thank You!&lt;br&gt;[SiteName] Team</value>
   </data>
-  <data name="Error.Content.Load" xml:space="preserve">
-    <value>An Error Occurred Loading Content</value>
-  </data>
-  <data name="Message.Published" xml:space="preserve">
-    <value>Content Has Been Published</value>
-  </data>
-  <data name="Message.Rejected" xml:space="preserve">
-    <value>Content Has Been Rejected And Author Has Been Notified</value>
-  </data>
-  <data name="Message.Submitted" xml:space="preserve">
-    <value>Content Has Been Submitted For Review</value>
-  </data>
-  <data name="Reject.Title" xml:space="preserve">
-    <value>Reject Content</value>
-  </data>
-  <data name="Review.Title" xml:space="preserve">
-    <value>Review New Content</value>
-  </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="Submit.Title" xml:space="preserve">
-    <value>Submit Content For Review</value>
-  </data>
-  <data name="View.Title" xml:space="preserve">
-    <value>View Published Content</value>
+  <data name="ContentRejectedEmailSubject" xml:space="preserve">
+    <value>Content Rejected Notification</value>
   </data>
 </root>

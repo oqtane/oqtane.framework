@@ -1,20 +1,56 @@
 @using Oqtane.Modules.HtmlText.Services
+@using Oqtane.Modules.HtmlText.Models
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
 @inject ISettingService SettingService
+@inject NavigationManager NavigationManager
 @inject IStringLocalizer<Index> Localizer
 
-@if (PageState.EditMode)
+@if (PageState.EditMode || _review != -1)
 {
-    <div class="text-center mb-2">
-        <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    <div class="text-center mt-1 mb-2">
+        @if (PageState.EditMode)
+        {
+            <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+            @if (_htmltext != null && _htmltext.State == WorkflowState.Draft || (_htmltext.State == WorkflowState.Review && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin)))
+            {
+                <form method="post" class="app-form-inline ms-1" @formname="@($"HtmlTextPublishForm:{ModuleState.PageModuleId}")" @onsubmit="Publish" data-enhance>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                    <button type="submit" class="btn btn-success" title="@Localizer["Submit.Title"]"><i class="@Icons.Check"></i></button>
+                </form>
+            }
+        }
+        @if (_review != -1 && _htmltext != null && _htmltext.State != WorkflowState.Draft)
+        {
+            <form method="post" class="app-form-inline ms-1" @formname="@($"HtmlTextReviewForm:{ModuleState.PageModuleId}")" @onsubmit="Review" data-enhance>
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <input type="hidden" name="review" value="@_review" />
+                <button type="submit" class="btn btn-primary" title="@((_review == WorkflowState.Published) ? @Localizer["Review.Title"] : @Localizer["View.Title"])"><i class="@Icons.ActionRedo"></i></button>
+            </form>
+            <form method="post" class="app-form-inline ms-1" @formname="@($"HtmlTextPublishForm:{ModuleState.PageModuleId}")" @onsubmit="Publish" data-enhance>
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="btn btn-success" title="@Localizer["Approve.Title"]"><i class="@Icons.Check"></i></button>
+            </form>
+            <form method="post" class="app-form-inline ms-1" @formname="@($"HtmlTextRejectForm:{ModuleState.PageModuleId}")" @onsubmit="Comment" data-enhance>
+                <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+                <button type="submit" class="btn btn-danger" title="@Localizer["Reject.Title"]"><i class="@Icons.X"></i></button>
+            </form>
+            <div class="@(_reject ? "" : "d-none")">
+                <form method="post" @formname="@($"HtmlTextSaveForm:{ModuleState.PageModuleId}")" @onsubmit="Reject" data-enhance>
+                    <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
+				    <textarea name="comment" class="form-control mt-2 mb-2 mx-4" rows="3" placeholder="@Localizer["Comment.Placeholder"]" required></textarea>
+                    <button type="submit" class="btn btn-success">@Localizer["Save"]</button>
+                    <a href="@NavigationManager.Uri" class="btn btn-secondary ms-2" title="@Localizer["Cancel"]">@Localizer["Cancel"]</a>
+                </form>
+            </div>
+        }
     </div>
 }
 
-@((MarkupString)content)
+@((MarkupString)FormatContent(_htmltext))
 
-@if (PageState.EditMode && content.Length > 3000)
+@if (PageState.EditMode && _htmltext != null && _htmltext.Content.Length > 3000)
 {
     <div class="text-center mt-2">
         <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
@@ -22,7 +58,10 @@
 }
 
 @code {
-    private string content = "";
+    private Models.HtmlText _htmltext;
+    private int _review = -1;
+    private bool _reject = false;
+    private string _comment = "";
 
     public override string RenderMode => RenderModes.Static;
 
@@ -32,26 +71,133 @@
         {
             if (ShouldRender())
             {
-                var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
-                if (htmltext != null)
+                if (PageState.User == null || SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish) == WorkflowType.DirectPublish)
                 {
-                    content = htmltext.Content;
-                    content = Utilities.FormatContent(content, PageState.Alias, "render");
-                    if (bool.Parse(SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false")))
-                    {
-                        content = ReplaceTokens(content);
-                    }
+                    _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Published);
                 }
                 else
                 {
-                    content = "";
+                    if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.PermissionList))
+                    {
+                        // users with edit permission can view draft or review content
+                        _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Draft);
+                    }
+                    else
+                    {
+                        // approvers can view review content
+                        var approver = SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Approver", "");
+                        if ((!string.IsNullOrEmpty(approver) && UserSecurity.IsAuthorized(PageState.User, approver)))
+                        {
+                            if (HttpContext.Request.HasFormContentType && HttpContext.Request.Form.ContainsKey("_handler"))
+                            {
+                                // get form values manually since we are using dynamic form names
+                                var formname = HttpContext.Request.Form["_handler"];
+                                if (formname == $"HtmlTextReviewForm:{ModuleState.PageModuleId}")
+                                {
+                                    _review = int.Parse(HttpContext.Request.Form["review"]);
+                                }
+                                if (formname == $"HtmlTextSaveForm:{ModuleState.PageModuleId}")
+                                {
+                                    _comment = HttpContext.Request.Form["comment"];
+                                }
+                            }
+                            _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, (_review != -1) ? _review : WorkflowState.Review);
+                            if (_review == -1)
+                            {
+                                _review = (_htmltext != null && _htmltext.State != WorkflowState.Published && string.IsNullOrEmpty(_htmltext.Comment)) ? WorkflowState.Review : -1;
+                            }
+                        }
+                        else
+                        {
+                            _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Published);
+                        }
+                    }
                 }
             }
         }
         catch (Exception ex)
         {
-			await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
+            await logger.LogError(ex, "Error Loading Content {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.Content.Load"], MessageType.Error);
         }
+    }
+
+    private async Task Review()
+    {
+        _review = (_review == WorkflowState.Published) ? WorkflowState.Review : WorkflowState.Published;
+        _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, _review);
+    }
+
+    private async Task Publish()
+    {
+        if (PageState.EditMode)
+        {            
+            _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Draft);
+            if (_htmltext != null)
+            {
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                {
+                    // admins can directly publish
+                    _htmltext.State = WorkflowState.Published;
+                    AddModuleMessage(Localizer["Message.Published"], MessageType.Success);
+                }
+                else
+                {
+                    _htmltext.State = WorkflowState.Review;
+                    AddModuleMessage(Localizer["Message.Submitted"], MessageType.Success);
+                }
+                await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
+            }
+        }
+        else // review
+        {
+            if (_review != -1)
+            {
+                _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Review);
+                if (_htmltext != null)
+                {
+                    _htmltext.State = WorkflowState.Published;
+                    await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
+                    AddModuleMessage(Localizer["Message.Published"], MessageType.Success);
+                    _review = -1;
+                }
+            }
+        }
+    }
+
+    private void Comment()
+    {
+        _reject = true;
+    }
+
+    private async Task Reject()
+    {
+        if (!string.IsNullOrEmpty(_comment))
+        {
+            _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Review);
+            if (_htmltext != null && _htmltext.State == WorkflowState.Review)
+            {
+                _htmltext.Comment = _comment;
+                await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
+                _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Published);
+                _review = -1;
+                AddModuleMessage(Localizer["Message.Rejected"], MessageType.Success);
+                _reject = false;
+            }
+        }
+    }
+
+    private string FormatContent(HtmlText htmlText)
+    {
+        if (htmlText != null)
+        {
+            var content = Utilities.FormatContent(htmlText.Content, PageState.Alias, "render");
+            if (bool.Parse(SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false")))
+            {
+                content = ReplaceTokens(content);
+            }
+            return content;
+        }
+        return "";
     }
 }

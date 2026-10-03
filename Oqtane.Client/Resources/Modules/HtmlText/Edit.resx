@@ -156,8 +156,8 @@
   <data name="Message.Content.Restored" xml:space="preserve">
     <value>Version Restored</value>
   </data>
-  <data name="Edit Html/Text" xml:space="preserve">
-    <value>Edit Html/Text</value>
+  <data name="Edit Content" xml:space="preserve">
+    <value>Edit Content</value>
   </data>
   <data name="Restore.Header" xml:space="preserve">
     <value>Restore Version</value>
@@ -177,7 +177,82 @@
   <data name="HtmlEditor.Heading" xml:space="preserve">
     <value>Raw HTML Editor</value>
   </data>
-    <data name="RichTextEditor.Heading" xml:space="preserve">
+  <data name="RichTextEditor.Heading" xml:space="preserve">
     <value>Rich Text Editor</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="Details.Text" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="State.Text" xml:space="preserve">
+    <value>State:</value>
+  </data>
+  <data name="State.HelpText" xml:space="preserve">
+    <value>The current state of the content</value>
+  </data>
+  <data name="Comment.Text" xml:space="preserve">
+    <value>Comment:</value>
+  </data>
+  <data name="Comment.HelpText" xml:space="preserve">
+    <value>The reason the content was rejected</value>
+  </data>
+  <data name="CreatedOn.Text" xml:space="preserve">
+    <value>Created On:</value>
+  </data>
+  <data name="CreatedOn.HelpText" xml:space="preserve">
+    <value>The date the content was created"</value>
+  </data>
+  <data name="SubmittedOn.Text" xml:space="preserve">
+    <value>Submitted On:</value>
+  </data>
+  <data name="SubmittedOn.HelpText" xml:space="preserve">
+    <value>The date the content was submitted for review</value>
+  </data>
+  <data name="PublishedOn.Text" xml:space="preserve">
+    <value>Published On:</value>
+  </data>
+  <data name="PublishedOn.HelpText" xml:space="preserve">
+    <value>The date the content was published</value>
+  </data>
+  <data name="RejectedOn.Text" xml:space="preserve">
+    <value>Rejected On:</value>
+  </data>
+  <data name="RejectedOn.HelpText" xml:space="preserve">
+    <value>The date the content was rejected</value>
+  </data>
+  <data name="CreatedBy.Text" xml:space="preserve">
+    <value>Created By:</value>
+  </data>
+  <data name="CreatedBy.HelpText" xml:space="preserve">
+    <value>The user who created the content</value>
+  </data>
+  <data name="PublishedBy.Text" xml:space="preserve">
+    <value>Published By:</value>
+  </data>
+  <data name="PublishedBy.HelpText" xml:space="preserve">
+    <value>The user who published the content</value>
+  </data>
+  <data name="RejectedBy.Text" xml:space="preserve">
+    <value>Rejected By:</value>
+  </data>
+  <data name="RejectedBy.HelpText" xml:space="preserve">
+    <value>The user who rejected the content</value>
+  </data>
+  <data name="SubmittedBy.Text" xml:space="preserve">
+    <value>Submitted By:</value>
+  </data>
+  <data name="SubmittedBy.HelpText" xml:space="preserve">
+    <value>The user who submitted the content the review</value>
+  </data>
+  <data name="WorkflowState.Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+  <data name="WorkflowState.Review" xml:space="preserve">
+    <value>Under Review</value>
+  </data>
+  <data name="WorkflowState.Published" xml:space="preserve">
+    <value>Published</value>
   </data>
 </root>

@@ -90,4 +90,10 @@
   <ItemGroup>
     <Watch Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Modules\HtmlText\Services\HtmlTextService.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

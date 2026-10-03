@@ -1,6 +1,8 @@
+@using Oqtane.Modules.HtmlText.Models
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject ISettingService SettingService
+@inject IRoleService RoleService
 @implements Oqtane.Interfaces.ISettingsControl
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -22,6 +24,34 @@
                 <input id="versions" type="number" min="0" max="9" step="1" class="form-control" @bind="@_versions" />
             </div>
         </div>
+        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+        {
+            <hr />
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="workflow" ResourceKey="Workflow" ResourceType="@resourceType" HelpText="The workflow to apply to the content for this site">Workflow: </Label>
+                <div class="col-sm-9">
+                    <select id="workflow" class="form-select custom-select" @bind="@_workflow">
+                        <option value="@WorkflowType.DirectPublish">@Localizer["Direct Publish"]</option>
+                        <option value="@WorkflowType.ContentApproval">@Localizer["Content Approval"]</option>
+                    </select>
+                </div>
+            </div>
+            @if (_workflow != WorkflowType.DirectPublish)
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="approver" ResourceKey="Approver" ResourceType="@resourceType" HelpText="Select the role that is allowed to approve content (note that Administrators always have approval rights)">Approver: </Label>
+                    <div class="col-sm-9">
+                        <select id="approver" class="form-select custom-select" @bind="@_approver">
+							<option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var role in _roles.Where(item => item.Name != RoleNames.Admin))
+                            {
+                                <option value="@role.Name">@role.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+        }
     </div>
 </form>
 
@@ -33,13 +63,23 @@
 
     private string _dynamictokens;
     private string _versions = "5";
+    private string _workflow = WorkflowType.DirectPublish;
+    private List<Role> _roles = new List<Role>();
+    private string _approver = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
             _dynamictokens = SettingService.GetSetting(ModuleState.Settings, "DynamicTokens", "false");
             _versions = SettingService.GetSetting(ModuleState.Settings, "Versions", "5");
+
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+            {
+                _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+                _workflow = SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish);
+                _approver = SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Approver", "");
+            }
         }
         catch (Exception ex)
         {
@@ -58,6 +98,21 @@
                 settings = SettingService.SetSetting(settings, "Versions", versions.ToString());
             }
             await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+            {
+                if (_workflow == WorkflowType.DirectPublish || !string.IsNullOrEmpty(_approver))
+                {
+                    settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                    settings = SettingService.SetSetting(settings, "HtmlText:Workflow", _workflow);
+                    settings = SettingService.SetSetting(settings, "HtmlText:Approver", _approver);
+                    await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.Workflow.Validation"], MessageType.Warning);
+                }
+            }
         }
         catch (Exception ex)
         {
