@@ -11,7 +11,11 @@
 
 <TabStrip>
     <TabPanel Name="Edit" Heading="Edit" ResourceKey="Edit">
-		@if (_content != null)
+        @if (!string.IsNullOrEmpty(_comment))
+        {
+            <ModuleMessage Message="@_comment" Type="MessageType.Info"></ModuleMessage>
+        }
+        @if (_content != null)
 		{
 			<RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
 			<br />
@@ -33,6 +37,11 @@
 				<th style="width: 1px;">&nbsp;</th>
 				<th>@Localizer["CreatedOn"]</th>
 				<th>@Localizer["CreatedBy"]</th>
+                @if (SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish) != WorkflowType.DirectPublish)
+                {
+				    <th>@Localizer["State"]</th>
+				    <th style="width: 1px;">&nbsp;</th>
+                }
 			</Header>
 			<Row>
 				<td><ActionLink Action="View" Security="SecurityAccessLevel.Edit" OnClick="@(async () => await View(context))" ResourceKey="View" /></td>
@@ -40,25 +49,104 @@
 				<td><ActionDialog Header="Delete Version" Message="@string.Format(Localizer["Confirm.Delete"], context.CreatedOn)" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" ResourceKey="Delete" /></td>
 				<td>@context.CreatedOn</td>
 				<td>@context.CreatedBy</td>
+                @if (SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish) != WorkflowType.DirectPublish)
+                {
+    				<td>@DisplayState(context.State)</td>
+				    <td><ActionLink Action="Details" Security="SecurityAccessLevel.Edit" OnClick="@(async () => await Details(context))" ResourceKey="Details" /></td>
+                }
 			</Row>
 		</Pager>
-		@((MarkupString)_view)
-	</TabPanel>
+        @if (_detail != null)
+        {
+            <hr />
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="state" HelpText="The current state of the content" ResourceKey="State">State: </Label>
+                    <div class="col-sm-9">
+                        @DisplayState(_detail.State)
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    @if (string.IsNullOrEmpty(_detail.Comment))
+                    {
+                        @switch (_detail.State)
+                        {
+                            case WorkflowState.Draft:
+                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was created" ResourceKey="CreatedOn">Created On: </Label>
+                                break;
+                            case WorkflowState.Review:
+                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was submitted for review" ResourceKey="SubmittedOn">Submitted On: </Label>
+                                break;
+                            case WorkflowState.Published:
+                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was published" ResourceKey="PublishedOn">Published On: </Label>
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was rejected" ResourceKey="RejectedOn">Rejected On: </Label>
+                    }
+                    <div class="col-sm-9">
+                        <input id="modifiedon" class="form-control" @bind="@_detail.ModifiedOn" disabled />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    @if (string.IsNullOrEmpty(_detail.Comment))
+                    {
+                        @switch (_detail.State)
+                        {
+                            case WorkflowState.Draft:
+                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who created the content" ResourceKey="CreatedBy">Created By: </Label>
+                                break;
+                            case WorkflowState.Review:
+                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who submitted the content the review" ResourceKey="SubmittedBy">Submitted By: </Label>
+                                break;
+                            case WorkflowState.Published:
+                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who published the content" ResourceKey="PublishedBy">Published By: </Label>
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        <Label Class="col-sm-3" For="modifiedon" HelpText="The user who rejected the content" ResourceKey="RejectedBy">Rejected By: </Label>
+                    }
+                    <div class="col-sm-9">
+                        <input id="modifiedby" class="form-control" @bind="@_detail.ModifiedBy" disabled />
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(_detail.Comment))
+                {
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="comment" HelpText="The reason the content was rejected" ResourceKey="Comment">Comment: </Label>
+                        <div class="col-sm-9">                             
+                            <textarea id="comment" class="form-control" rows="3" @bind="@_detail.Comment" disabled />
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+    		@((MarkupString)_view)
+        }
+    </TabPanel>
 </TabStrip>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
-    public override string Title => "Edit Html/Text";
+    public override string Title => "Edit Content";
 
     private RichTextEditor RichTextEditorHtml;
     private string _content = null;
+    private string _comment = null;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
     private List<Models.HtmlText> _htmltexts;
     private string _view = "";
+    private Models.HtmlText _detail = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,99 +163,153 @@
 
     private async Task LoadContent()
     {
-		var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
-		if (htmltext != null)
-		{
-			_content = htmltext.Content;
-			_content = Utilities.FormatContent(_content, PageState.Alias, "render");
-			_createdby = htmltext.CreatedBy;
-			_createdon = htmltext.CreatedOn;
-			_modifiedby = htmltext.ModifiedBy;
-			_modifiedon = htmltext.ModifiedOn;
-		}
-		else
-		{
-			_content = string.Empty;
-		}
+        var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Draft);
+        if (htmltext != null)
+        {
+            _content = htmltext.Content;
+            _content = Utilities.FormatContent(_content, PageState.Alias, "render");
+            _comment = htmltext.Comment;
+            _createdby = htmltext.CreatedBy;
+            _createdon = htmltext.CreatedOn;
+            _modifiedby = htmltext.ModifiedBy;
+            _modifiedon = htmltext.ModifiedOn;
+        }
+        else
+        {
+            _content = string.Empty;
+        }
 
-		_htmltexts = await HtmlTextService.GetHtmlTextsAsync(ModuleState.ModuleId);
-		_htmltexts = _htmltexts.OrderByDescending(item => item.CreatedOn).ToList();
+        _htmltexts = await HtmlTextService.GetHtmlTextsAsync(ModuleState.ModuleId);
+        _htmltexts = _htmltexts.OrderByDescending(item => item.CreatedOn).ToList();
 
-		_view = "";
-	}
+        _view = "";
+    }
 
-	private async Task SaveContent()
-	{
-		string content = await RichTextEditorHtml.GetHtml();
-		content = Utilities.FormatContent(content, PageState.Alias, "save");
+    private async Task SaveContent()
+    {
+        string content = await RichTextEditorHtml.GetHtml();
+        content = Utilities.FormatContent(content, PageState.Alias, "save");
 
-		try
-		{
-			var htmltext = new HtmlText();
-			htmltext.ModuleId = ModuleState.ModuleId;
-			htmltext.Content = content;
-			await HtmlTextService.AddHtmlTextAsync(htmltext);
+        try
+        {
+            var htmltext = new HtmlText();
+            htmltext.ModuleId = ModuleState.ModuleId;
+            htmltext.Content = content;
+            if (SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish) == WorkflowType.DirectPublish)
+            {
+                htmltext.State = WorkflowState.Published;
+            }
+            else
+            {
+                htmltext.State = WorkflowState.Draft;
+            }
+            await HtmlTextService.AddHtmlTextAsync(htmltext);
 
-			await logger.LogInformation("Content Saved {HtmlText}", htmltext);
-			NavigationManager.NavigateTo(NavigateUrl());
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
-		}
-	}
+            await logger.LogInformation("Content Saved {HtmlText}", htmltext);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
+        }
+    }
 
-	private async Task View(Models.HtmlText htmltext)
-	{
-		try
-		{
-			_view = htmltext.Content;
-			_view = Utilities.FormatContent(_view, PageState.Alias, "render");
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Viewing Content {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Content.View"], MessageType.Error);
-		}
-	}
+    private async Task View(Models.HtmlText htmltext)
+    {
+        try
+        {
+            _view = htmltext.Content;
+            _view = Utilities.FormatContent(_view, PageState.Alias, "render");
+            _detail = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Viewing Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.View"], MessageType.Error);
+        }
+    }
 
-	private async Task Restore(Models.HtmlText htmltext)
-	{
-		try
-		{
-			var content = htmltext.Content;
-			htmltext = new HtmlText();
-			htmltext.ModuleId = ModuleState.ModuleId;
-			htmltext.Content = content;
-			await HtmlTextService.AddHtmlTextAsync(htmltext);
-			await logger.LogInformation("Content Restored {HtmlText}", htmltext);
-			AddModuleMessage(Localizer["Message.Content.Restored"], MessageType.Success);
-			await LoadContent();
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Restoring Content {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Content.Restore"], MessageType.Error);
-		}
-	}
+    private async Task Restore(Models.HtmlText htmltext)
+    {
+        try
+        {
+            var content = htmltext.Content;
+            htmltext = new HtmlText();
+            htmltext.ModuleId = ModuleState.ModuleId;
+            htmltext.Content = content;
+            if (SettingService.GetSetting(PageState.Site.Settings, "HtmlText:Workflow", WorkflowType.DirectPublish) == WorkflowType.DirectPublish)
+            {
+                htmltext.State = WorkflowState.Published;
+            }
+            else
+            {
+                htmltext.State = WorkflowState.Draft;
+            }
+            await HtmlTextService.AddHtmlTextAsync(htmltext);
+            await logger.LogInformation("Content Restored {HtmlText}", htmltext);
+            AddModuleMessage(Localizer["Message.Content.Restored"], MessageType.Success);
+            await LoadContent();
+            _detail = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Restoring Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Restore"], MessageType.Error);
+        }
+    }
 
-	private async Task Delete(Models.HtmlText htmltext)
-	{
-		try
-		{
-			await HtmlTextService.DeleteHtmlTextAsync(htmltext.HtmlTextId, htmltext.ModuleId);
-			await logger.LogInformation("Content Deleted {HtmlText}", htmltext);
-			AddModuleMessage(Localizer["Message.Content.Deleted"], MessageType.Success);
-			await LoadContent();
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			await logger.LogError(ex, "Error Deleting Content {Error}", ex.Message);
-			AddModuleMessage(Localizer["Error.Content.Delete"], MessageType.Error);
-		}
+    private async Task Delete(Models.HtmlText htmltext)
+    {
+        try
+        {
+            await HtmlTextService.DeleteHtmlTextAsync(htmltext.HtmlTextId, htmltext.ModuleId);
+            await logger.LogInformation("Content Deleted {HtmlText}", htmltext);
+            AddModuleMessage(Localizer["Message.Content.Deleted"], MessageType.Success);
+            await LoadContent();
+            _detail = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Content {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.Delete"], MessageType.Error);
+        }
+    }
+
+    private async Task Details(Models.HtmlText htmltext)
+    {
+        try
+        {
+            _detail = htmltext;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Showing Details {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Content.View"], MessageType.Error);
+        }
+    }
+
+    private string DisplayState(int state)
+    {
+        var display = "";
+
+        switch (state)
+        {
+            case WorkflowState.Draft:
+                display = Localizer["WorkflowState.Draft"];
+                break;
+            case WorkflowState.Review:
+                display = Localizer["WorkflowState.Review"];
+                break;
+            case WorkflowState.Published:
+                display = Localizer["WorkflowState.Published"];
+                break;
+        }
+
+        return display;
 	}
 }
