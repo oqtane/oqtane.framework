@@ -145,7 +145,7 @@
     private MessageType _messagetype;
     private bool _uploading = false;
 
-    private string ButtonSizeClass => SmallButtons ? " btn-sm" : string.Empty;
+    private string ButtonSizeClass => UseSmallButtons ? " btn-sm" : string.Empty;
 
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
@@ -178,7 +178,7 @@
     public bool ShowDeleteButton { get; set; } = true; // optional - for indicating whether a Delete button should be displayed for files - default is true
 
     [Parameter]
-    public bool SmallButtons { get; set; } = false; // optional - for indicating whether buttons should use the small button size (btn-sm) - default is false
+    public bool UseSmallButtons { get; set; } = false; // optional - for indicating whether buttons should use the small button size (btn-sm) - default is false
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
