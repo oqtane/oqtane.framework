@@ -130,8 +130,19 @@
 
     private async Task Publish()
     {
-        if (PageState.EditMode)
-        {            
+        if (_review != -1)
+        {
+            _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Review);
+            if (_htmltext != null)
+            {
+                _htmltext.State = WorkflowState.Published;
+                await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
+                AddModuleMessage(Localizer["Message.Published"], MessageType.Success);
+                _review = -1;
+            }
+        }
+        else
+        {
             _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Draft);
             if (_htmltext != null)
             {
@@ -147,20 +158,6 @@
                     AddModuleMessage(Localizer["Message.Submitted"], MessageType.Success);
                 }
                 await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
-            }
-        }
-        else // review
-        {
-            if (_review != -1)
-            {
-                _htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId, WorkflowState.Review);
-                if (_htmltext != null)
-                {
-                    _htmltext.State = WorkflowState.Published;
-                    await HtmlTextService.UpdateHtmlTextAsync(_htmltext);
-                    AddModuleMessage(Localizer["Message.Published"], MessageType.Success);
-                    _review = -1;
-                }
             }
         }
     }
