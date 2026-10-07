@@ -86,7 +86,7 @@ namespace Oqtane.Services
         /// Delete a <see cref="FolderConfig"/>
         /// </summary>
         /// <param name="folderConfigId">Reference to a <see cref="FolderConfig"/></param>
-        Task DeleteFolderConfigAsync(int folderConfigId);
+        Task<bool> DeleteFolderConfigAsync(int folderConfigId);
 
     }
 
@@ -147,9 +147,9 @@ namespace Oqtane.Services
             await PostJsonAsync($"{ApiUrl}/settings/{folderConfigId}", settings);
         }
 
-        public async Task DeleteFolderConfigAsync(int folderConfigId)
+        public async Task<bool> DeleteFolderConfigAsync(int folderConfigId)
         {
-            await DeleteAsync($"{ApiUrl}/{folderConfigId}");
+            return await DeleteAsync($"{ApiUrl}/{folderConfigId}");
         }
     }
 }

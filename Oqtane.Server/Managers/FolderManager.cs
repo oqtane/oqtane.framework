@@ -82,15 +82,17 @@ namespace Oqtane.Managers
         {
             var mergeItems = new List<MergeItem>();
             var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
-            if (folderProvider != null)
+            if (folderProvider == null)
             {
-                var publicItems = await GetRemoteItemsByType(folderProvider, folder, recursive);
-                foreach (var item in publicItems)
+                throw new InvalidOperationException($"Folder provider is not available for folder config {folder.FolderConfigId}.");
+            }
+
+            var publicItems = await GetRemoteItemsByType(folderProvider, folder, recursive);
+            foreach (var item in publicItems)
+            {
+                if(!mergeItems.Any(i => i.ParentFolderPath.Equals(item.ParentFolderPath, StringComparison.OrdinalIgnoreCase) && i.FolderName.Equals(item.FolderName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    if(!mergeItems.Any(i => i.ParentFolderPath.Equals(item.ParentFolderPath, StringComparison.OrdinalIgnoreCase) && i.FolderName.Equals(item.FolderName, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        mergeItems.Add(item);
-                    }
+                    mergeItems.Add(item);
                 }
             }
 
@@ -272,8 +274,7 @@ namespace Oqtane.Managers
 
                         if (!localFiles.Any(f => f.Name.Equals(remoteFile, StringComparison.OrdinalIgnoreCase)))
                         {
-                            var fileStream = await folderProvider.GetFileStreamAsync(folder, remoteFile);
-                            var fileSize = (int)fileStream.Length;
+                            var fileSize = checked((int)await folderProvider.GetFileSizeAsync(folder, remoteFile));
                             if (folder.Capacity == 0 || ((size + fileSize) / 1000000) < folder.Capacity)
                             {
                                 var newFile = new File
@@ -288,6 +289,7 @@ namespace Oqtane.Managers
                                 {
                                     try
                                     {
+                                        await using var fileStream = await folderProvider.GetFileStreamAsync(folder, remoteFile);
                                         using var image = Image.Load(fileStream);
                                         newFile.ImageHeight = image.Height;
                                         newFile.ImageWidth = image.Width;
