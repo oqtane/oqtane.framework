@@ -58,35 +58,35 @@
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
-                                <div class="col">
-                                    @if (!_canEditFolderConfig)
-                                    {
-                                        <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
-                                    }
-                                    else
-                                    {
-                                        <select id="folderconfig" class="form-select" value="@_folderConfigId" @onchange="(e) => OnConfigChanged(int.Parse(e.Value.ToString()))">
-                                            @foreach (var item in _folderConfigs)
-                                            {
-                                                <option value="@item.FolderConfigId">@item.Name</option>
-                                            }
-                                        </select>
-                                    }
-                                </div>
-                                @if (_canEditFolderConfig)
-                                {
-                                    <div class="col-sm-3 text-end">
-                                        <ActionLink Action="EditConfig" class="btn btn-primary" Text="Add New Config" ResourceKey="AddNewConfig" Disabled="@(!_canAddNewConfig)" ReturnUrl="@PageState.Uri.PathAndQuery" />
-                                        <ActionLink Action="EditConfig" class="btn btn-primary ms-1" Text="Edit Config" ResourceKey="EditConfig" Parameters="@($"id={_folderConfigId}")" Disabled="@(IsDefaultFolderProvider())" ReturnUrl="@PageState.Uri.PathAndQuery" />
+                                <div class="col-sm-9">
+                                    <div class="input-group">
+                                        @if (!_canEditFolderConfig)
+                                        {
+                                            <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
+                                        }
+                                        else
+                                        {
+                                            <select id="folderconfig" class="form-select" value="@_folderConfigId" @onchange="(e) => OnConfigChanged(int.Parse(e.Value.ToString()))">
+                                                @foreach (var item in _folderConfigs)
+                                                {
+                                                    <option value="@item.FolderConfigId">@item.Name</option>
+                                                }
+                                            </select>
+                                        }
+                                        @if (_canEditFolderConfig)
+                                        {
+                                            <ActionLink Action="EditConfig" class="btn btn-secondary" Text="Edit" ResourceKey="EditConfig" Parameters="@($"id={_folderConfigId}")" Disabled="@(IsDefaultFolderProvider())" ReturnUrl="@PageState.Uri.PathAndQuery" />
+                                            <ActionLink Action="EditConfig" class="btn btn-secondary" Text="Add" ResourceKey="AddNewConfig" Disabled="@(!_canAddNewConfig)" ReturnUrl="@PageState.Uri.PathAndQuery" />
+                                        }
                                     </div>
-                                }
+                                </div>
                             </div>
                         }
-                        else if(_folderId != -1)
+                        else if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
-                                <div class="col">
+                                <div class="col-sm-9">
                                     <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
                                 </div>
                             </div>
