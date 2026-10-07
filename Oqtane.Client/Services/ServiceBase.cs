@@ -236,10 +236,10 @@ namespace Oqtane.Services
             return default;
         }
 
-        protected async Task DeleteAsync(string uri)
+        protected async Task<bool> DeleteAsync(string uri)
         {
             var response = await GetHttpClient().DeleteAsync(uri);
-            await CheckResponse(response, uri);
+            return await CheckResponse(response, uri);
         }
 
         private async Task<bool> CheckResponse(HttpResponseMessage response, string uri)

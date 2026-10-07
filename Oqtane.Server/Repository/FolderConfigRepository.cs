@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -30,17 +31,14 @@ namespace Oqtane.Repository
     public class FolderConfigRepository : IFolderConfigRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
-        private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
 
         public FolderConfigRepository(
             IDbContextFactory<TenantDBContext> dbContextFactory,
-            IFolderRepository folderRepository,
             ISettingRepository settingRepository
             )
         {
             _dbContextFactory = dbContextFactory;
-            _folderRepository = folderRepository;
             _settingRepository = settingRepository;
         }
 
@@ -78,6 +76,11 @@ namespace Oqtane.Repository
             {
                 if (string.IsNullOrEmpty(settings[key]))
                 {
+                    var existingSetting = _settingRepository.GetSetting(EntityNames.FolderConfig, folderConfigId, key);
+                    if (existingSetting != null)
+                    {
+                        _settingRepository.DeleteSetting(EntityNames.FolderConfig, existingSetting.SettingId);
+                    }
                     continue;
                 }
 
@@ -140,16 +143,16 @@ namespace Oqtane.Repository
                     throw new SecurityException("Cannot delete default folder provider");
                 }
 
-                //remove all the folders
-                _folderRepository.GetFolders(folderConfig.SiteId.Value)
-                    .Where(i => i.FolderConfigId == folderConfigId)
-                    .ToList()
-                    .ForEach(item =>
-                    {
-                        _folderRepository.DeleteFolder(item.FolderId);
-                    });
+                if (db.Folder.Any(i => i.FolderConfigId == folderConfigId))
+                {
+                    throw new InvalidOperationException("Cannot delete a folder provider configuration while it is in use.");
+                }
 
                 //delete the settings
+                foreach (var setting in _settingRepository.GetSettings(EntityNames.FolderConfig, folderConfigId))
+                {
+                    _settingRepository.DeleteSetting(EntityNames.FolderConfig, setting.SettingId);
+                }
 
                 db.FolderConfig.Remove(folderConfig);
                 db.SaveChanges();

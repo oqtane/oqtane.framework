@@ -28,7 +28,11 @@ namespace Oqtane.Migrations.Tenant
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
             folderEntityBuilder.UpdateData("FolderConfigId", 1, "Type = 'Public'");
             folderEntityBuilder.UpdateData("FolderConfigId", 2, "Type = 'Private'");
-            folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
+            // SQLite cannot add a foreign key to an existing table without rebuilding the table.
+            if (ActiveDatabase.Name != "Sqlite")
+            {
+                folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
+            }
             folderEntityBuilder.DropColumn("Type");
         }
 

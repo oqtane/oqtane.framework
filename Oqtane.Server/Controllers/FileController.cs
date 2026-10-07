@@ -247,9 +247,48 @@ namespace Oqtane.Controllers
                 {
                     file.Folder = _folders.GetFolder(file.FolderId, false);
                     var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                    if (folderProvider == null)
+                    {
+                        throw new InvalidOperationException("The destination folder provider is not available.");
+                    }
+
                     if (exsitingFile.Name != file.Name || exsitingFile.FolderId != file.FolderId)
                     {
-                        await folderProvider.MoveFileAsync(exsitingFile, file.Folder, file.Name);
+                        var sourceFolder = exsitingFile.Folder ?? _folders.GetFolder(exsitingFile.FolderId, false);
+                        var sourceFolderProvider = _folderProviderFactory.GetProvider(sourceFolder.FolderConfigId);
+                        if (sourceFolderProvider == null || folderProvider == null)
+                        {
+                            throw new InvalidOperationException("The source or destination folder provider is not available.");
+                        }
+
+                        if (sourceFolder.FolderConfigId == file.Folder.FolderConfigId)
+                        {
+                            await folderProvider.MoveFileAsync(exsitingFile, file.Folder, file.Name);
+                        }
+                        else
+                        {
+                            await using (var sourceStream = await sourceFolderProvider.GetFileStreamAsync(exsitingFile))
+                            {
+                                if (sourceStream == null)
+                                {
+                                    throw new FileNotFoundException("The source file does not exist in its folder provider.", exsitingFile.Name);
+                                }
+
+                                await folderProvider.AddFileAsync(file.Folder, file.Name, sourceStream);
+                            }
+
+                            if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
+                            {
+                                throw new IOException("The file could not be copied to the destination folder provider.");
+                            }
+
+                            await sourceFolderProvider.DeleteFileAsync(exsitingFile);
+                        }
+
+                        if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
+                        {
+                            throw new IOException("The file could not be moved to the destination folder provider.");
+                        }
                     }
 
                     var newfile = await CreateFileAsync(folderProvider, file.Folder.FolderId, file.Name);
@@ -300,6 +339,7 @@ namespace Oqtane.Controllers
                         {
                             using var memoryStream = new MemoryStream();
                             await (await entry.OpenAsync()).CopyToAsync(memoryStream);
+                            memoryStream.Position = 0;
                             await folderProvider.AddFileAsync(zipfile.Folder, entry.Name, memoryStream);
                             var file = await CreateFileAsync(folderProvider, zipfile.Folder.FolderId, entry.Name);
                             if (file != null)
@@ -487,23 +527,35 @@ namespace Oqtane.Controllers
                         if (uploadFolder != null)
                         {
                             var folderProvider = _folderProviderFactory.GetProvider(uploadFolder.FolderConfigId);
-                            using var stream = System.IO.File.OpenRead(Path.Combine(tempFolder, upload));
-
-                            await folderProvider.AddFileAsync(uploadFolder, upload, stream);
-
-                            var file = await CreateFileAsync(folderProvider, uploadFolder.FolderId, upload);
-                            if (file != null)
+                            var uploadPath = Path.Combine(tempFolder, upload);
+                            try
                             {
-                                if (file.FileId == 0)
+                                using (var stream = System.IO.File.OpenRead(uploadPath))
                                 {
-                                    file = _files.AddFile(file);
+                                    await folderProvider.AddFileAsync(uploadFolder, upload, stream);
                                 }
-                                else
+
+                                var file = await CreateFileAsync(folderProvider, uploadFolder.FolderId, upload);
+                                if (file != null)
                                 {
-                                    file = _files.UpdateFile(file);
+                                    if (file.FileId == 0)
+                                    {
+                                        file = _files.AddFile(file);
+                                    }
+                                    else
+                                    {
+                                        file = _files.UpdateFile(file);
+                                    }
+                                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(uploadFolder.Path, upload));
+                                    _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
                                 }
-                                _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(uploadFolder.Path, upload));
-                                _syncManager.AddSyncEvent(_alias, EntityNames.File, file.FileId, SyncEventActions.Create);
+                            }
+                            finally
+                            {
+                                if (System.IO.File.Exists(uploadPath))
+                                {
+                                    System.IO.File.Delete(uploadPath);
+                                }
                             }
                         }
                         else

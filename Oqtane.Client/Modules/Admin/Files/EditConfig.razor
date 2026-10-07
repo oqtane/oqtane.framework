@@ -40,10 +40,13 @@
         </div>
     </form>
     <br />
-    <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>
-    @((MarkupString)"&nbsp;")
+    @if (!Constants.DefaultFolderProviders.Contains(_provider))
+    {
+        <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>
+        @((MarkupString)"&nbsp;")
+    }
     <NavLink class="btn btn-secondary" href="@(ReturnUrl())">@SharedLocalizer["Cancel"]</NavLink>
-    @if (PageState.QueryString.ContainsKey("id"))
+    @if (PageState.QueryString.ContainsKey("id") && !Constants.DefaultFolderProviders.Contains(_provider))
     {
         @((MarkupString)"&nbsp;")
         <ActionDialog Header="Delete Folder Config" Message="Are You Sure You Wish To Delete This Folder Config?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteConfig())" ResourceKey="DeleteConfig" />
@@ -171,9 +174,15 @@
     {
         try
         {
-            await FolderConfigService.DeleteFolderConfigAsync(_folderConfigId);
-            await logger.LogInformation("Folder Config Deleted {FolderConfig}", _folderConfigId);
-            NavigationManager.NavigateTo(NavigateUrl());
+            if (await FolderConfigService.DeleteFolderConfigAsync(_folderConfigId))
+            {
+                await logger.LogInformation("Folder Config Deleted {FolderConfig}", _folderConfigId);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
+            }
         }
         catch (Exception ex)
         {

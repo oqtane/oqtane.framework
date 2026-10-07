@@ -237,9 +237,17 @@ namespace Oqtane.Controllers
                     throw new ArgumentException("Default folder provider cannot be deleted.");
                 }
 
-                _folderConfigs.DeleteFolderConfig(id);
-                _syncManager.AddSyncEvent(_alias, EntityNames.FolderConfig, id, SyncEventActions.Delete);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Config Deleted {FolderConfigId}", id);
+                try
+                {
+                    _folderConfigs.DeleteFolderConfig(id);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.FolderConfig, id, SyncEventActions.Delete);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Config Deleted {FolderConfigId}", id);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, "Folder Config Is In Use {FolderConfigId} {Error}", id, ex.Message);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                }
             }
             else
             {
