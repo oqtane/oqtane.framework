@@ -30,8 +30,6 @@ else
                                 <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                             }
                         </select>
-                        <ActionLink AltText="@Localizer["SyncFolder"]" Class="btn btn-secondary" IconOnly="true" IconName="transfer" OnClick="async () => await SyncFolderAsync(false)" />
-                        <ActionLink AltText="@Localizer["SyncFolderRecursively"]" Class="btn btn-secondary" IconOnly="true" IconName="loop" OnClick="async () => await SyncFolderAsync(true)" />
                         <ActionLink Action="Edit" AltText="Edit Folder" Class="btn btn-secondary" Parameters="@($"id={_folderId}")" ResourceKey="EditFolder" IconOnly="true" IconName="pencil" />
                     </div>
                 </div>
@@ -198,31 +196,6 @@ else
         {
             await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
-        }
-    }
-
-    private async Task SyncFolderAsync(bool recursive)
-    {
-        try
-        {
-            if (_folderId <= 0)
-            {
-                return;
-            }
-
-            ShowProgressIndicator();
-
-            await FolderService.SyncFolderAsync(_folderId, recursive, true);
-            await logger.LogInformation("Folder Synced {FolderId} Recursive: {Recursive}", _folderId, recursive);
-            AddModuleMessage(Localizer["Success.Folder.Sync"], MessageType.Success);
-            await LoadFolders();
-
-            HideProgressIndicator();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Syncing Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error.Folder.Sync"], MessageType.Error);
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Oqtane.Controllers
         private readonly IFolderConfigRepository _folderConfigs;
         private readonly IUserPermissions _userPermissions;
         private readonly IFileRepository _files;
-        private readonly IFolderManager _folderManager;
         private readonly IPermissionRepository _permissionRepository;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
@@ -36,7 +35,6 @@ namespace Oqtane.Controllers
             IFolderConfigRepository folderConfigs,
             IUserPermissions userPermissions,
             IFileRepository files,
-            IFolderManager folderManager,
             ISyncManager syncManager,
             ILogManager logger,
             ITenantManager tenantManager,
@@ -47,7 +45,6 @@ namespace Oqtane.Controllers
             _folderConfigs = folderConfigs;
             _userPermissions = userPermissions;
             _files = files;
-            _folderManager = folderManager;
             _permissionRepository = permissionRepository;
             _syncManager = syncManager;
             _logger = logger;
@@ -342,22 +339,6 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Delete Attempt {FolderId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            }
-        }
-
-        [HttpPost("sync/{id}/{recursive}/{includeFiles}")]
-        [Authorize(Roles = RoleNames.Admin)]
-        public async Task SyncFolder(int id, bool recursive, bool includeFiles)
-        {
-            var folder = _folders.GetFolder(id, false);
-            if (folder != null && folder.SiteId == _alias.SiteId)
-            {
-                await _folderManager.SyncFolderAsync(folder, recursive, includeFiles);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Sync Attempt {Folder}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
