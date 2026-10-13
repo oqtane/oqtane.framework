@@ -135,6 +135,7 @@
                 if (!alias.IsDefault)
                 {
                     HandleDefaultAliasRedirect(alias, url);
+                    return;
                 }
 
                 var site = await SiteService.GetSiteAsync(alias.SiteId);
