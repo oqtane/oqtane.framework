@@ -360,6 +360,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/upload?url=x&folderid=y&name=z
         [HttpGet("upload")]
+        [Authorize(Roles = RoleNames.Admin)]
         public async Task<Models.File> UploadFile(string url, string folderid, string name)
         {
             Models.File file = null;
@@ -371,7 +372,7 @@ namespace Oqtane.Controllers
                 folder = _folders.GetFolder(FolderId);
             }
 
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.PermissionList))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.PermissionList) && url.ToLower().StartsWith("http"))
             {
                 if (string.IsNullOrEmpty(name))
                 {
@@ -383,7 +384,11 @@ namespace Oqtane.Controllers
                     try
                     {
                         var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
-                        using (var client = new HttpClient())
+                        var handler = new HttpClientHandler()
+                        {
+                            AllowAutoRedirect = false
+                        };
+                        using (var client = new HttpClient(handler))
                         {
                             using (var stream = await client.GetStreamAsync(url))
                             {
