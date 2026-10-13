@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -162,10 +161,10 @@ namespace Oqtane.Providers
                 System.IO.File.Delete(filePath);
             }
 
-            var originalPosition = fileStream.Position;
+            //var originalPosition = fileStream.Position;
             try
             {
-                fileStream.Position = 0;
+                //fileStream.Position = 0;
                 using (var outputFileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
                     await fileStream.CopyToAsync(outputFileStream);
@@ -173,7 +172,7 @@ namespace Oqtane.Providers
             }
             finally
             {
-                fileStream.Position = originalPosition;
+                //fileStream.Position = originalPosition;
             }
         }
 
