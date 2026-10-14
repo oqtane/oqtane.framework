@@ -34,6 +34,7 @@
         <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.9.0" exclude="Build,Analyzers" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.13" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="26.7.0" exclude="Build,Analyzers" />
         <dependency id="MySql.EntityFrameworkCore" version="10.0.9" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="10.0.1" exclude="Build,Analyzers" />
