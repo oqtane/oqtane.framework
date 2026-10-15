@@ -150,11 +150,6 @@
                     }
                     _fingerprint = site.Fingerprint;
 
-                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
-                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
-
-                    var modules = new List<Module>();
-
                     Route route = new Route(url, alias.Path);
                     var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
                     if (page == null && route.PagePath == "") // naked path refers to site home page
@@ -172,10 +167,11 @@
                         HandlePageNotFound(site, page, route);
                         return;
                     }
-                    else
-                    {
-                        modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
-                    }
+
+                    var modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
+
+                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
+                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
 
                     if (site.VisitorTracking && _allowCookies)
                     {
