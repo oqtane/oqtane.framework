@@ -6,16 +6,12 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class PrivateFileProvider : PublicFileProvider
+    public class PrivateFolderProvider : PublicFolderProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenantManager;
 
-        public override string Name => Constants.PrivateFolderProvider;
-
-        public override string DisplayName => "Private File System";
-
-        public PrivateFileProvider(
+        public PrivateFolderProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,

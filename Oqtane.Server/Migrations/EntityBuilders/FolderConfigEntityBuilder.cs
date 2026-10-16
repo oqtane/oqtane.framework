@@ -27,7 +27,7 @@ namespace Oqtane.Migrations.EntityBuilders
             FolderConfigId = AddAutoIncrementColumn(table, "FolderConfigId");
             SiteId = AddIntegerColumn(table,"SiteId", true);
             Name = AddStringColumn(table,"Name", 50);
-            Provider = AddStringColumn(table, "Provider", 50);
+            Provider = AddStringColumn(table, "Provider", 255);
 
             AddAuditableColumns(table);
 

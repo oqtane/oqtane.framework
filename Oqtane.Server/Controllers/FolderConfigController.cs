@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -25,6 +26,7 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
+        private IOptions<List<Models.FolderProvider>> _folderProviderOptions;
         private readonly Alias _alias;
 
         public FolderConfigController(
@@ -34,6 +36,7 @@ namespace Oqtane.Controllers
             ISyncManager syncManager,
             ILogManager logger,
             IServiceProvider serviceProvider,
+            IOptions<List<Models.FolderProvider>> folderProviderOptions,
             ITenantManager tenantManager)
         {
             _folderConfigs = folderConfigs;
@@ -42,6 +45,7 @@ namespace Oqtane.Controllers
             _syncManager = syncManager;
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _folderProviderOptions = folderProviderOptions;
             _alias = tenantManager.GetAlias();
         }
 
@@ -101,28 +105,18 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet("providers")]
-        public IDictionary<string, string> GetProviders()
+        public IList<FolderProvider> GetProviders()
         {
-            return _serviceProvider.GetServices<IFolderProvider>()
-                .ToDictionary(i => i.Name, i => i.DisplayName);
-        }
+            return new List<FolderProvider>(_folderProviderOptions.Value)
+                .OrderBy(i => i.Type switch
+                {
+                    Constants.PublicFolderProvider => 1,
+                    Constants.PrivateFolderProvider => 2,
+                    _ => 3
+                })
+                .ThenBy(i => i.DisplayName)
+                .ToList();
 
-        [HttpGet("settingtype/{provider}")]
-        public string GetSettingType(string provider)
-        {
-            if (!string.IsNullOrEmpty(provider))
-            {
-                return _serviceProvider.GetServices<IFolderProvider>()
-                    .FirstOrDefault(i => i.Name.Equals(provider, StringComparison.OrdinalIgnoreCase))
-                    ?.SettingType;
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {Provider}", provider);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-
-                return null;
-            }
         }
 
         [HttpGet("settings/{id}")]

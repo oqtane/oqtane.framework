@@ -74,6 +74,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddOptions<List<Oqtane.Models.Database>>().Bind(configuration.GetSection(SettingKeys.AvailableDatabasesSection));
+            services.AddOptions<List<Oqtane.Models.FolderProvider>>().Bind(configuration.GetSection(SettingKeys.AvailableFolderProvidersSection));
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
@@ -232,8 +233,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // file providers
             services.AddScoped<IFolderProviderFactory, FolderProviderFactory>();
-            services.AddScoped<IFolderProvider, PublicFileProvider>();
-            services.AddScoped<IFolderProvider, PrivateFileProvider>();
 
             services.AddRadzenComponents();
 

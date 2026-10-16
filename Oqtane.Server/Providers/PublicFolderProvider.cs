@@ -11,7 +11,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class PublicFileProvider : IFolderProvider
+    public class PublicFolderProvider : IFolderProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
@@ -19,13 +19,7 @@ namespace Oqtane.Providers
         private readonly ITenantManager _tenantManager;
         private readonly ILogManager _logger;
 
-        public virtual string Name => Constants.PublicFolderProvider;
-
-        public virtual string DisplayName => "Public File System";
-
-        public virtual string SettingType => null;
-
-        public PublicFileProvider(
+        public PublicFolderProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
