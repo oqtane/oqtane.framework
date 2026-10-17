@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration.Provider;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Oqtane.Infrastructure;
 using Oqtane.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -10,13 +13,17 @@ namespace Oqtane.Providers
 {
     public class FolderProviderFactory : IFolderProviderFactory
     {
-        private IServiceProvider _serviceProvider;
-        private IFolderConfigRepository _folderConfigRepository;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IFolderConfigRepository _folderConfigRepository;
+        private readonly IOptions<List<Models.FolderProvider>> _folderProviderOptions;
+        private readonly ILogManager _logger;
 
-        public FolderProviderFactory(IServiceProvider serviceProvider, IFolderConfigRepository folderConfigRepository)
+        public FolderProviderFactory(IServiceProvider serviceProvider, IFolderConfigRepository folderConfigRepository, IOptions<List<Models.FolderProvider>> folderProviderOptions, ILogManager logger)
         {
             _serviceProvider = serviceProvider;
             _folderConfigRepository = folderConfigRepository;
+            _folderProviderOptions = folderProviderOptions;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,8 +63,18 @@ namespace Oqtane.Providers
             if (folderConfig != null)
             {
                 var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
-                    .FirstOrDefault(i => i.Name.Equals(folderConfig.Provider, StringComparison.OrdinalIgnoreCase));
-                if(folderProvider != null)
+                    .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folderConfig.Provider, StringComparison.OrdinalIgnoreCase));
+
+                if(folderProvider == null) //create the folder provider instance manually to handle the upgrade scenario
+                {
+                    var type = Type.GetType(folderConfig.Provider);
+                    if(type != null)
+                    {
+                        folderProvider = ActivatorUtilities.CreateInstance(_serviceProvider, type) as IFolderProvider;
+                    }
+                }
+
+                if (folderProvider != null)
                 {
                     var settings = _folderConfigRepository.GetSettings(folderConfigId);
                     folderProvider.Initialize(settings);
@@ -67,6 +84,11 @@ namespace Oqtane.Providers
             }
 
             return null;
+        }
+
+        private string GetTypeFullName(Type type)
+        {
+            return $"{type.FullName}, {type.Assembly.GetName().Name}";
         }
     }
 }

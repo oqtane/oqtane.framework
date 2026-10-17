@@ -39,14 +39,7 @@ namespace Oqtane.Services
         /// Get folder providers available in the system.
         /// </summary>
         /// <returns></returns>
-        Task<IDictionary<string, string>> GetProvidersAsync();
-
-        /// <summary>
-        /// Get the setting type of a <see cref="FolderConfig"/>.
-        /// </summary>
-        /// <param name="provider">The folder provider name.</param>
-        /// <returns></returns>
-        Task<string> GetProviderSettingTypeAsync(string provider);
+        Task<IList<FolderProvider>> GetProvidersAsync();
 
         /// <summary>
         /// Get the settings of a <see cref="FolderConfig"/>.
@@ -112,14 +105,9 @@ namespace Oqtane.Services
             return await GetJsonAsync<FolderConfig>($"{ApiUrl}/provider/{provider}");
         }
 
-        public async Task<IDictionary<string, string>> GetProvidersAsync()
+        public async Task<IList<FolderProvider>> GetProvidersAsync()
         {
-            return await GetJsonAsync<IDictionary<string, string>>($"{ApiUrl}/providers");
-        }
-
-        public async Task<string> GetProviderSettingTypeAsync(string provider)
-        {
-            return await GetStringAsync($"{ApiUrl}/settingtype/{provider}");
+            return await GetJsonAsync<IList<FolderProvider>>($"{ApiUrl}/providers");
         }
 
         public async Task<IDictionary<string, string>> GetSettingsAsync(int folderConfigId)

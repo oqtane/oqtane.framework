@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 namespace Oqtane.Models
 {
     /// <summary>
-    /// Describes a Folder Provider in Oqtane
+    /// Describes a Folder Provider Config in Oqtane
     /// </summary>
     public class FolderConfig : ModelBase
     {

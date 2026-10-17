@@ -138,7 +138,7 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
                                 <div class="col">
-                                    <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
+                                    <input id="folderconfig" class="form-control" disabled value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
                                 </div>
                             </div>
                         }
@@ -236,7 +236,7 @@
         try
         {
             _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
-            _canAddNewConfig = (await FolderConfigService.GetProvidersAsync()).Any(i => !Constants.DefaultFolderProviders.Contains(i.Key));
+            _canAddNewConfig = (await FolderConfigService.GetProvidersAsync()).Any(i => !Constants.DefaultFolderProviders.Contains(i.Type));
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId, false);
 
             if (PageState.QueryString.ContainsKey("id"))

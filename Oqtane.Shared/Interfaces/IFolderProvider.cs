@@ -7,21 +7,6 @@ namespace Oqtane.Providers
     public interface IFolderProvider
     {
         /// <summary>
-        /// The unique identifier for the provider
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        /// The user-friendly name displayed in the UI.
-        /// </summary>
-        string DisplayName { get; }
-
-        /// <summary>
-        /// The type name of the provider for configuration purposes.
-        /// </summary>
-        string SettingType { get; }
-
-        /// <summary>
         /// Initializes the provider with required settings.
         /// </summary>
         /// <param name="settings">Dictionary of configuration values.</param>
