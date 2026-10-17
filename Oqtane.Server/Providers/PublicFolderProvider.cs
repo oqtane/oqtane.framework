@@ -17,6 +17,7 @@ namespace Oqtane.Providers
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
         private readonly ITenantManager _tenantManager;
+        private readonly IFolderProviderFactory _folderProviderFactory;
         private readonly ILogManager _logger;
 
         public PublicFolderProvider(
@@ -24,12 +25,14 @@ namespace Oqtane.Providers
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
+            IFolderProviderFactory folderProviderFactory,
             ILogManager logger)
         {
             _environment = environment;
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
             _tenantManager = tenantManager;
+            _folderProviderFactory = folderProviderFactory;
             _logger = logger;
         }
 
@@ -122,9 +125,14 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            if (System.IO.File.Exists(sourceFilePath))
+            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
+            if (fileStream != null)
             {
-                System.IO.File.Move(sourceFilePath, destinationFilePath);
+                await AddFileAsync(destinationFolder, fileName, fileStream);
+                fileStream.Close();
+
+                await sourceFolderProvider.DeleteFileAsync(file);
             }
         }
 
@@ -137,9 +145,11 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            if (System.IO.File.Exists(sourceFilePath))
+            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
+            if (fileStream != null)
             {
-                System.IO.File.Copy(sourceFilePath, destinationFilePath);
+                await AddFileAsync(destinationFolder, file.Name, fileStream);
             }
         }
 

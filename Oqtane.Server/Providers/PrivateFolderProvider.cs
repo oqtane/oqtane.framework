@@ -16,7 +16,8 @@ namespace Oqtane.Providers
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
-            ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, logger)
+            IFolderProviderFactory folderProviderFactory,
+            ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, folderProviderFactory, logger)
         {
             _environment = environment;
             _tenantManager = tenantManager;
