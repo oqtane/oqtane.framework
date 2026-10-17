@@ -28,6 +28,7 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Interfaces;
 using Oqtane.Managers;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Repository;
@@ -98,6 +99,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // load the external assemblies into the app domain, install services
             services.AddOqtaneAssemblies();
             services.AddOqtaneDbContext();
+            services.AddFolderProviderServices(configuration);
 
             services.AddAntiforgery(options =>
             {
@@ -476,6 +478,30 @@ namespace Microsoft.Extensions.DependencyInjection
                 assembly.GetInstances<IClientStartup>()
                     .ToList()
                     .ForEach(x => x.ConfigureServices(services));
+            }
+            return services;
+        }
+
+        private static IServiceCollection AddFolderProviderServices(this IServiceCollection services, IConfigurationRoot configuration)
+        {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            var folderProviderType = typeof(IFolderProvider);
+            var providers = configuration.GetSection(SettingKeys.AvailableFolderProvidersSection)?.Get<List<FolderProvider>>();
+
+            if (providers?.Any() == true)
+            {
+                foreach (var provider in providers)
+                {
+                    var type = Type.GetType(provider.Type);
+                    if (type != null)
+                    {
+                        services.AddScoped(folderProviderType, type);
+                    }
+                }
             }
             return services;
         }

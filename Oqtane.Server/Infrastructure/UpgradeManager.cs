@@ -668,7 +668,7 @@ namespace Oqtane.Infrastructure
                 {
                     new FolderProvider{ DisplayName = "Public Files System", Type = Constants.PublicFolderProvider },
                     new FolderProvider{ DisplayName = "Private Files System", Type = Constants.PrivateFolderProvider },
-                }, false);
+                }, true);
             }
         }
 

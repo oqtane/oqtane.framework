@@ -62,27 +62,33 @@ namespace Oqtane.Providers
             var folderConfig = _folderConfigRepository.GetFolderConfig(folderConfigId);
             if (folderConfig != null)
             {
-                try
-                {
-                    var folderProvider = _folderProviderOptions.Value
-                    .FirstOrDefault(i => i.Type.Equals(folderConfig.Provider, StringComparison.OrdinalIgnoreCase));
-                    if (folderProvider != null)
-                    {
-                        var settings = _folderConfigRepository.GetSettings(folderConfigId);
-                        var providerType = Type.GetType(folderProvider.Type);
-                        var providerInstance = ActivatorUtilities.CreateInstance(_serviceProvider, providerType) as IFolderProvider;
-                        providerInstance.Initialize(settings);
+                var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
+                    .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folderConfig.Provider, StringComparison.OrdinalIgnoreCase));
 
-                        return providerInstance;
+                if(folderProvider == null) //create the folder provider instance manually to handle the upgrade scenario
+                {
+                    var type = Type.GetType(folderConfig.Provider);
+                    if(type != null)
+                    {
+                        folderProvider = ActivatorUtilities.CreateInstance(_serviceProvider, type) as IFolderProvider;
                     }
                 }
-                catch (Exception ex)
+
+                if (folderProvider != null)
                 {
-                    _logger.Log(LogLevel.Critical, this, Enums.LogFunction.Create, $"Error creating folder provider {folderConfig.Provider} for folder config {folderConfigId}", ex);
+                    var settings = _folderConfigRepository.GetSettings(folderConfigId);
+                    folderProvider.Initialize(settings);
+
+                    return folderProvider;
                 }
             }
 
             return null;
+        }
+
+        private string GetTypeFullName(Type type)
+        {
+            return $"{type.FullName}, {type.Assembly.GetName().Name}";
         }
     }
 }
