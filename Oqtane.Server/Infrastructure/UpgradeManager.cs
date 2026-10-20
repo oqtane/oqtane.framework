@@ -99,6 +99,9 @@ namespace Oqtane.Infrastructure
                     case "10.2.0":
                         Upgrade_10_2_0(tenant, scope);
                         break;
+                    case "10.3.0":
+                        Upgrade_10_3_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -652,6 +655,20 @@ namespace Oqtane.Infrastructure
             {
                 // prevent verbose logging to the console by ZiggyCreatures.Caching.Fusion library
                 _configManager.AddOrUpdateSetting("Logging:LogLevel:ZiggyCreatures.Caching.Fusion", "Warning", true);
+            }
+        }
+
+        private void Upgrade_10_3_0(Tenant tenant, IServiceScope scope)
+        {
+            //register the folder providers in config file
+            var folderProviders = _configManager.GetSection(SettingKeys.AvailableFolderProvidersSection);
+            if (folderProviders?.GetChildren().Any() == false)
+            {
+                _configManager.AddOrUpdateSetting<List<FolderProvider>>(SettingKeys.AvailableFolderProvidersSection, new List<FolderProvider>
+                {
+                    new FolderProvider{ DisplayName = "Public Files System", Type = Constants.PublicFolderProvider },
+                    new FolderProvider{ DisplayName = "Private Files System", Type = Constants.PrivateFolderProvider },
+                }, true);
             }
         }
 

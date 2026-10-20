@@ -1,5 +1,4 @@
 @namespace Oqtane.Modules.Admin.Files
-@using Microsoft.Extensions.DependencyInjection
 @inherits ModuleBase
 @inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
@@ -22,9 +21,9 @@
                     else
                     {
                         <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
-                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || !Constants.DefaultFolderProviders.Contains(i.Key)))
+                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || !Constants.DefaultFolderProviders.Contains(i.Type)))
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.Type">@item.DisplayName</option>
                             }
                         </select>
                     }
@@ -53,7 +52,7 @@
 @code {
     private ElementReference form;
     private bool validated = false;
-    private IDictionary<string, string> _providers;
+    private IList<FolderProvider> _providers;
     private IEnumerable<FolderConfig> _folderConfigs;
     private int _folderConfigId = -1;
     private string _configName;
@@ -75,7 +74,11 @@
             //remove default provider from the list
             foreach (var defaultProvider in Constants.DefaultFolderProviders)
             {
-                _providers.Remove(defaultProvider);
+                var item = _providers.FirstOrDefault(i => i.Type == defaultProvider);
+                if (item != null)
+                {
+                    _providers.Remove(item);
+                }
             }
 
             if (PageState.QueryString.ContainsKey("id"))
@@ -90,7 +93,7 @@
             }
             else
             {
-                _provider = _providers.Keys.FirstOrDefault();
+                _provider = _providers.FirstOrDefault()?.Type;
             }
 
             await LoadFolderProviderSettingsControl();
@@ -193,7 +196,7 @@
         _folderProviderSettingsControl = null;
         _folderProviderSettingsFragment = null;
 
-        var settingsControlType = await FolderConfigService.GetProviderSettingTypeAsync(_provider);
+        var settingsControlType = _providers.FirstOrDefault(p => p.Type == _provider)?.ControlType;
         if (!string.IsNullOrEmpty(settingsControlType))
         {
             var type = Type.GetType(settingsControlType);
