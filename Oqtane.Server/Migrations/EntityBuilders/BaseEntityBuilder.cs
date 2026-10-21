@@ -385,27 +385,20 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, ReferentialAction onDelete)
         {
-            _migrationBuilder.AddForeignKey(
-                name: RewriteName(foreignKeyName),
-                table: RewriteName(EntityTableName),
-                column: RewriteName(columnName),
-                principalTable: RewriteName(principalTable),
-                principalColumn: RewriteName(principalColumn),
-                onDelete: onDelete,
-                schema: Schema);
+            AddForeignKey(foreignKeyName, columnName, principalTable, principalColumn, null, onDelete);
         }
 
         public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete)
         {
-            _migrationBuilder.AddForeignKey(
-                name: RewriteName(foreignKeyName),
-                table: RewriteName(EntityTableName),
-                column: RewriteName(columnName),
-                principalTable: RewriteName(principalTable),
-                principalColumn: RewriteName(principalColumn),
-                principalSchema: RewriteName(principalSchema),
-                onDelete: onDelete,
-                schema: Schema);
+            ActiveDatabase.AddForeignKey(
+                _migrationBuilder,
+                RewriteName(foreignKeyName),
+                RewriteName(EntityTableName),
+                RewriteName(columnName),
+                RewriteName(principalTable),
+                RewriteName(principalColumn),
+                RewriteName(principalSchema),
+                onDelete);
         }
 
         /// <summary>
