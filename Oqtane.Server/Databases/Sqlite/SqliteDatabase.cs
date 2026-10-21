@@ -42,6 +42,12 @@ namespace Oqtane.Database.Sqlite
             // note that column length does not need to be modified as SQLite uses a TEXT type which utilizes variable length strings
         }
 
+        public override void AddForeignKey(MigrationBuilder builder, string foreignKeyName, string table, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete)
+        {
+            // not implemented as SQLite does not support adding foreign keys to existing tables
+            // this means there is no implicit database integrity enforcement for foreign keys in SQLite, so it is up to the application to ensure that foreign key relationships are maintained
+        }
+
         public override string ConcatenateSql(params string[] values)
         {
             var returnValue = String.Empty;

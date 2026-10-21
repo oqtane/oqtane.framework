@@ -48,7 +48,7 @@ namespace Oqtane.Providers
             {
                 config = new Models.FolderConfig
                 {
-                    Name = provider,
+                    Name = Utilities.GetTypeNameLastSegment(provider, 0),
                     Provider = provider
                 };
                 config = _folderConfigRepository.AddFolderConfig(config);

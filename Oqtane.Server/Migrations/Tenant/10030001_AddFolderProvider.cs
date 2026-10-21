@@ -20,16 +20,12 @@ namespace Oqtane.Migrations.Tenant
         {
             var folderProviderEntityBuilder = new FolderConfigEntityBuilder(migrationBuilder, ActiveDatabase);
             folderProviderEntityBuilder.Create();
-            folderProviderEntityBuilder.InsertData(new[] { "Name", "Provider", "CreatedBy", "CreatedOn", "ModifiedBy", "ModifiedOn" }, new object[] { $"'Public'", $"'{Constants.PublicFolderProvider}'", "''", DateTime.UtcNow, "''", DateTime.UtcNow }, string.Empty);
-            folderProviderEntityBuilder.InsertData(new[] { "Name", "Provider", "CreatedBy", "CreatedOn", "ModifiedBy", "ModifiedOn" }, new object[] { $"'Private'", $"'{Constants.PrivateFolderProvider}'", "''", DateTime.UtcNow, "''", DateTime.UtcNow }, string.Empty);
 
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            folderEntityBuilder.AddIntegerColumn("FolderConfigId", false, 1);
+            folderEntityBuilder.AddIntegerColumn("FolderConfigId", true);
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
-            folderEntityBuilder.UpdateData("FolderConfigId", 1, "Type = 'Public'");
-            folderEntityBuilder.UpdateData("FolderConfigId", 2, "Type = 'Private'");
-            folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
             folderEntityBuilder.DropColumn("Type");
+            folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
