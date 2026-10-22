@@ -142,10 +142,13 @@
                     _folderConfigId = folderConfig.FolderConfigId;
                 }
 
-                var settings = await _folderProviderSettingsControl?.GetSettingsAsync();
-                if (settings != null)
+                if (_folderProviderSettingsControl != null)
                 {
-                    await FolderConfigService.SaveSettingsAsync(folderConfig.FolderConfigId, settings);
+                    var settings = await _folderProviderSettingsControl.GetSettingsAsync();
+                    if (settings != null)
+                    {
+                        await FolderConfigService.SaveSettingsAsync(folderConfig.FolderConfigId, settings);
+                    }
                 }
 
                 if (folderConfig != null)
