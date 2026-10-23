@@ -8,20 +8,22 @@
     <div class="row mb-1 align-items-center">
         <Label Class="col-sm-3" For="folderpath" ResourceKey="FolderPath" ResourceType="@resourceType" HelpText="The folder path">Folder Path: </Label>
         <div class="col-sm-9">
-            <input id="folderpath" class="form-control" @bind="@_folderPath" />
+            <input id="folderpath" class="form-control" @bind="@FolderPath" />
         </div>
     </div>
 </div>
 
 @code {
+    [Parameter]
+    public string FolderPath { get; set; }
+
     private string resourceType = "Oqtane.Modules.Admin.Files.TestFolderProviderSettingsControl, Oqtane.Client"; // for localization
-    private string _folderPath = "";
 
     public Task<IDictionary<string, string>> GetSettingsAsync()
     {
         return Task.FromResult<IDictionary<string, string>>(new Dictionary<string, string>
         {
-            { "FolderPath", _folderPath }
+            { "FolderPath", FolderPath }
         });
     }
 }
