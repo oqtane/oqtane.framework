@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IFolderService FolderService
 @inject IFileService FileService
+@inject IFolderConfigService FolderConfigService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -64,6 +65,23 @@ else
                 <div class="text-center">@Localizer["NoFiles"]</div>
             }
         </TabPanel>
+        <TabPanel Name="Configs" Heading="Configs" ResourceKey="Configs">
+            <ActionLink Action="EditConfig" Text="Add Config" Class="btn btn-secondary" ResourceKey="AddConfig" />
+            <Pager Items="@_folderConfigs" SearchProperties="Name">
+                <Header>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th>@SharedLocalizer["Name"]</th>
+                    <th>@Localizer["Provider"]</th>
+                </Header>
+                <Row>
+                    <td><ActionLink Action="EditConfig" Text="Edit" Parameters="@($"id=" + context.FolderConfigId.ToString())" ResourceKey="Edit" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
+                    <td><ActionDialog Header="Delete Config" Message="@string.Format(Localizer["Confirm.Config.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteConfig(context))" ResourceKey="DeleteConfig" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
+                    <td>@context.Name</td>
+                    <td>@context.Provider</td>
+                </Row>
+            </Pager>
+        </TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
 			<div class="container">
                 <div class="row mb-1 align-items-center">
@@ -96,6 +114,8 @@ else
     private int _folderId = -1;
     private List<File> _files;
 
+    private IEnumerable<FolderConfig> _folderConfigs;
+
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
     private int _maxChunkSize = 1;
@@ -114,6 +134,8 @@ else
                 _folderId = _folders[0].FolderId;
                 await GetFiles();
             }
+
+            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
@@ -178,6 +200,20 @@ else
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
             AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
+        }
+    }
+
+    private async Task DeleteConfig(FolderConfig config)
+    {
+        if (!_folders.Any(item => item.FolderConfigId == config.FolderConfigId))
+        {
+            await FolderConfigService.DeleteFolderConfigAsync(config.FolderConfigId);
+            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
+            AddModuleMessage(string.Format(Localizer["Success.Config.Delete"], config.Name), MessageType.Success);
+        }
+        else
+        {
+            AddModuleMessage(Localizer["Error.Config.Delete"], MessageType.Warning);
         }
     }
 
