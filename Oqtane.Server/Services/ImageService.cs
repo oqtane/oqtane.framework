@@ -43,7 +43,7 @@ namespace Oqtane.Services
                 rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
                 if (!_formats.Contains(format)) format = "png";
 
-                var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
                 using (var stream = await folderProvider.GetFileStreamAsync(file))
                 {
                     stream.Position = 0;

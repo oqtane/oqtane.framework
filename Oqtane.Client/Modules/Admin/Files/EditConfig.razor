@@ -205,18 +205,11 @@
             var type = Type.GetType(settingsControlType);
             if (type != null && typeof(IFolderProviderSettingsControl).IsAssignableFrom(type))
             {
-                var settings = await FolderConfigService.GetSettingsAsync(_folderConfigId);
                 _folderProviderSettingsFragment = builder =>
                 {
                     var sequence = 0;
                     builder.OpenComponent(sequence++, type);
-                    if (settings != null)
-                    {
-                        foreach (var key in settings.Keys)
-                        {
-                            builder.AddAttribute(sequence++, key, settings[key]);
-                        }
-                    }
+                    builder.AddAttribute(sequence++, "FolderConfigId", _folderConfigId);
                     builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IFolderProviderSettingsControl)e);
 
                     builder.CloseComponent();

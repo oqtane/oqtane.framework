@@ -75,7 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddOptions<List<Oqtane.Models.Database>>().Bind(configuration.GetSection(SettingKeys.AvailableDatabasesSection));
-            services.AddOptions<List<Oqtane.Models.FolderProvider>>().Bind(configuration.GetSection(SettingKeys.AvailableFolderProvidersSection));
 
             // register scoped core services
             services.AddScoped<IAuthorizationHandler, PermissionHandler>()
@@ -99,7 +98,6 @@ namespace Microsoft.Extensions.DependencyInjection
             // load the external assemblies into the app domain, install services
             services.AddOqtaneAssemblies();
             services.AddOqtaneDbContext();
-            services.AddFolderProviderServices(configuration);
 
             services.AddAntiforgery(options =>
             {
@@ -328,6 +326,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFolderConfigRepository, FolderConfigRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<IFileBlobRepository, FileBlobRepository>();
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
@@ -433,6 +432,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var hostedServiceType = typeof(IHostedService);
+            var folderProviderType = typeof(IFolderProvider);
 
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
@@ -469,6 +469,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
+                // dynamically register folder providers
+                var folderProviderTypes = assembly.GetInterfaces<IFolderProvider>();
+                foreach (var type in folderProviderTypes)
+                {
+                    services.AddScoped(folderProviderType, type);
+                }
+
                 // dynamically register server startup services
                 assembly.GetInstances<IServerStartup>()
                     .ToList()
@@ -478,30 +485,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 assembly.GetInstances<IClientStartup>()
                     .ToList()
                     .ForEach(x => x.ConfigureServices(services));
-            }
-            return services;
-        }
-
-        private static IServiceCollection AddFolderProviderServices(this IServiceCollection services, IConfigurationRoot configuration)
-        {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            var folderProviderType = typeof(IFolderProvider);
-            var providers = configuration.GetSection(SettingKeys.AvailableFolderProvidersSection)?.Get<List<FolderProvider>>();
-
-            if (providers?.Any() == true)
-            {
-                foreach (var provider in providers)
-                {
-                    var type = Type.GetType(provider.Type);
-                    if (type != null)
-                    {
-                        services.AddScoped(folderProviderType, type);
-                    }
-                }
             }
             return services;
         }

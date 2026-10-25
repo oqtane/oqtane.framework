@@ -284,7 +284,7 @@ namespace Oqtane.Controllers
 
                 // get folder
                 var folder = _folders.GetFolder(folderid, false);
-                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(folder);
 
                 // create json file
                 filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";

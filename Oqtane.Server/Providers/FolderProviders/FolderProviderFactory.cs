@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Oqtane.Infrastructure;
 using Oqtane.Interfaces;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -15,14 +16,12 @@ namespace Oqtane.Providers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IFolderConfigRepository _folderConfigRepository;
-        private readonly IOptions<List<Models.FolderProvider>> _folderProviderOptions;
         private readonly ILogManager _logger;
 
         public FolderProviderFactory(IServiceProvider serviceProvider, IFolderConfigRepository folderConfigRepository, IOptions<List<Models.FolderProvider>> folderProviderOptions, ILogManager logger)
         {
             _serviceProvider = serviceProvider;
             _folderConfigRepository = folderConfigRepository;
-            _folderProviderOptions = folderProviderOptions;
             _logger = logger;
         }
 
@@ -46,9 +45,11 @@ namespace Oqtane.Providers
             var config = _folderConfigRepository.GetFolderConfigs(siteId).FirstOrDefault(fp => fp.Provider == provider);
             if (config == null && Constants.DefaultFolderProviders.Contains(provider))
             {
+                var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
+                    .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(provider, StringComparison.OrdinalIgnoreCase));
                 config = new Models.FolderConfig
                 {
-                    Name = Utilities.GetTypeNameLastSegment(provider, 0),
+                    Name = folderProvider.DisplayName,
                     Provider = provider
                 };
                 config = _folderConfigRepository.AddFolderConfig(config);
@@ -57,30 +58,27 @@ namespace Oqtane.Providers
             return config.FolderConfigId;
         }
 
-        public IFolderProvider GetProvider(int folderConfigId)
+        public IFolderProvider GetProvider(Folder folder)
         {
-            var folderConfig = _folderConfigRepository.GetFolderConfig(folderConfigId);
-            if (folderConfig != null)
+            if(folder == null)
             {
-                var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
-                    .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folderConfig.Provider, StringComparison.OrdinalIgnoreCase));
+                throw new ArgumentException("The folder is null", "folder");
+            }
 
-                if(folderProvider == null) //create the folder provider instance manually to handle the upgrade scenario
-                {
-                    var type = Type.GetType(folderConfig.Provider);
-                    if(type != null)
-                    {
-                        folderProvider = ActivatorUtilities.CreateInstance(_serviceProvider, type) as IFolderProvider;
-                    }
-                }
+            if(folder.FolderConfig == null) // load the folder config information manually if it hasn't been loaded
+            {
+                folder.FolderConfig = _folderConfigRepository.GetFolderConfig(folder.FolderConfigId);
+            }
 
-                if (folderProvider != null)
-                {
-                    var settings = _folderConfigRepository.GetSettings(folderConfigId);
-                    folderProvider.Initialize(settings);
+            var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
+                .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.FolderConfig.Provider, StringComparison.OrdinalIgnoreCase));
 
-                    return folderProvider;
-                }
+            if (folderProvider != null)
+            {
+                var settings = _folderConfigRepository.GetSettings(folder.FolderConfigId);
+                folderProvider.Initialize(settings);
+
+                return folderProvider;
             }
 
             return null;

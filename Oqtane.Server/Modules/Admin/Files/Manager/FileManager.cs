@@ -50,7 +50,7 @@ namespace Oqtane.Modules.Admin.Files.Manager
                         var path = folder.Path + file.Name;
 
                         var body = "";
-                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        var folderProvider = _folderProviderFactory.GetProvider(folder);
                         if (await folderProvider.FileExistsAsync(folder, file.Name))
                         {
                             // only non-binary files can be indexed

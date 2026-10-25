@@ -165,7 +165,7 @@ namespace Oqtane.Pages
                 return Content(String.Empty);
             }
 
-            var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
             if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {Folder}{FilePath}", file.Folder.Path, file.Name);

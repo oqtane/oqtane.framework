@@ -27,6 +27,10 @@ namespace Oqtane.Providers
             _environment = environment;
         }
 
+        public override string DisplayName => "Test File System";
+
+        public override string SettingControlType => "Oqtane.Modules.Admin.Files.TestFolderProviderSettingsControl, Oqtane.Client";
+
         protected override string GetFolderPath(Folder folder, string folderPath)
         {
             if (folder != null)
