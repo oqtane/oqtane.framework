@@ -127,6 +127,7 @@ namespace Oqtane.Repository
         public virtual DbSet<Folder> Folder { get; set; }
         public virtual DbSet<FolderConfig> FolderConfig { get; set; }
         public virtual DbSet<File> File { get; set; }
+        public virtual DbSet<FileBlob> FileBlob { get; set; }
         public virtual DbSet<Language> Language { get; set; }
         public virtual DbSet<Visitor> Visitor { get; set; }
         public virtual DbSet<UrlMapping> UrlMapping { get; set; }

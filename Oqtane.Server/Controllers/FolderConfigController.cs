@@ -26,7 +26,6 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
-        private IOptions<List<Models.FolderProvider>> _folderProviderOptions;
         private readonly Alias _alias;
 
         public FolderConfigController(
@@ -36,7 +35,6 @@ namespace Oqtane.Controllers
             ISyncManager syncManager,
             ILogManager logger,
             IServiceProvider serviceProvider,
-            IOptions<List<Models.FolderProvider>> folderProviderOptions,
             ITenantManager tenantManager)
         {
             _folderConfigs = folderConfigs;
@@ -45,7 +43,6 @@ namespace Oqtane.Controllers
             _syncManager = syncManager;
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _folderProviderOptions = folderProviderOptions;
             _alias = tenantManager.GetAlias();
         }
 
@@ -107,7 +104,13 @@ namespace Oqtane.Controllers
         [HttpGet("providers")]
         public IList<FolderProvider> GetProviders()
         {
-            return new List<FolderProvider>(_folderProviderOptions.Value)
+            return _serviceProvider.GetServices<IFolderProvider>()
+                .Select(i => new FolderProvider
+                {
+                    DisplayName = i.DisplayName,
+                    Type = $"{i.GetType().FullName}, {i.GetType().Assembly.GetName().Name}",
+                    ControlType = i.SettingControlType
+                })
                 .OrderBy(i => i.Type switch
                 {
                     Constants.PublicFolderProvider => 1,

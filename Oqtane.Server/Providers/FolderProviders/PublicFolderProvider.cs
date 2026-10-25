@@ -36,6 +36,9 @@ namespace Oqtane.Providers
             _logger = logger;
         }
 
+        public virtual string DisplayName { get; } = "Public File System";
+
+        public virtual string SettingControlType { get; } = null;
 
         public void Initialize(IDictionary<string, string> settings)
         {
@@ -125,7 +128,7 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
             using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {
@@ -145,7 +148,7 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
             using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {

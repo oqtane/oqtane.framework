@@ -7,6 +7,16 @@ namespace Oqtane.Providers
     public interface IFolderProvider
     {
         /// <summary>
+        /// The folder provider display name.
+        /// </summary>
+        string DisplayName { get; }
+
+        /// <summary>
+        /// The control type used to manage the folder provider configuration.
+        /// </summary>
+        string SettingControlType { get; }
+
+        /// <summary>
         /// Initializes the provider with required settings.
         /// </summary>
         /// <param name="settings">Dictionary of configuration values.</param>

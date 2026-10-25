@@ -1,8 +1,7 @@
 @namespace Oqtane.Modules.Admin.Files
-@inherits ModuleBase
+@inherits FolderProviderSettingsControlBase
 @inject IFolderService FolderService
 @inject ISettingService SettingService
-@implements Oqtane.Providers.IFolderProviderSettingsControl
 @inject IStringLocalizer<TestFolderProviderSettingsControl> Localizer
 
 <div class="row mb-1 align-items-center">
@@ -13,28 +12,23 @@
 </div>
 
 @code {
-    [Parameter]
-    public string FolderPath { get; set; }
-
     private string _folderPath = "";
     private string resourceType = "Oqtane.Modules.Admin.Files.TestFolderProviderSettingsControl, Oqtane.Client"; // for localization
 
     protected override async Task OnInitializedAsync()
     {
-        // this seems unnecessary - it makes more sense if the FolderConfigId was passed as a parameter
-        var folder = await FolderService.GetFolderAsync(PageState.Site.SiteId, FolderPath);
-        var settings = await SettingService.GetSettingsAsync(EntityNames.FolderConfig, folder.FolderConfigId);
+        var settings = await SettingService.GetSettingsAsync(EntityNames.FolderConfig, FolderConfigId);
         if (settings.ContainsKey("FolderPath"))
         {
             _folderPath = settings["FolderPath"];
         }       
     }
 
-    public Task<IDictionary<string, string>> GetSettingsAsync()
+    public override async Task<IDictionary<string, string>> GetSettingsAsync()
     {
-        return Task.FromResult<IDictionary<string, string>>(new Dictionary<string, string>
+        return new Dictionary<string, string>
         {
             { "FolderPath", _folderPath }
-        });
+        };
     }
 }

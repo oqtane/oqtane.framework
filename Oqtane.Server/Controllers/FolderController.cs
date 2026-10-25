@@ -184,7 +184,7 @@ namespace Oqtane.Controllers
 
                         folder = _folders.AddFolder(folder);
                         //create the folder in the provider
-                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        var folderProvider = _folderProviderFactory.GetProvider(folder);
                         await folderProvider.CreateFolderAsync(folder);
                         _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
@@ -247,7 +247,7 @@ namespace Oqtane.Controllers
                         UpdateChildFoldersPath(folder);
                     }
 
-                    var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                    var folderProvider = _folderProviderFactory.GetProvider(folder);
                     if (_folder.MappedPath != folder.MappedPath && _folder.FolderConfigId == folder.FolderConfigId && await folderProvider.FolderExistsAsync(_folder))
                     {
                         await folderProvider.MoveFolderAsync(_folder, folder.MappedPath);
@@ -320,7 +320,7 @@ namespace Oqtane.Controllers
             var folder = _folders.GetFolder(id, false);
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit))
             {
-                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(folder);
                 if (folderProvider != null)
                 {
                     await folderProvider.DeleteFolderAsync(folder);

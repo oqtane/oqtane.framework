@@ -191,7 +191,7 @@ namespace Oqtane.Controllers
                 {
                     if (HasValidFileExtension(file.Name) && file.Name.IsPathOrFileValid())
                     {
-                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        var folderProvider = _folderProviderFactory.GetProvider(folder);
                         if (await folderProvider.FileExistsAsync(folder, file.Name))
                         {
                             file = await CreateFileAsync(folderProvider, folder.FolderId, file.Name);
@@ -246,7 +246,7 @@ namespace Oqtane.Controllers
                 if (HasValidFileExtension(file.Name) && file.Name.IsPathOrFileValid())
                 {
                     file.Folder = _folders.GetFolder(file.FolderId, false);
-                    var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                    var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
                     if (exsitingFile.Name != file.Name || exsitingFile.FolderId != file.FolderId)
                     {
                         await folderProvider.MoveFileAsync(exsitingFile, file.Folder, file.Name);
@@ -291,7 +291,7 @@ namespace Oqtane.Controllers
             if (zipfile != null && zipfile.Folder.SiteId == _alias.SiteId && zipfile.Extension.ToLower() == "zip")
             {
                 // extract files
-                var folderProvider = _folderProviderFactory.GetProvider(zipfile.Folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(zipfile.Folder);
                 using (var archive = new ZipArchive(await folderProvider.GetFileStreamAsync(zipfile)))
                 {
                     foreach (var entry in archive.Entries)
@@ -344,7 +344,7 @@ namespace Oqtane.Controllers
             Models.File file = _files.GetFile(id);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, file.Folder.SiteId, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
             {
-                var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
                 await folderProvider.DeleteFileAsync(file);
 
                 _files.DeleteFile(id);
@@ -383,7 +383,7 @@ namespace Oqtane.Controllers
                 {
                     try
                     {
-                        var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                        var folderProvider = _folderProviderFactory.GetProvider(folder);
                         var handler = new HttpClientHandler()
                         {
                             AllowAutoRedirect = false
@@ -491,7 +491,7 @@ namespace Oqtane.Controllers
                     {
                         if (uploadFolder != null)
                         {
-                            var folderProvider = _folderProviderFactory.GetProvider(uploadFolder.FolderConfigId);
+                            var folderProvider = _folderProviderFactory.GetProvider(uploadFolder);
                             using var stream = System.IO.File.OpenRead(Path.Combine(tempFolder, upload));
 
                             await folderProvider.AddFileAsync(uploadFolder, upload, stream);
@@ -678,7 +678,7 @@ namespace Oqtane.Controllers
             var file = _files.GetFile(id);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
-                var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
                 if (await folderProvider.FileExistsAsync(file.Folder, file.Name))
                 {
                     if (asAttachment)
@@ -717,7 +717,7 @@ namespace Oqtane.Controllers
 
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.PermissionList))
             {
-                var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
                 if (_ImageFiles.Split(',').Contains(file.Extension.ToLower()))
                 {
                     if (await folderProvider.FileExistsAsync(file.Folder, file.Name))

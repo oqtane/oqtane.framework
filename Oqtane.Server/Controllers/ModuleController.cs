@@ -284,7 +284,7 @@ namespace Oqtane.Controllers
 
                 // get folder
                 var folder = _folders.GetFolder(folderid, false);
-                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(folder);
 
                 // create json file
                 filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";
@@ -292,7 +292,6 @@ namespace Oqtane.Controllers
                 using var writer = new StreamWriter(stream);
                 writer.Write(content);
 
-                await folderProvider.AddFileAsync(folder, filename, stream);
                 var fileSize = (int)stream.Length;
                 // register file
                 var file = _files.GetFile(folderid, filename);
@@ -306,6 +305,9 @@ namespace Oqtane.Controllers
                     file.Size = fileSize;
                     _files.UpdateFile(file);
                 }
+
+                await folderProvider.AddFileAsync(folder, filename, stream);
+
                 fileid = file.FileId;
 
                 _logger.Log(LogLevel.Information, this, LogFunction.Read, "Content Exported For Module {ModuleId} To Folder {FolderId}", moduleid, folderid);

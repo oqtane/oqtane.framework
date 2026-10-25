@@ -26,6 +26,9 @@ namespace Oqtane.Migrations.Tenant
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
             folderEntityBuilder.DropColumn("Type");
             folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
+
+            var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);
+            fileBlobEntityBuilder.Create();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -7,6 +7,8 @@ namespace Oqtane.Providers
 {
     public interface IFolderProviderSettingsControl
     {
+        int FolderConfigId { get; set; }
+
         Task<IDictionary<string, string>> GetSettingsAsync();
     }
 }

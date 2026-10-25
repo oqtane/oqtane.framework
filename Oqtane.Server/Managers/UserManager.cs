@@ -365,7 +365,7 @@ namespace Oqtane.Managers
             var folder = _folders.GetFolder(siteid, $"{Constants.UserFolderPath}{userid}/");
             if (folder != null)
             {
-                var folderProvider = _folderProviderFactory.GetProvider(folder.FolderConfigId);
+                var folderProvider = _folderProviderFactory.GetProvider(folder);
                 await folderProvider.DeleteFolderAsync(folder);
 
                 _folders.DeleteFolder(folder.FolderId);
@@ -683,7 +683,7 @@ namespace Oqtane.Managers
             var success = true;
             int rows = 0;
             int users = 0;
-            var folderProvider = _folderProviderFactory.GetProvider(file.Folder.FolderConfigId);
+            var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
             if (await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
                 var roles = _roles.GetRoles(siteId).ToList();

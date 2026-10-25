@@ -7,7 +7,7 @@ namespace Oqtane.Providers
 {
     public interface IFolderProviderFactory
     {
-        IFolderProvider GetProvider(int folderConfigId);
+        IFolderProvider GetProvider(Folder folder);
 
         int GetDefaultConfigId(int siteId);
 

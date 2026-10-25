@@ -467,7 +467,7 @@ namespace Oqtane.Infrastructure
                 foreach (var secondaryFile in secondaryFiles)
                 {
                     fileRepository.DeleteFile(secondaryFile.FileId);
-                    var folderProvider = folderProviderFactory.GetProvider(secondaryFolder.FolderConfigId);
+                    var folderProvider = folderProviderFactory.GetProvider(secondaryFolder);
                     await folderProvider.DeleteFileAsync(secondaryFile);
                     log += Log(siteGroupMember, $"File Deleted: {CreateLink(siteGroupMember.AliasName + "/" + secondaryFolder.Path + secondaryFile.Name)}");
                 }
@@ -478,10 +478,10 @@ namespace Oqtane.Infrastructure
 
         private async Task SynchronizeFile(IFolderRepository folderRepository, IFolderProviderFactory folderProviderFactory, Folder primaryFolder, Models.File primaryFile, Folder secondaryFolder, Models.File secondaryFile)
         {
-            var primaryFolderProvider = folderProviderFactory.GetProvider(primaryFolder.FolderConfigId);
+            var primaryFolderProvider = folderProviderFactory.GetProvider(primaryFolder);
             if (await primaryFolderProvider.FileExistsAsync(primaryFolder, primaryFile.Name))
             {
-                var secondaryFolderProvider = folderProviderFactory.GetProvider(secondaryFolder.FolderConfigId);
+                var secondaryFolderProvider = folderProviderFactory.GetProvider(secondaryFolder);
                 if (!await secondaryFolderProvider.FolderExistsAsync(secondaryFolder))
                 {
                     await secondaryFolderProvider.CreateFolderAsync(secondaryFolder);
