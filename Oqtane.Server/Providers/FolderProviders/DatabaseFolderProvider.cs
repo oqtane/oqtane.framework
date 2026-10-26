@@ -113,11 +113,7 @@ namespace Oqtane.Providers
             await AddFileAsync(destinationFolder, fileName, stream);
             stream.Close();
 
-            // only delete the file from source provider when it's not from same provider
-            if(file.Folder.FolderConfig.Provider != destinationFolder.FolderConfig.Provider)
-            {
-                await sourceFolderProvider.DeleteFileAsync(file);
-            }
+            await sourceFolderProvider.DeleteFileAsync(file);
         }
 
         public virtual async Task CopyFileAsync(Models.File file, Folder destinationFolder)
