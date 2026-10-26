@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Providers;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
@@ -30,17 +26,11 @@ namespace Oqtane.Repository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPermissionRepository _permissions;
-        private readonly IWebHostEnvironment _environment;
-        private readonly ITenantManager _tenants;
-        private readonly IServiceProvider _serviceProvider;
 
         public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IServiceProvider serviceProvider)
         {
             _dbContextFactory = dbContextFactory;
             _permissions = permissions;
-            _environment = environment;
-            _tenants = tenants;
-            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<Folder> GetFolders(int siteId)
@@ -288,7 +278,7 @@ namespace Oqtane.Repository
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
-                        FolderConfigId = _serviceProvider.GetRequiredService<IFolderProviderFactory>().GetFolderConfigId(folder.SiteId, Constants.PrivateFolderProvider),
+                        FolderConfigId = folder.FolderConfigId,
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
