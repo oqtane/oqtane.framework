@@ -28,7 +28,7 @@ namespace Oqtane.Migrations.EntityBuilders
             FileBlobId = AddAutoIncrementColumn(table, "FileBlobId");
             FolderId = AddIntegerColumn(table, "FolderId", false);
             FileName = AddStringColumn(table, "FileName", 50, false);
-            Blob = table.Column<byte[]>(name: ActiveDatabase.RewriteName("Blob"), nullable: true);
+            Blob = AddMaxBinaryColumn(table, "Blob", true);
 
             AddAuditableColumns(table);
 
