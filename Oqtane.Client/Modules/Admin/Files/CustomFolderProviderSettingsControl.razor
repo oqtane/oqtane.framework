@@ -2,10 +2,10 @@
 @inherits FolderProviderSettingsControlBase
 @inject IFolderService FolderService
 @inject ISettingService SettingService
-@inject IStringLocalizer<TestFolderProviderSettingsControl> Localizer
+@inject IStringLocalizer<CustomFolderProviderSettingsControl> Localizer
 
 <div class="row mb-1 align-items-center">
-    <Label Class="col-sm-3" For="folderpath" ResourceKey="FolderPath" ResourceType="@resourceType" HelpText="The folder path">Folder Path: </Label>
+    <Label Class="col-sm-3" For="folderpath" ResourceKey="FolderPath" ResourceType="@resourceType" HelpText="A relative path on the local server">Folder Path: </Label>
     <div class="col-sm-9">
         <input id="folderpath" class="form-control" @bind="@_folderPath" />
     </div>
@@ -13,11 +13,11 @@
 
 @code {
     private string _folderPath = "";
-    private string resourceType = "Oqtane.Modules.Admin.Files.TestFolderProviderSettingsControl, Oqtane.Client"; // for localization
+    private string resourceType = "Oqtane.Modules.Admin.Files.CustomFolderProviderSettingsControl, Oqtane.Client"; // for localization
 
     protected override async Task OnInitializedAsync()
     {
-        var settings = await SettingService.GetSettingsAsync(EntityNames.FolderConfig, FolderConfigId);
+        var settings = await SettingService.GetSettingsAsync(EntityNames.StorageLocation, StorageLocationId);
         if (settings.ContainsKey("FolderPath"))
         {
             _folderPath = settings["FolderPath"];

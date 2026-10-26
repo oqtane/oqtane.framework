@@ -10,30 +10,30 @@ using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
-    public interface IFolderConfigRepository
+    public interface IStorageLocationRepository
     {
-        IEnumerable<FolderConfig> GetFolderConfigs(int siteId);
+        IEnumerable<StorageLocation> GetStorageLocations(int siteId);
 
-        FolderConfig GetFolderConfig(int folderConfigId);
+        StorageLocation GetStorageLocation(int StorageLocationId);
 
-        IDictionary<string, string> GetSettings(int folderConfigId);
+        IDictionary<string, string> GetSettings(int StorageLocationId);
 
-        void SaveSettings(int folderConfigId, IDictionary<string, string> settings);
+        void SaveSettings(int StorageLocationId, IDictionary<string, string> settings);
 
-        FolderConfig AddFolderConfig(FolderConfig folderConfig);
+        StorageLocation AddStorageLocation(StorageLocation StorageLocation);
 
-        FolderConfig UpdateFolderConfig(FolderConfig folderConfig);
+        StorageLocation UpdateStorageLocation(StorageLocation StorageLocation);
 
-        void DeleteFolderConfig(int folderConfigId);
+        void DeleteStorageLocation(int StorageLocationId);
     }
 
-    public class FolderConfigRepository : IFolderConfigRepository
+    public class StorageLocationRepository : IStorageLocationRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
 
-        public FolderConfigRepository(
+        public StorageLocationRepository(
             IDbContextFactory<TenantDBContext> dbContextFactory,
             IFolderRepository folderRepository,
             ISettingRepository settingRepository
@@ -44,21 +44,21 @@ namespace Oqtane.Repository
             _settingRepository = settingRepository;
         }
 
-        public IEnumerable<FolderConfig> GetFolderConfigs(int siteId)
+        public IEnumerable<StorageLocation> GetStorageLocations(int siteId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.FolderConfig.AsNoTracking().Where(i => i.SiteId == siteId || i.SiteId == null).ToList();
+            return db.StorageLocation.AsNoTracking().Where(i => i.SiteId == siteId || i.SiteId == null).ToList();
         }
 
-        public FolderConfig GetFolderConfig(int folderConfigId)
+        public StorageLocation GetStorageLocation(int StorageLocationId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            return db.FolderConfig.AsNoTracking().FirstOrDefault(i => i.FolderConfigId == folderConfigId);
+            return db.StorageLocation.AsNoTracking().FirstOrDefault(i => i.StorageLocationId == StorageLocationId);
         }
 
-        public IDictionary<string, string> GetSettings(int folderConfigId)
+        public IDictionary<string, string> GetSettings(int StorageLocationId)
         {
-            var settings = _settingRepository.GetSettings(EntityNames.FolderConfig, folderConfigId);
+            var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, StorageLocationId);
             if(settings != null)
             {
                 return settings.ToDictionary(i => i.SettingName, i => i.SettingValue);
@@ -67,7 +67,7 @@ namespace Oqtane.Repository
             return new Dictionary<string, string>();
         }
 
-        public void SaveSettings(int folderConfigId, IDictionary<string, string> settings)
+        public void SaveSettings(int StorageLocationId, IDictionary<string, string> settings)
         {
             if (settings == null)
             {
@@ -81,13 +81,13 @@ namespace Oqtane.Repository
                     continue;
                 }
 
-                var setting = _settingRepository.GetSetting(EntityNames.FolderConfig, folderConfigId, key);
+                var setting = _settingRepository.GetSetting(EntityNames.StorageLocation, StorageLocationId, key);
                 if (setting == null)
                 {
                     setting = new Setting
                     {
-                        EntityName = EntityNames.FolderConfig,
-                        EntityId = folderConfigId,
+                        EntityName = EntityNames.StorageLocation,
+                        EntityId = StorageLocationId,
                         SettingName = key,
                         SettingValue = settings[key],
                         IsPrivate = true
@@ -102,47 +102,47 @@ namespace Oqtane.Repository
             }
 
             //remove any settings that are not in the dictionary
-            var savedSettings = _settingRepository.GetSettings(EntityNames.FolderConfig, folderConfigId);
+            var savedSettings = _settingRepository.GetSettings(EntityNames.StorageLocation, StorageLocationId);
             foreach (var savedSetting in savedSettings)
             {
                 if (!settings.ContainsKey(savedSetting.SettingName))
                 {
-                    _settingRepository.DeleteSetting(EntityNames.FolderConfig, savedSetting.SettingId);
+                    _settingRepository.DeleteSetting(EntityNames.StorageLocation, savedSetting.SettingId);
                 }
             }
         }
 
-        public FolderConfig AddFolderConfig(FolderConfig folderConfig)
+        public StorageLocation AddStorageLocation(StorageLocation StorageLocation)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.FolderConfig.Add(folderConfig);
+            db.StorageLocation.Add(StorageLocation);
             db.SaveChanges();
-            return folderConfig;
+            return StorageLocation;
         }
 
-        public FolderConfig UpdateFolderConfig(FolderConfig folderConfig)
+        public StorageLocation UpdateStorageLocation(StorageLocation StorageLocation)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            db.Entry(folderConfig).State = EntityState.Modified;
+            db.Entry(StorageLocation).State = EntityState.Modified;
             db.SaveChanges();
-            return folderConfig;
+            return StorageLocation;
         }
 
-        public void DeleteFolderConfig(int folderConfigId)
+        public void DeleteStorageLocation(int StorageLocationId)
         {
             using var db = _dbContextFactory.CreateDbContext();
-            var folderConfig = db.FolderConfig.Find(folderConfigId);
-            if (folderConfig != null)
+            var StorageLocation = db.StorageLocation.Find(StorageLocationId);
+            if (StorageLocation != null)
             {
                 //avoid to delete the default folder provider
-                if (Constants.DefaultFolderProviders.Contains(folderConfig.Provider) || !folderConfig.SiteId.HasValue)
+                if (Constants.DefaultFolderProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
                 {
                     throw new SecurityException("Cannot delete default folder provider");
                 }
 
                 //remove all the folders
-                _folderRepository.GetFolders(folderConfig.SiteId.Value)
-                    .Where(i => i.FolderConfigId == folderConfigId)
+                _folderRepository.GetFolders(StorageLocation.SiteId.Value)
+                    .Where(i => i.StorageLocationId == StorageLocationId)
                     .ToList()
                     .ForEach(item =>
                     {
@@ -151,7 +151,7 @@ namespace Oqtane.Repository
 
                 //delete the settings
 
-                db.FolderConfig.Remove(folderConfig);
+                db.StorageLocation.Remove(StorageLocation);
                 db.SaveChanges();
             }
         }

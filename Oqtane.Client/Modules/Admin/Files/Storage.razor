@@ -2,9 +2,9 @@
 @inherits ModuleBase
 @inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
-@inject IFolderConfigService FolderConfigService
+@inject IStorageLocationService StorageLocationService
 @inject NavigationManager NavigationManager
-@inject IStringLocalizer<EditConfig> Localizer
+@inject IStringLocalizer<Storage> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_providers != null)
@@ -12,16 +12,16 @@
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="provider" HelpText="Select the folder provider." ResourceKey="Provider">Provider:</Label>
+                <Label Class="col-sm-3" For="provider" HelpText="Select the folder provider." ResourceKey="FolderProvider">Folder Provider:</Label>
                 <div class="col-sm-9">
-                    @if (_folderConfigId > 0)
+                    @if (_storageLocationId > 0)
                     {
-                        <input id="provider" class="form-control" readonly value="@_provider" />
+                        <input id="provider" class="form-control" value="@_provider" disabled />
                     }
                     else
                     {
                         <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
-                            @foreach (var item in _providers.Where(i => _folderConfigId > 0 || !Constants.DefaultFolderProviders.Contains(i.Type)))
+                            @foreach (var item in _providers.Where(i => _storageLocationId > 0 || !Constants.DefaultFolderProviders.Contains(i.Type)))
                             {
                                 <option value="@item.Type">@item.DisplayName</option>
                             }
@@ -30,46 +30,45 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="configname" HelpText="Enter the folder config name." ResourceKey="ConfigName">Config Name:</Label>
+                <Label Class="col-sm-3" For="storagelocation" HelpText="Enter the name of the storage location" ResourceKey="StorageLocation">Name:</Label>
                 <div class="col-sm-9">
-                    <input id="configname" class="form-control" @bind="_configName" required />
+                    <input id="storagelocation" class="form-control" @bind="_name" required />
                 </div>
             </div>
-            @_folderProviderSettingsFragment
+            @if (_folderProviderSettingsFragment != null)
+            {
+                <hr />
+                @_folderProviderSettingsFragment
+            }
         </div>
     </form>
     <br />
-    <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>
+    <button type="button" class="btn btn-success" @onclick="SaveStorageLocation">@SharedLocalizer["Save"]</button>
     @((MarkupString)"&nbsp;")
     <NavLink class="btn btn-secondary" href="@(ReturnUrl())">@SharedLocalizer["Cancel"]</NavLink>
-    @if (PageState.QueryString.ContainsKey("id"))
-    {
-        @((MarkupString)"&nbsp;")
-        <ActionDialog Header="Delete Folder Config" Message="Are You Sure You Wish To Delete This Folder Config?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteConfig())" ResourceKey="DeleteConfig" />
-    }
 }
 
 @code {
     private ElementReference form;
     private bool validated = false;
     private IList<FolderProvider> _providers;
-    private IEnumerable<FolderConfig> _folderConfigs;
-    private int _folderConfigId = -1;
-    private string _configName;
+    private IEnumerable<StorageLocation> _storageLocations;
+    private int _storageLocationId = -1;
+    private string _name;
     private string _provider;
     private IFolderProviderSettingsControl _folderProviderSettingsControl;
     private RenderFragment _folderProviderSettingsFragment;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    public override string Title => "Folder Config Management";
+    public override string Title => "Storage Management";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _providers = await FolderConfigService.GetProvidersAsync();
-            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
+            _providers = await StorageLocationService.GetProvidersAsync();
+            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
 
             //remove default provider from the list
             foreach (var defaultProvider in Constants.DefaultFolderProviders)
@@ -83,12 +82,12 @@
 
             if (PageState.QueryString.ContainsKey("id"))
             {
-                _folderConfigId = Int32.Parse(PageState.QueryString["id"]);
-                var folderConfig = await FolderConfigService.GetFolderConfigAsync(_folderConfigId);
-                if (folderConfig != null)
+                _storageLocationId = Int32.Parse(PageState.QueryString["id"]);
+                var storageLocation = await StorageLocationService.GetStorageLocationAsync(_storageLocationId);
+                if (storageLocation != null)
                 {
-                    _configName = folderConfig.Name;
-                    _provider = folderConfig.Provider;
+                    _name = storageLocation.Name;
+                    _provider = storageLocation.Provider;
                 }
             }
             else
@@ -100,46 +99,46 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Folder Config {FolderConfigId} {Error}", _folderConfigId, ex.Message);
-            AddModuleMessage(Localizer["Error.FolderConfig.Load"], MessageType.Error);
+            await logger.LogError(ex, "Error Loading Folder Config {StorageLocationId} {Error}", _storageLocationId, ex.Message);
+            AddModuleMessage(Localizer["Error.StorageLocation.Load"], MessageType.Error);
         }
     }
 
-    private async Task SaveConfig()
+    private async Task SaveStorageLocation()
     {
         validated = true;
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-            if (string.IsNullOrEmpty(_configName))
+            if (string.IsNullOrEmpty(_name))
             {
-                AddModuleMessage(Localizer["Message.Required.ConfigName"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.Name"], MessageType.Warning);
                 return;
             }
 
             try
             {
-                var folderConfig = _folderConfigId > 0 ? await FolderConfigService.GetFolderConfigAsync(_folderConfigId) : new FolderConfig();
+                var storageLocation = _storageLocationId > 0 ? await StorageLocationService.GetStorageLocationAsync(_storageLocationId) : new StorageLocation();
 
                 // check for duplicate folder config names
-                if (_folderConfigs.Any(i => i.Name.Equals(_configName, StringComparison.OrdinalIgnoreCase) && i.FolderConfigId != _folderConfigId))
+                if (_storageLocations.Any(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase) && i.StorageLocationId != _storageLocationId))
                 {
-                    AddModuleMessage(Localizer["Message.FolderConfig.Duplicate"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.StorageLocation.Duplicate"], MessageType.Warning);
                     return;
                 }
 
-                folderConfig.SiteId = PageState.Site.SiteId;
-                folderConfig.Name = _configName;
-                folderConfig.Provider = _provider;
+                storageLocation.SiteId = PageState.Site.SiteId;
+                storageLocation.Name = _name;
+                storageLocation.Provider = _provider;
 
-                if (_folderConfigId >  0)
+                if (_storageLocationId >  0)
                 {
-                    folderConfig = await FolderConfigService.UpdateFolderConfigAsync(folderConfig);
+                    storageLocation = await StorageLocationService.UpdateStorageLocationAsync(storageLocation);
                 }
                 else
                 {
-                    folderConfig = await FolderConfigService.AddFolderConfigAsync(folderConfig);
-                    _folderConfigId = folderConfig.FolderConfigId;
+                    storageLocation = await StorageLocationService.AddStorageLocationAsync(storageLocation);
+                    _storageLocationId = storageLocation.StorageLocationId;
                 }
 
                 if (_folderProviderSettingsControl != null)
@@ -147,44 +146,29 @@
                     var settings = await _folderProviderSettingsControl.GetSettingsAsync();
                     if (settings != null)
                     {
-                        await FolderConfigService.SaveSettingsAsync(folderConfig.FolderConfigId, settings);
+                        await StorageLocationService.SaveSettingsAsync(storageLocation.StorageLocationId, settings);
                     }
                 }
 
-                if (folderConfig != null)
+                if (storageLocation != null)
                 {
-                    await logger.LogInformation("Folder Config Saved {FolderConfig}", folderConfig);
+                    await logger.LogInformation("Folder Config Saved {StorageLocation}", storageLocation);
                     NavigationManager.NavigateTo(ReturnUrl());
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Error.FolderConfig.Save"], MessageType.Error);
+                    AddModuleMessage(Localizer["Error.StorageLocation.Save"], MessageType.Error);
                 }
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Saving Folder Config {FolderConfigId} {Error}", _folderConfigId, ex.Message);
-                AddModuleMessage(Localizer["Error.FolderConfig.Save"], MessageType.Error);
+                await logger.LogError(ex, "Error Saving Folder Config {StorageLocationId} {Error}", _storageLocationId, ex.Message);
+                AddModuleMessage(Localizer["Error.StorageLocation.Save"], MessageType.Error);
             }
         }
         else
         {
             AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-        }
-    }
-
-    private async Task DeleteConfig()
-    {
-        try
-        {
-            await FolderConfigService.DeleteFolderConfigAsync(_folderConfigId);
-            await logger.LogInformation("Folder Config Deleted {FolderConfig}", _folderConfigId);
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Folder Config {FolderConfig} {Error}", _folderConfigId, ex.Message);
-            AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
         }
     }
 
@@ -209,7 +193,7 @@
                 {
                     var sequence = 0;
                     builder.OpenComponent(sequence++, type);
-                    builder.AddAttribute(sequence++, "FolderConfigId", _folderConfigId);
+                    builder.AddAttribute(sequence++, "StorageLocationId", _storageLocationId);
                     builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IFolderProviderSettingsControl)e);
 
                     builder.CloseComponent();
@@ -221,10 +205,10 @@
     private string ReturnUrl()
     {
         var returnUrl = !string.IsNullOrEmpty(PageState.ReturnUrl) ? PageState.ReturnUrl : NavigateUrl();
-        if (!returnUrl.Contains("cid=") && _folderConfigId > 0)
+        if (!returnUrl.Contains("cid=") && _storageLocationId > 0)
         {
             var delimiter = returnUrl.Contains("?") ? "&" : "?";
-            returnUrl += $"{delimiter}cid={_folderConfigId}";
+            returnUrl += $"{delimiter}cid={_storageLocationId}";
         }
         return returnUrl;
     }

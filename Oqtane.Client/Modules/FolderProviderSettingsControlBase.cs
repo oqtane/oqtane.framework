@@ -10,7 +10,7 @@ namespace Oqtane.Modules
     public abstract class FolderProviderSettingsControlBase : ModuleBase, IFolderProviderSettingsControl
     {
         [Parameter]
-        public int FolderConfigId { get; set; }
+        public int StorageLocationId { get; set; }
 
         public abstract Task<IDictionary<string, string>> GetSettingsAsync();
     }

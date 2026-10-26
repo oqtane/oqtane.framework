@@ -4,7 +4,7 @@
 @inject IFileService FileService
 @inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
-@inject IFolderConfigService FolderConfigService
+@inject IStorageLocationService StorageLocationService
 @inject IFolderProviderFactory FolderProviderFactory
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
@@ -66,13 +66,13 @@
                         @if (_parentId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
+                                <Label Class="col-sm-3" For="storagelocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
-                                        <select id="folderconfig" class="form-select" value="@_folderConfigId" @onchange="(e) => OnConfigChanged(int.Parse(e.Value.ToString()))">
-                                            @foreach (var item in _folderConfigs)
+                                        <select id="storagelocation" class="form-select" value="@_storageLocationId" @onchange="(e) => OnStorageLocationChanged(int.Parse(e.Value.ToString()))">
+                                            @foreach (var item in _storageLocations)
                                             {
-                                                <option value="@item.FolderConfigId">@item.Name</option>
+                                                <option value="@item.StorageLocationId">@item.Name</option>
                                             }
                                         </select>
                                     </div>
@@ -82,9 +82,9 @@
                         else if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
+                                <Label Class="col-sm-3" For="storagelocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
                                 <div class="col-sm-9">
-                                    <input id="folderconfig" class="form-control" readonly value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
+                                    <input id="storagelocation" class="form-control" readonly value="@(_storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId)?.Name)" />
                                 </div>
                             </div>
                         }
@@ -124,9 +124,9 @@
                         @if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="folderconfig" HelpText="Select the folder config." ResourceKey="FolderConfig">Folder Config:</Label>
+                                <Label Class="col-sm-3" For="StorageLocation" HelpText="Select the folder config." ResourceKey="StorageLocation">Folder Config:</Label>
                                 <div class="col">
-                                    <input id="folderconfig" class="form-control" disabled value="@(_folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId)?.Name)" />
+                                    <input id="StorageLocation" class="form-control" disabled value="@(_storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId)?.Name)" />
                                 </div>
                             </div>
                         }
@@ -199,8 +199,8 @@
     private int _parentId = -1;
     private string _name;
     private string _path;
-    private IEnumerable<FolderConfig> _folderConfigs;
-    private int _folderConfigId = -1;
+    private IEnumerable<StorageLocation> _storageLocations;
+    private int _storageLocationId = -1;
     private string _capacity = "0";
     private string _cachecontrol = string.Empty;
     private string _imagesizes = string.Empty;
@@ -221,7 +221,7 @@
     {
         try
         {
-            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
+            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId, false);
 
             if (PageState.QueryString.ContainsKey("id"))
@@ -233,7 +233,7 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _path = folder.Path;
-                    _folderConfigId = folder.FolderConfigId;
+                    _storageLocationId = folder.StorageLocationId;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;
                     _imagesizes = folder.ImageSizes;
@@ -249,7 +249,7 @@
             }
             else
             {
-                _folderConfigId = (await FolderConfigService.GetFolderConfigAsync(Constants.PublicFolderProvider))?.FolderConfigId ?? -1;
+                _storageLocationId = (await StorageLocationService.GetStorageLocationAsync(Constants.PublicFolderProvider))?.StorageLocationId ?? -1;
 
                 if (PageState.QueryString.ContainsKey("parentid"))
                 {
@@ -267,7 +267,7 @@
 
             if(PageState.QueryString.ContainsKey("cid") && int.TryParse(PageState.QueryString["cid"], out int cid))
             {
-                OnConfigChanged(cid);     
+                OnStorageLocationChanged(cid);     
             }
         }
         catch (Exception ex)
@@ -349,7 +349,7 @@
 
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
-                folder.FolderConfigId = _folderConfigId;
+                folder.StorageLocationId = _storageLocationId;
                 folder.Capacity = int.Parse(_capacity);
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
@@ -442,23 +442,23 @@
         var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
         if (parentFolder != null)
         {
-            _folderConfigId = parentFolder.FolderConfig.FolderConfigId;
-            OnConfigChanged(parentFolder.FolderConfigId);
+            _storageLocationId = parentFolder.StorageLocation.StorageLocationId;
+            OnStorageLocationChanged(parentFolder.StorageLocationId);
         }
     }
 
-    private void OnConfigChanged(int folderConfigId)
+    private void OnStorageLocationChanged(int storageLocationId)
     {
-        if (folderConfigId != _folderConfigId && PageState.QueryString.ContainsKey("id"))
+        if (storageLocationId != _storageLocationId && PageState.QueryString.ContainsKey("id"))
         {
-            AddModuleMessage("Please Note That If You Change The Folder Config, Any Existing Files In The Folder Will Need To Be Manually Migrated. Please Proceed With Caution.", MessageType.Warning);
+            AddModuleMessage(Localizer["Message.StorageLocation.Changed"], MessageType.Warning);
         }
-        _folderConfigId = folderConfigId;
+        _storageLocationId = storageLocationId;
     }
 
     private bool IsDefaultFolderProvider()
     {
-        var folderConfig = _folderConfigs.FirstOrDefault(i => i.FolderConfigId == _folderConfigId);
-        return folderConfig != null && Constants.DefaultFolderProviders.Contains(folderConfig.Provider);
+        var storageLocation = _storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId);
+        return storageLocation != null && Constants.DefaultFolderProviders.Contains(storageLocation.Provider);
     }
 }

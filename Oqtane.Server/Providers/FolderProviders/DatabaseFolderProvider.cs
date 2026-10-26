@@ -40,7 +40,7 @@ namespace Oqtane.Providers
             _logger = logger;
         }
 
-        public virtual string DisplayName { get; } = "Database File System";
+        public virtual string DisplayName { get; } = "Local Database Storage";
 
         public virtual string SettingControlType { get; } = null;
 

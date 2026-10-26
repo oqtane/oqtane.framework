@@ -42,7 +42,7 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             var folders = db.Folder
-                .Include(i => i.FolderConfig)
+                .Include(i => i.StorageLocation)
                 .Where(item => item.SiteId == siteId && (!item.Path.StartsWith(Constants.UserFolderPath) || item.Path == Constants.UserFolderPath || item.Path.StartsWith($"{Constants.UserFolderPath}{userId}/")))
                 .Select(item => new Folder
                 {
@@ -56,8 +56,8 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    FolderConfigId = item.FolderConfigId,
-                    FolderConfig = item.FolderConfig,
+                    StorageLocationId = item.StorageLocationId,
+                    StorageLocation = item.StorageLocation,
                     MappedPath = item.MappedPath,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
@@ -162,7 +162,7 @@ namespace Oqtane.Repository
             // note that tracking parameter is ignored as query uses a projection
             using var db = _dbContextFactory.CreateDbContext();
             return db.Folder
-                .Include(i => i.FolderConfig)
+                .Include(i => i.StorageLocation)
                 .Where(item => item.FolderId == folderId)
                 .Select(item => new Folder
                 {
@@ -176,8 +176,8 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    FolderConfigId = item.FolderConfigId,
-                    FolderConfig = item.FolderConfig,
+                    StorageLocationId = item.StorageLocationId,
+                    StorageLocation = item.StorageLocation,
                     MappedPath = item.MappedPath,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
@@ -212,7 +212,7 @@ namespace Oqtane.Repository
             // note that tracking parameter is ignored as query uses a projection
             using var db = _dbContextFactory.CreateDbContext();
             return db.Folder
-                .Include(i => i.FolderConfig)
+                .Include(i => i.StorageLocation)
                 .Where(item => item.SiteId == siteId && item.Path == path)
                 .Select(item => new Folder
                 {
@@ -226,8 +226,8 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    FolderConfigId = item.FolderConfigId,
-                    FolderConfig = item.FolderConfig,
+                    StorageLocationId = item.StorageLocationId,
+                    StorageLocation = item.StorageLocation,
                     MappedPath = item.MappedPath,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
@@ -278,7 +278,7 @@ namespace Oqtane.Repository
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
-                        FolderConfigId = folder.FolderConfigId,
+                        StorageLocationId = folder.StorageLocationId,
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
@@ -310,7 +310,7 @@ namespace Oqtane.Repository
                 if (parentFolder != null)
                 {
                     var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
-                    path = parentFolder.FolderConfigId != folder.FolderConfigId ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
+                    path = parentFolder.StorageLocationId != folder.StorageLocationId ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
                 }
             }
 

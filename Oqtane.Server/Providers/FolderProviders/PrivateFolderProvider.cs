@@ -25,7 +25,7 @@ namespace Oqtane.Providers
             _tenantManager = tenantManager;
         }
 
-        public override string DisplayName { get; } = "Private File System";
+        public override string DisplayName { get; } = "Local Server Private Storage";
 
         protected override string GetFolderPath(Folder folder, string folderPath)
         {

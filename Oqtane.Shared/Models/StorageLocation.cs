@@ -9,12 +9,12 @@ namespace Oqtane.Models
     /// <summary>
     /// Describes a Folder Provider Config in Oqtane
     /// </summary>
-    public class FolderConfig : ModelBase
+    public class StorageLocation : ModelBase
     {
         /// <summary>
         /// ID to identify the folder config
         /// </summary>
-        public int FolderConfigId { get; set; }
+        public int StorageLocationId { get; set; }
 
         /// <summary>
         /// Reference to the <see cref="Site"/>.
