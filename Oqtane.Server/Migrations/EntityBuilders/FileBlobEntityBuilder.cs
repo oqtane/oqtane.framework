@@ -13,7 +13,7 @@ namespace Oqtane.Migrations.EntityBuilders
     public class FileBlobEntityBuilder : AuditableBaseEntityBuilder<FileBlobEntityBuilder>
     {
         private const string _entityTableName = "FileBlob";
-        private readonly PrimaryKey<FileBlobEntityBuilder> _primaryKey = new("PK_FileBlob", x => new { x.FolderId, x.FileName });
+        private readonly PrimaryKey<FileBlobEntityBuilder> _primaryKey = new("PK_FileBlob", x => new { x.FileBlobId });
         private readonly ForeignKey<FileBlobEntityBuilder> _folderForeignKey = new("FK_FileBlob_Folder", x => x.FolderId, "Folder", "FolderId", ReferentialAction.Cascade);
 
         public FileBlobEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)

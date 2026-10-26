@@ -29,6 +29,7 @@ namespace Oqtane.Migrations.Tenant
 
             var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);
             fileBlobEntityBuilder.Create();
+            fileBlobEntityBuilder.AddIndex("IX_FileBlob", new string[] { "FolderId", "FileName" }, true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
