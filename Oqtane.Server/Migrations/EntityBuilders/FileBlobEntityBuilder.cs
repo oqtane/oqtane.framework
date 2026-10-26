@@ -13,7 +13,7 @@ namespace Oqtane.Migrations.EntityBuilders
     public class FileBlobEntityBuilder : AuditableBaseEntityBuilder<FileBlobEntityBuilder>
     {
         private const string _entityTableName = "FileBlob";
-        private readonly PrimaryKey<FileBlobEntityBuilder> _primaryKey = new("PK_FileBlob", x => new { x.FolderId, x.FileName });
+        private readonly PrimaryKey<FileBlobEntityBuilder> _primaryKey = new("PK_FileBlob", x => new { x.FileBlobId });
         private readonly ForeignKey<FileBlobEntityBuilder> _folderForeignKey = new("FK_FileBlob_Folder", x => x.FolderId, "Folder", "FolderId", ReferentialAction.Cascade);
 
         public FileBlobEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
@@ -28,7 +28,7 @@ namespace Oqtane.Migrations.EntityBuilders
             FileBlobId = AddAutoIncrementColumn(table, "FileBlobId");
             FolderId = AddIntegerColumn(table, "FolderId", false);
             FileName = AddStringColumn(table, "FileName", 50, false);
-            FileStream = table.Column<byte[]>(name: ActiveDatabase.RewriteName("FileStream"), nullable: true);
+            Blob = table.Column<byte[]>(name: ActiveDatabase.RewriteName("Blob"), nullable: true);
 
             AddAuditableColumns(table);
 
@@ -41,6 +41,6 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> FileName { get; set; }
 
-        public OperationBuilder<AddColumnOperation> FileStream { get; set; }
+        public OperationBuilder<AddColumnOperation> Blob { get; set; }
     }
 }
