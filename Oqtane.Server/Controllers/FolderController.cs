@@ -21,7 +21,7 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderProviderFactory _folderProviderFactory;
         private readonly IFolderRepository _folders;
-        private readonly IFolderConfigRepository _folderConfigs;
+        private readonly IStorageLocationRepository _StorageLocations;
         private readonly IUserPermissions _userPermissions;
         private readonly IFileRepository _files;
         private readonly IPermissionRepository _permissionRepository;
@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
         public FolderController(
             IFolderProviderFactory folderProviderFactory,
             IFolderRepository folders,
-            IFolderConfigRepository folderConfigs,
+            IStorageLocationRepository StorageLocations,
             IUserPermissions userPermissions,
             IFileRepository files,
             ISyncManager syncManager,
@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
         {
             _folderProviderFactory = folderProviderFactory;
             _folders = folders;
-            _folderConfigs = folderConfigs;
+            _StorageLocations = StorageLocations;
             _userPermissions = userPermissions;
             _files = files;
             _permissionRepository = permissionRepository;
@@ -177,9 +177,9 @@ namespace Oqtane.Controllers
                         {
                             folder.Path = folder.Path + "/";
                         }
-                        if(folder.FolderConfigId <= 0)
+                        if(folder.StorageLocationId <= 0)
                         {
-                            folder.FolderConfigId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId);
+                            folder.StorageLocationId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId);
                         }
 
                         folder = _folders.AddFolder(folder);
@@ -225,7 +225,7 @@ namespace Oqtane.Controllers
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
 
-                        if(parent.FolderConfigId != _folderProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.FolderConfigId != parent.FolderConfigId)
+                        if(parent.StorageLocationId != _folderProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.StorageLocationId != parent.StorageLocationId)
                         {
                             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Not Valid {Folder}", folder);
                             HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -248,7 +248,7 @@ namespace Oqtane.Controllers
                     }
 
                     var folderProvider = _folderProviderFactory.GetProvider(folder);
-                    if (_folder.MappedPath != folder.MappedPath && _folder.FolderConfigId == folder.FolderConfigId && await folderProvider.FolderExistsAsync(_folder))
+                    if (_folder.MappedPath != folder.MappedPath && _folder.StorageLocationId == folder.StorageLocationId && await folderProvider.FolderExistsAsync(_folder))
                     {
                         await folderProvider.MoveFolderAsync(_folder, folder.MappedPath);
                     }

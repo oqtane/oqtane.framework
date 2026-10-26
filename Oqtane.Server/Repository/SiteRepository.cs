@@ -272,7 +272,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                FolderConfigId = _folderProviderFactory.GetFolderConfigId(site.SiteId, Constants.PrivateFolderProvider),
+                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateFolderProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -291,7 +291,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = false,
-                FolderConfigId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
+                StorageLocationId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -310,7 +310,7 @@ namespace Oqtane.Repository
                 Capacity = 0,
                 IsSystem = true,
                 MappedPath = Constants.UserFolderPath,
-                FolderConfigId = _folderProviderFactory.GetFolderConfigId(site.SiteId, Constants.PrivateFolderProvider),
+                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateFolderProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

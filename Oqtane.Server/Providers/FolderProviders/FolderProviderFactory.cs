@@ -15,13 +15,13 @@ namespace Oqtane.Providers
     public class FolderProviderFactory : IFolderProviderFactory
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IFolderConfigRepository _folderConfigRepository;
+        private readonly IStorageLocationRepository _StorageLocationRepository;
         private readonly ILogManager _logger;
 
-        public FolderProviderFactory(IServiceProvider serviceProvider, IFolderConfigRepository folderConfigRepository, IOptions<List<Models.FolderProvider>> folderProviderOptions, ILogManager logger)
+        public FolderProviderFactory(IServiceProvider serviceProvider, IStorageLocationRepository StorageLocationRepository, IOptions<List<Models.FolderProvider>> folderProviderOptions, ILogManager logger)
         {
             _serviceProvider = serviceProvider;
-            _folderConfigRepository = folderConfigRepository;
+            _StorageLocationRepository = StorageLocationRepository;
             _logger = logger;
         }
 
@@ -32,7 +32,7 @@ namespace Oqtane.Providers
         /// <returns></returns>
         public int GetDefaultConfigId(int siteId)
         {
-            return GetFolderConfigId(siteId, Constants.PublicFolderProvider);
+            return GetStorageLocationId(siteId, Constants.PublicFolderProvider);
         }
 
         /// <summary>
@@ -40,22 +40,22 @@ namespace Oqtane.Providers
         /// </summary>
         /// <param name="siteId"></param>
         /// <returns></returns>
-        public int GetFolderConfigId(int siteId, string provider)
+        public int GetStorageLocationId(int siteId, string provider)
         {
-            var config = _folderConfigRepository.GetFolderConfigs(siteId).FirstOrDefault(fp => fp.Provider == provider);
+            var config = _StorageLocationRepository.GetStorageLocations(siteId).FirstOrDefault(fp => fp.Provider == provider);
             if (config == null && Constants.DefaultFolderProviders.Contains(provider))
             {
                 var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
                     .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(provider, StringComparison.OrdinalIgnoreCase));
-                config = new Models.FolderConfig
+                config = new Models.StorageLocation
                 {
                     Name = folderProvider.DisplayName,
                     Provider = provider
                 };
-                config = _folderConfigRepository.AddFolderConfig(config);
+                config = _StorageLocationRepository.AddStorageLocation(config);
             }
 
-            return config.FolderConfigId;
+            return config.StorageLocationId;
         }
 
         public IFolderProvider GetProvider(Folder folder)
@@ -65,17 +65,17 @@ namespace Oqtane.Providers
                 throw new ArgumentException("The folder is null", "folder");
             }
 
-            if(folder.FolderConfig == null) // load the folder config information manually if it hasn't been loaded
+            if(folder.StorageLocation == null) // load the folder config information manually if it hasn't been loaded
             {
-                folder.FolderConfig = _folderConfigRepository.GetFolderConfig(folder.FolderConfigId);
+                folder.StorageLocation = _StorageLocationRepository.GetStorageLocation(folder.StorageLocationId);
             }
 
             var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
-                .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.FolderConfig.Provider, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.StorageLocation.Provider, StringComparison.OrdinalIgnoreCase));
 
             if (folderProvider != null)
             {
-                var settings = _folderConfigRepository.GetSettings(folder.FolderConfigId);
+                var settings = _StorageLocationRepository.GetSettings(folder.StorageLocationId);
                 folderProvider.Initialize(settings);
 
                 return folderProvider;

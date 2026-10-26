@@ -344,7 +344,7 @@ namespace Oqtane.Infrastructure
                         secondaryFolder.Capacity = primaryFolder.Capacity;
                         secondaryFolder.ImageSizes = primaryFolder.ImageSizes;
                         secondaryFolder.IsSystem = primaryFolder.IsSystem;
-                        secondaryFolder.FolderConfigId = primaryFolder.FolderConfigId;
+                        secondaryFolder.StorageLocationId = primaryFolder.StorageLocationId;
                         secondaryFolder.PermissionList = SynchronizePermissions(primaryFolder.PermissionList, secondarySiteId);
 
                         if (folder == null)

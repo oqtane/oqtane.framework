@@ -125,7 +125,7 @@ namespace Oqtane.Repository
         public virtual DbSet<Log> Log { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<Folder> Folder { get; set; }
-        public virtual DbSet<FolderConfig> FolderConfig { get; set; }
+        public virtual DbSet<StorageLocation> StorageLocation { get; set; }
         public virtual DbSet<File> File { get; set; }
         public virtual DbSet<FileBlob> FileBlob { get; set; }
         public virtual DbSet<Language> Language { get; set; }

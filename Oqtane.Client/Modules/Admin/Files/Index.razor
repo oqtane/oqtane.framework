@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IFolderService FolderService
 @inject IFileService FileService
-@inject IFolderConfigService FolderConfigService
+@inject IStorageLocationService StorageLocationService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -65,9 +65,9 @@ else
                 <div class="text-center">@Localizer["NoFiles"]</div>
             }
         </TabPanel>
-        <TabPanel Name="Configs" Heading="Configs" ResourceKey="Configs">
-            <ActionLink Action="EditConfig" Text="Add Config" Class="btn btn-secondary" ResourceKey="AddConfig" />
-            <Pager Items="@_folderConfigs" SearchProperties="Name">
+        <TabPanel Name="Storage" Heading="Storage" ResourceKey="StorageLocation">
+            <ActionLink Action="Storage" Text="Add Storage Location" Class="btn btn-secondary" ResourceKey="AddStorageLocation" />
+            <Pager Items="@_storageLocations" SearchProperties="Name">
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
@@ -75,8 +75,8 @@ else
                     <th>@Localizer["Provider"]</th>
                 </Header>
                 <Row>
-                    <td><ActionLink Action="EditConfig" Text="Edit" Parameters="@($"id=" + context.FolderConfigId.ToString())" ResourceKey="Edit" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
-                    <td><ActionDialog Header="Delete Config" Message="@string.Format(Localizer["Confirm.Config.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteConfig(context))" ResourceKey="DeleteConfig" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
+                    <td><ActionLink Action="Storage" Text="Edit" Parameters="@($"id=" + context.StorageLocationId.ToString())" ResourceKey="Edit" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
+                    <td><ActionDialog Header="Delete Storage Location" Message="@string.Format(Localizer["Confirm.StorageLocation.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteStorageLocation(context))" ResourceKey="DeleteStorageLocation" Disabled="@Constants.DefaultFolderProviders.Contains(context.Provider)" /></td>
                     <td>@context.Name</td>
                     <td>@context.Provider</td>
                 </Row>
@@ -114,7 +114,7 @@ else
     private int _folderId = -1;
     private List<File> _files;
 
-    private IEnumerable<FolderConfig> _folderConfigs;
+    private IEnumerable<StorageLocation> _storageLocations;
 
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
@@ -135,7 +135,7 @@ else
                 await GetFiles();
             }
 
-            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
+            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
@@ -203,17 +203,17 @@ else
         }
     }
 
-    private async Task DeleteConfig(FolderConfig config)
+    private async Task DeleteStorageLocation(StorageLocation storageLocation)
     {
-        if (!_folders.Any(item => item.FolderConfigId == config.FolderConfigId))
+        if (!_folders.Any(item => item.StorageLocationId == storageLocation.StorageLocationId))
         {
-            await FolderConfigService.DeleteFolderConfigAsync(config.FolderConfigId);
-            _folderConfigs = await FolderConfigService.GetFolderConfigsAsync(PageState.Site.SiteId);
-            AddModuleMessage(string.Format(Localizer["Success.Config.Delete"], config.Name), MessageType.Success);
+            await StorageLocationService.DeleteStorageLocationAsync(storageLocation.StorageLocationId);
+            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
+            AddModuleMessage(string.Format(Localizer["Success.StorageLocation.Delete"], storageLocation.Name), MessageType.Success);
         }
         else
         {
-            AddModuleMessage(Localizer["Error.Config.Delete"], MessageType.Warning);
+            AddModuleMessage(Localizer["Error.StorageLocation.Delete"], MessageType.Warning);
         }
     }
 

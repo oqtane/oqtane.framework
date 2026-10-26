@@ -7,13 +7,13 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class TestFolderProvider : PublicFolderProvider
+    public class CustomFolderProvider : PublicFolderProvider
     {
         private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IWebHostEnvironment _environment;
 
-        public TestFolderProvider(
+        public CustomFolderProvider(
             ISettingRepository settingRepository,
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
@@ -27,15 +27,15 @@ namespace Oqtane.Providers
             _environment = environment;
         }
 
-        public override string DisplayName => "Test File System";
+        public override string DisplayName => "Local Server Custom Folder Storage";
 
-        public override string SettingControlType => "Oqtane.Modules.Admin.Files.TestFolderProviderSettingsControl, Oqtane.Client";
+        public override string SettingControlType => "Oqtane.Modules.Admin.Files.CustomFolderProviderSettingsControl, Oqtane.Client";
 
         protected override string GetFolderPath(Folder folder, string folderPath)
         {
             if (folder != null)
             {
-                var settings = _settingRepository.GetSettings(EntityNames.FolderConfig, folder.FolderConfigId);
+                var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, folder.StorageLocationId);
                 if (settings.Any(item => item.SettingName == "FolderPath"))
                 {
                     return Utilities.PathCombine(_environment.ContentRootPath, settings.First(item => item.SettingName == "FolderPath").SettingValue);

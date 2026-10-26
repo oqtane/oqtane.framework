@@ -36,7 +36,7 @@ namespace Oqtane.Providers
             _logger = logger;
         }
 
-        public virtual string DisplayName { get; } = "Public File System";
+        public virtual string DisplayName { get; } = "Local Server Public Storage";
 
         public virtual string SettingControlType { get; } = null;
 

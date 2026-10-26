@@ -9,22 +9,22 @@ using Oqtane.Interfaces;
 
 namespace Oqtane.Migrations.EntityBuilders
 {
-    public class FolderConfigEntityBuilder : AuditableBaseEntityBuilder<FolderConfigEntityBuilder>
+    public class StorageLocationEntityBuilder : AuditableBaseEntityBuilder<StorageLocationEntityBuilder>
     {
-        private const string _entityTableName = "FolderConfig";
-        private readonly PrimaryKey<FolderConfigEntityBuilder> _primaryKey = new("PK_FolderConfig", x => x.FolderConfigId);
-        private readonly ForeignKey<FolderConfigEntityBuilder> _siteForeignKey = new("FK_FolderConfig_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
+        private const string _entityTableName = "StorageLocation";
+        private readonly PrimaryKey<StorageLocationEntityBuilder> _primaryKey = new("PK_StorageLocation", x => x.StorageLocationId);
+        private readonly ForeignKey<StorageLocationEntityBuilder> _siteForeignKey = new("FK_StorageLocation_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public FolderConfigEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
+        public StorageLocationEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
             ForeignKeys.Add(_siteForeignKey);
         }
 
-        protected override FolderConfigEntityBuilder BuildTable(ColumnsBuilder table)
+        protected override StorageLocationEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            FolderConfigId = AddAutoIncrementColumn(table, "FolderConfigId");
+            StorageLocationId = AddAutoIncrementColumn(table, "StorageLocationId");
             SiteId = AddIntegerColumn(table,"SiteId", true);
             Name = AddStringColumn(table,"Name", 50);
             Provider = AddStringColumn(table, "Provider", 255);
@@ -34,7 +34,7 @@ namespace Oqtane.Migrations.EntityBuilders
             return this;
         }
 
-        public OperationBuilder<AddColumnOperation> FolderConfigId { get; set; }
+        public OperationBuilder<AddColumnOperation> StorageLocationId { get; set; }
 
         public OperationBuilder<AddColumnOperation> SiteId { get; set; }
 

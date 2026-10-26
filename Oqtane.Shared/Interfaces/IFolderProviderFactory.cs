@@ -11,6 +11,6 @@ namespace Oqtane.Providers
 
         int GetDefaultConfigId(int siteId);
 
-        int GetFolderConfigId(int siteId, string provider);
+        int GetStorageLocationId(int siteId, string provider);
     }
 }

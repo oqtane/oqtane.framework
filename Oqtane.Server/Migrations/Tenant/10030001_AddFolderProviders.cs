@@ -10,22 +10,22 @@ namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.10.03.00.01")]
-    public class AddFolderProvider : MultiDatabaseMigration
+    public class AddFolderProviders : MultiDatabaseMigration
     {
-        public AddFolderProvider(IDatabase database) : base(database)
+        public AddFolderProviders(IDatabase database) : base(database)
         {
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var folderProviderEntityBuilder = new FolderConfigEntityBuilder(migrationBuilder, ActiveDatabase);
-            folderProviderEntityBuilder.Create();
+            var storageLocationEntityBuilder = new StorageLocationEntityBuilder(migrationBuilder, ActiveDatabase);
+            storageLocationEntityBuilder.Create();
 
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            folderEntityBuilder.AddIntegerColumn("FolderConfigId", true);
+            folderEntityBuilder.AddIntegerColumn("StorageLocationId", true);
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
             folderEntityBuilder.DropColumn("Type");
-            folderEntityBuilder.AddForeignKey("FK_Folder_FolderConfig", "FolderConfigId", "FolderConfig", "FolderConfigId", ReferentialAction.NoAction);
+            folderEntityBuilder.AddForeignKey("FK_Folder_StorageLocation", "StorageLocationId", "StorageLocation", "StorageLocationId", ReferentialAction.NoAction);
 
             var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);
             fileBlobEntityBuilder.Create();

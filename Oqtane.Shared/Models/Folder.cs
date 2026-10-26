@@ -65,9 +65,9 @@ namespace Oqtane.Models
         public string CacheControl { get; set; }
 
         /// <summary>
-        /// Reference to the <see cref="FolderConfig"/>.
+        /// Reference to the <see cref="StorageLocation"/>.
         /// </summary>
-        public int FolderConfigId { get; set; }
+        public int StorageLocationId { get; set; }
 
         /// <summary>
         /// TODO: todoc what would this contain?
@@ -88,7 +88,7 @@ namespace Oqtane.Models
         [NotMapped]
         public bool HasChildren { get; set; }
 
-        public FolderConfig FolderConfig { get; set; }
+        public StorageLocation StorageLocation { get; set; }
         
         /// <summary>
         /// Indicates if subfolder permissions should be updated to be consistent with parent folder

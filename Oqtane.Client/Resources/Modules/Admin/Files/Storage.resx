@@ -117,37 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Error.FolderConfig.Load" xml:space="preserve">
-    <value>Error Loading Folder Config</value>
+  <data name="Error.StorageLocation.Load" xml:space="preserve">
+    <value>Error Loading Storage Location</value>
   </data>
-  <data name="Error.FolderConfig.Save" xml:space="preserve">
-    <value>Error Saving Folder Config</value>
+  <data name="Error.StorageLocation.Save" xml:space="preserve">
+    <value>Error Saving Storage Location</value>
   </data>
-  <data name="Error.FolderConfig.Delete" xml:space="preserve">
-    <value>Error Deleting Folder Config</value>
+  <data name="FolderProvider.Text" xml:space="preserve">
+    <value>Folder Provider:</value>
   </data>
-  <data name="Provider.Text" xml:space="preserve">
-    <value>Provider:</value>
+  <data name="FolderProvider.HelpText" xml:space="preserve">
+    <value>Select the folder provider</value>
   </data>
-  <data name="Provider.HelpText" xml:space="preserve">
-    <value>Select the folder provider.</value>
+  <data name="StorageLocation.Text" xml:space="preserve">
+    <value>Name:</value>
   </data>
-  <data name="FolderConfig.Text" xml:space="preserve">
-    <value>Folder Config:</value>
+  <data name="StorageLocation.HelpText" xml:space="preserve">
+    <value>Enter the name of the storage location</value>
   </data>
-  <data name="FolderConfig.HelpText" xml:space="preserve">
-    <value>Select the folder config.</value>
+  <data name="Message.Required.Name" xml:space="preserve">
+    <value>Name is Required</value>
   </data>
-  <data name="ConfigName.Text" xml:space="preserve">
-    <value>Config Name:</value>
-  </data>
-  <data name="ConfigName.HelpText" xml:space="preserve">
-    <value>Enter the folder config name.</value>
-  </data>
-  <data name="Message.Required.ConfigName" xml:space="preserve">
-    <value>Config Name is Required</value>
-  </data>
-  <data name="Message.FolderConfig.Duplicate" xml:space="preserve">
-    <value>Folder Config Name Specified Already Exists</value>
+  <data name="Message.StorageLocation.Duplicate" xml:space="preserve">
+    <value>Name Specified Already Exists</value>
   </data>
 </root>
