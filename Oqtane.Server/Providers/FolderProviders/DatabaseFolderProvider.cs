@@ -70,21 +70,21 @@ namespace Oqtane.Providers
         public virtual async Task<long> GetFileSizeAsync(Models.File file)
         {
             var blob = _fileBlobRepository.GetFileBlob(file.FolderId, file.Name);
-            return blob?.FileStream?.Length ?? 0;
+            return blob?.Blob?.Length ?? 0;
         }
 
         public virtual async Task<long> GetFileSizeAsync(Models.Folder folder, string fileName)
         {
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
-            return blob?.FileStream?.Length ?? 0;
+            return blob?.Blob?.Length ?? 0;
         }
 
         public virtual async Task<Stream> GetFileStreamAsync(Models.File file)
         {
             var blob = _fileBlobRepository.GetFileBlob(file.FolderId, file.Name);
-            if(blob?.FileStream != null)
+            if(blob?.Blob != null)
             {
-                return new MemoryStream(blob.FileStream);
+                return new MemoryStream(blob.Blob);
             }
 
             return null;
@@ -93,9 +93,9 @@ namespace Oqtane.Providers
         public virtual async Task<Stream> GetFileStreamAsync(Models.Folder folder, string fileName)
         {
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
-            if (blob?.FileStream != null)
+            if (blob?.Blob != null)
             {
-                return new MemoryStream(blob.FileStream);
+                return new MemoryStream(blob.Blob);
             }
 
             return null;
@@ -136,7 +136,7 @@ namespace Oqtane.Providers
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
             if (blob != null)
             {
-                blob.FileStream = memoryStream.ToArray();
+                blob.Blob = memoryStream.ToArray();
                 _fileBlobRepository.UpdateFileBlob(blob);
             }
             else
@@ -145,7 +145,7 @@ namespace Oqtane.Providers
                 {
                     FolderId = folder.FolderId,
                     FileName = fileName,
-                    FileStream = memoryStream.ToArray()
+                    Blob = memoryStream.ToArray()
                 };
 
                 _fileBlobRepository.AddFileBlob(blob);

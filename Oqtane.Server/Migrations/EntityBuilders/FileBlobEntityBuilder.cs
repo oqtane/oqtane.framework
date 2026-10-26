@@ -28,7 +28,7 @@ namespace Oqtane.Migrations.EntityBuilders
             FileBlobId = AddAutoIncrementColumn(table, "FileBlobId");
             FolderId = AddIntegerColumn(table, "FolderId", false);
             FileName = AddStringColumn(table, "FileName", 50, false);
-            FileStream = table.Column<byte[]>(name: ActiveDatabase.RewriteName("FileStream"), nullable: true);
+            Blob = table.Column<byte[]>(name: ActiveDatabase.RewriteName("Blob"), nullable: true);
 
             AddAuditableColumns(table);
 
@@ -41,6 +41,6 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public OperationBuilder<AddColumnOperation> FileName { get; set; }
 
-        public OperationBuilder<AddColumnOperation> FileStream { get; set; }
+        public OperationBuilder<AddColumnOperation> Blob { get; set; }
     }
 }

@@ -23,7 +23,8 @@ namespace Oqtane.Models
         public string FileName { get; set; }
 
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
-        public byte[]? FileStream { get; set; }
+        public byte[]? Blob { get; set; }
+
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     }
 }
