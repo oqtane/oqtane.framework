@@ -72,13 +72,11 @@ else
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
                     <th>@SharedLocalizer["Name"]</th>
-                    <th>@Localizer["Provider"]</th>
                 </Header>
                 <Row>
                     <td><ActionLink Action="Storage" Text="Edit" Parameters="@($"id=" + context.StorageLocationId.ToString())" ResourceKey="Edit" Disabled="@Constants.DefaultStorageProviders.Contains(context.Provider)" /></td>
                     <td><ActionDialog Header="Delete Storage Location" Message="@string.Format(Localizer["Confirm.StorageLocation.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteStorageLocation(context))" ResourceKey="DeleteStorageLocation" Disabled="@Constants.DefaultStorageProviders.Contains(context.Provider)" /></td>
                     <td>@context.Name</td>
-                    <td>@context.Provider</td>
                 </Row>
             </Pager>
         </TabPanel>
