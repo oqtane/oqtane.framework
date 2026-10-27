@@ -289,7 +289,7 @@
 
         // page not found - look for url mapping
         var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath, referrer);
-        if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+        if (urlMapping != null)
         {
             // redirect to mapped url
             var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + (!urlMapping.MappedUrl.StartsWith("/") ? "/" : "") + urlMapping.MappedUrl + ((!urlMapping.MappedUrl.Contains("?")) ? route.Query : "");

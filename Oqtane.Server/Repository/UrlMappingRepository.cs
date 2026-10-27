@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -14,20 +15,24 @@ namespace Oqtane.Repository
         UrlMapping GetUrlMapping(int urlMappingId);
         UrlMapping GetUrlMapping(int urlMappingId, bool tracking);
         UrlMapping GetUrlMapping(int siteId, string url);
-        UrlMapping GetUrlMapping(int siteId, string url, string referrer);
         void DeleteUrlMapping(int urlMappingId);
         int DeleteUrlMappings(int siteId, int age);
+        UrlMapping GetUrlMapping(int siteId, string url, string referrer);
     }
 
     public class UrlMappingRepository : IUrlMappingRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly ISiteRepository _sites;
+        private readonly ICacheManager _cache;
+        private readonly Alias _alias;
 
-        public UrlMappingRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISiteRepository sites)
+        public UrlMappingRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISiteRepository sites, ICacheManager cache, ITenantManager tenantManager)
         {
             _dbContextFactory = dbContextFactory;
             _sites = sites;
+            _cache = cache;
+            _alias = tenantManager.GetAlias();
         }
 
         public IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped)
@@ -54,6 +59,10 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.UrlMapping.Add(urlMapping);
             db.SaveChanges();
+            if (!string.IsNullOrEmpty(urlMapping.MappedUrl))
+            {
+                ClearCache();
+            }
             return urlMapping;
         }
 
@@ -62,12 +71,12 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(urlMapping).State = EntityState.Modified;
             db.SaveChanges();
+            ClearCache();
             return urlMapping;
         }
 
         public UrlMapping GetUrlMapping(int urlMappingId)
         {
-            using var db = _dbContextFactory.CreateDbContext();
             return GetUrlMapping(urlMappingId, false);
         }
 
@@ -89,17 +98,54 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url)
         {
-            return GetUrlMapping(siteId, url, "");
+            using var db = _dbContextFactory.CreateDbContext();
+            return db.UrlMapping
+                .AsNoTracking()
+                .FirstOrDefault(item => item.SiteId == siteId && item.Url == url);
+        }
+
+        public void DeleteUrlMapping(int urlMappingId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            UrlMapping urlMapping = db.UrlMapping.Find(urlMappingId);
+            db.UrlMapping.Remove(urlMapping);
+            db.SaveChanges();
+            if (!string.IsNullOrEmpty(urlMapping.MappedUrl))
+            {
+                ClearCache();
+            }
+        }
+
+        public int DeleteUrlMappings(int siteId, int age)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            // delete in batches of 100 records
+            var count = 0;
+            var purgedate = DateTime.UtcNow.AddDays(-age);
+            var urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
+                .OrderBy(item => item.RequestedOn).Take(100).ToList();
+            while (urlMappings.Count > 0)
+            {
+                count += urlMappings.Count;
+                db.UrlMapping.RemoveRange(urlMappings);
+                db.SaveChanges();
+                urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
+                    .OrderBy(item => item.RequestedOn).Take(100).ToList();
+            }
+            return count;
         }
 
         public UrlMapping GetUrlMapping(int siteId, string url, string referrer)
         {
-            using var db = _dbContextFactory.CreateDbContext();
+            var urlMappings = _cache.GetCache(_alias, "UrlMappings", entry =>
+            {
+                return GetUrlMappings(siteId, true); // only mapped urls
+            });
+
             url = (url.StartsWith("/")) ? url.Substring(1) : url;
             url = (url.Length > 750) ? url.Substring(0, 750) : url;
-            var urlMapping = db.UrlMapping
-                .AsNoTracking()
-                .FirstOrDefault(item => item.SiteId == siteId && item.Url == url);
+
+            var urlMapping = urlMappings.FirstOrDefault(item => item.Url == url);
 
             if (urlMapping == null)
             {
@@ -139,31 +185,9 @@ namespace Oqtane.Repository
             return urlMapping;
         }
 
-        public void DeleteUrlMapping(int urlMappingId)
+        private void ClearCache()
         {
-            using var db = _dbContextFactory.CreateDbContext();
-            UrlMapping urlMapping = db.UrlMapping.Find(urlMappingId);
-            db.UrlMapping.Remove(urlMapping);
-            db.SaveChanges();
-        }
-
-        public int DeleteUrlMappings(int siteId, int age)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            // delete in batches of 100 records
-            var count = 0;
-            var purgedate = DateTime.UtcNow.AddDays(-age);
-            var urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
-                .OrderBy(item => item.RequestedOn).Take(100).ToList();
-            while (urlMappings.Count > 0)
-            {
-                count += urlMappings.Count;
-                db.UrlMapping.RemoveRange(urlMappings);
-                db.SaveChanges();
-                urlMappings = db.UrlMapping.Where(item => item.SiteId == siteId && string.IsNullOrEmpty(item.MappedUrl) && item.RequestedOn < purgedate)
-                    .OrderBy(item => item.RequestedOn).Take(100).ToList();
-            }
-            return count;
+            _cache.RemoveCache(_alias, "UrlMappings");
         }
     }
 }
