@@ -35,10 +35,10 @@
                     <input id="storagelocation" class="form-control" @bind="_name" required />
                 </div>
             </div>
-            @if (_folderProviderSettingsFragment != null)
+            @if (_storageProviderSettingsFragment != null)
             {
                 <hr />
-                @_folderProviderSettingsFragment
+                @_storageProviderSettingsFragment
             }
         </div>
     </form>
@@ -56,8 +56,8 @@
     private int _storageLocationId = -1;
     private string _name;
     private string _provider;
-    private IStorageProviderSettingsControl _folderProviderSettingsControl;
-    private RenderFragment _folderProviderSettingsFragment;
+    private IStorageProviderSettingsControl _storageProviderSettingsControl;
+    private RenderFragment _storageProviderSettingsFragment;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -141,9 +141,9 @@
                     _storageLocationId = storageLocation.StorageLocationId;
                 }
 
-                if (_folderProviderSettingsControl != null)
+                if (_storageProviderSettingsControl != null)
                 {
-                    var settings = await _folderProviderSettingsControl.GetSettingsAsync();
+                    var settings = await _storageProviderSettingsControl.GetSettingsAsync();
                     if (settings != null)
                     {
                         await StorageLocationService.SaveSettingsAsync(storageLocation.StorageLocationId, settings);
@@ -180,8 +180,8 @@
 
     private async Task LoadStorageProviderSettingsControl()
     {
-        _folderProviderSettingsControl = null;
-        _folderProviderSettingsFragment = null;
+        _storageProviderSettingsControl = null;
+        _storageProviderSettingsFragment = null;
 
         var settingsControlType = _providers.FirstOrDefault(p => p.Type == _provider)?.ControlType;
         if (!string.IsNullOrEmpty(settingsControlType))
@@ -189,12 +189,12 @@
             var type = Type.GetType(settingsControlType);
             if (type != null && typeof(IStorageProviderSettingsControl).IsAssignableFrom(type))
             {
-                _folderProviderSettingsFragment = builder =>
+                _storageProviderSettingsFragment = builder =>
                 {
                     var sequence = 0;
                     builder.OpenComponent(sequence++, type);
                     builder.AddAttribute(sequence++, "StorageLocationId", _storageLocationId);
-                    builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IStorageProviderSettingsControl)e);
+                    builder.AddComponentReferenceCapture(sequence++, e => _storageProviderSettingsControl = (IStorageProviderSettingsControl)e);
 
                     builder.CloseComponent();
                 };
