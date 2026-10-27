@@ -14,14 +14,15 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="provider" HelpText="Select the storage provider" ResourceKey="StorageProvider">Storage Provider:</Label>
                 <div class="col-sm-9">
-                    @if (_storageLocationId > 0)
+                    @if (_storageLocationId != -1)
                     {
                         <input id="provider" class="form-control" value="@_provider" disabled />
                     }
                     else
                     {
                         <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
-                            @foreach (var item in _providers.Where(i => _storageLocationId > 0 || !Constants.DefaultStorageProviders.Contains(i.Type)))
+                            <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                            @foreach (var item in _providers.Where(i => !Constants.DefaultStorageProviders.Contains(i.Type)))
                             {
                                 <option value="@item.Type">@item.DisplayName</option>
                             }
@@ -32,7 +33,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="storagelocation" HelpText="Enter the name of the storage location" ResourceKey="StorageLocation">Name:</Label>
                 <div class="col-sm-9">
-                    <input id="storagelocation" class="form-control" @bind="_name" required />
+                    <input id="storagelocation" class="form-control" maxlength="255" @bind="_name" required />
                 </div>
             </div>
             @if (_storageProviderSettingsFragment != null)
@@ -51,11 +52,10 @@
 @code {
     private ElementReference form;
     private bool validated = false;
-    private IList<StorageProvider> _providers;
-    private IEnumerable<StorageLocation> _storageLocations;
     private int _storageLocationId = -1;
+    private IList<StorageProvider> _providers;
+    private string _provider = "-";
     private string _name;
-    private string _provider;
     private IStorageProviderSettingsControl _storageProviderSettingsControl;
     private RenderFragment _storageProviderSettingsFragment;
 
@@ -68,17 +68,6 @@
         try
         {
             _providers = await StorageLocationService.GetProvidersAsync();
-            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
-
-            //remove default provider from the list
-            foreach (var defaultProvider in Constants.DefaultStorageProviders)
-            {
-                var item = _providers.FirstOrDefault(i => i.Type == defaultProvider);
-                if (item != null)
-                {
-                    _providers.Remove(item);
-                }
-            }
 
             if (PageState.QueryString.ContainsKey("id"))
             {
@@ -86,20 +75,16 @@
                 var storageLocation = await StorageLocationService.GetStorageLocationAsync(_storageLocationId);
                 if (storageLocation != null)
                 {
+                    _provider = _providers.FirstOrDefault(p => p.Type == storageLocation.Provider)?.DisplayName;
                     _name = storageLocation.Name;
-                    _provider = storageLocation.Provider;
                 }
-            }
-            else
-            {
-                _provider = _providers.FirstOrDefault()?.Type;
             }
 
             await LoadStorageProviderSettingsControl();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Folder Config {StorageLocationId} {Error}", _storageLocationId, ex.Message);
+            await logger.LogError(ex, "Error Loading Storage Location {StorageLocationId}", _storageLocationId);
             AddModuleMessage(Localizer["Error.StorageLocation.Load"], MessageType.Error);
         }
     }
@@ -110,35 +95,37 @@
         var interop = new Interop(JSRuntime);
         if (await interop.FormValid(form))
         {
-            if (string.IsNullOrEmpty(_name))
+            if (_provider == "-")
             {
-                AddModuleMessage(Localizer["Message.Required.Name"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.Provider"], MessageType.Warning);
                 return;
             }
 
             try
             {
-                var storageLocation = _storageLocationId > 0 ? await StorageLocationService.GetStorageLocationAsync(_storageLocationId) : new StorageLocation();
-
-                // check for duplicate folder config names
-                if (_storageLocations.Any(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase) && i.StorageLocationId != _storageLocationId))
+                // check for duplicate storage location
+                var storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
+                if (storageLocations.Any(i => i.Name.Equals(_name, StringComparison.OrdinalIgnoreCase) && i.StorageLocationId != _storageLocationId))
                 {
                     AddModuleMessage(Localizer["Message.StorageLocation.Duplicate"], MessageType.Warning);
                     return;
                 }
 
-                storageLocation.SiteId = PageState.Site.SiteId;
-                storageLocation.Name = _name;
-                storageLocation.Provider = _provider;
-
-                if (_storageLocationId >  0)
+                var storageLocation = new StorageLocation
                 {
+                    SiteId = PageState.Site.SiteId,
+                    Name = _name,
+                    Provider = _provider
+                };
+                if (_storageLocationId != -1)
+                {
+                    storageLocation = storageLocations.First(item => item.StorageLocationId == _storageLocationId);
+                    storageLocation.Name = _name;
                     storageLocation = await StorageLocationService.UpdateStorageLocationAsync(storageLocation);
                 }
                 else
                 {
                     storageLocation = await StorageLocationService.AddStorageLocationAsync(storageLocation);
-                    _storageLocationId = storageLocation.StorageLocationId;
                 }
 
                 if (_storageProviderSettingsControl != null)
@@ -152,7 +139,7 @@
 
                 if (storageLocation != null)
                 {
-                    await logger.LogInformation("Folder Config Saved {StorageLocation}", storageLocation);
+                    await logger.LogInformation("Storage Location Saved {StorageLocation}", storageLocation);
                     NavigationManager.NavigateTo(ReturnUrl());
                 }
                 else
@@ -162,7 +149,7 @@
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Saving Folder Config {StorageLocationId} {Error}", _storageLocationId, ex.Message);
+                await logger.LogError(ex, "Error Saving Storage Location {StorageLocationId}", _storageLocationId);
                 AddModuleMessage(Localizer["Error.StorageLocation.Save"], MessageType.Error);
             }
         }
@@ -204,12 +191,6 @@
 
     private string ReturnUrl()
     {
-        var returnUrl = !string.IsNullOrEmpty(PageState.ReturnUrl) ? PageState.ReturnUrl : NavigateUrl();
-        if (!returnUrl.Contains("cid=") && _storageLocationId > 0)
-        {
-            var delimiter = returnUrl.Contains("?") ? "&" : "?";
-            returnUrl += $"{delimiter}cid={_storageLocationId}";
-        }
-        return returnUrl;
+        return NavigateUrl(PageState.Page.Path, "tab=storage");
     }
 }

@@ -25,8 +25,8 @@ namespace Oqtane.Migrations.EntityBuilders
         protected override StorageLocationEntityBuilder BuildTable(ColumnsBuilder table)
         {
             StorageLocationId = AddAutoIncrementColumn(table, "StorageLocationId");
-            SiteId = AddIntegerColumn(table,"SiteId", true);
-            Name = AddStringColumn(table,"Name", 50);
+            SiteId = AddIntegerColumn(table, "SiteId", true);
+            Name = AddStringColumn(table, "Name", 255);
             Provider = AddStringColumn(table, "Provider", 255);
 
             AddAuditableColumns(table);

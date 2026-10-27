@@ -135,8 +135,8 @@
   <data name="StorageLocation.HelpText" xml:space="preserve">
     <value>Enter the name of the storage location</value>
   </data>
-  <data name="Message.Required.Name" xml:space="preserve">
-    <value>Name is Required</value>
+  <data name="Message.Required.Provider" xml:space="preserve">
+    <value>You Must Select A Storage Provider</value>
   </data>
   <data name="Message.StorageLocation.Duplicate" xml:space="preserve">
     <value>Name Specified Already Exists</value>
