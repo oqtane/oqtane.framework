@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace Oqtane.Models
 {
     /// <summary>
-    /// Describes a Folder Provider Config in Oqtane
+    /// Describes a Storage Location
     /// </summary>
     public class StorageLocation : ModelBase
     {
         /// <summary>
-        /// ID to identify the folder config
+        /// ID to identify the storage location
         /// </summary>
         public int StorageLocationId { get; set; }
 
@@ -22,12 +16,12 @@ namespace Oqtane.Models
         public int? SiteId { get; set; }
 
         /// <summary>
-        /// Folder Provider Name
+        /// Storage Location Name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Folder Provider Type
+        /// Storage Provider Type
         /// </summary>
         public string Provider { get; set; }
     }

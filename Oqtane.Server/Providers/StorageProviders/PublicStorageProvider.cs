@@ -11,21 +11,21 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class PublicFolderProvider : IFolderProvider
+    public class PublicStorageProvider : IStorageProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private readonly ILogManager _logger;
 
-        public PublicFolderProvider(
+        public PublicStorageProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
-            IFolderProviderFactory folderProviderFactory,
+            IStorageProviderFactory folderProviderFactory,
             ILogManager logger)
         {
             _environment = environment;
@@ -128,14 +128,14 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
-            using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
+            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            using var fileStream = await sourceStorageProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {
                 await AddFileAsync(destinationFolder, fileName, fileStream);
                 fileStream.Close();
 
-                await sourceFolderProvider.DeleteFileAsync(file);
+                await sourceStorageProvider.DeleteFileAsync(file);
             }
         }
 
@@ -148,8 +148,8 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
-            using var fileStream = await sourceFolderProvider?.GetFileStreamAsync(file);
+            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            using var fileStream = await sourceStorageProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {
                 await AddFileAsync(destinationFolder, file.Name, fileStream);

@@ -304,7 +304,7 @@ namespace Oqtane.Infrastructure
         {
             var folderRepository = provider.GetRequiredService<IFolderRepository>();
             var fileRepository = provider.GetRequiredService<IFileRepository>();
-            var folderProviderFactory = provider.GetRequiredService<IFolderProviderFactory>();
+            var folderProviderFactory = provider.GetRequiredService<IStorageProviderFactory>();
             var log = "";
 
             // get folders
@@ -398,7 +398,7 @@ namespace Oqtane.Infrastructure
             return log;
         }
 
-        private async Task<string> SynchronizeFiles(IServiceProvider provider, IFolderProviderFactory folderProviderFactory, IFolderRepository folderRepository, IFileRepository fileRepository, SiteGroupMember siteGroupMember, Folder primaryFolder, Folder secondaryFolder)
+        private async Task<string> SynchronizeFiles(IServiceProvider provider, IStorageProviderFactory folderProviderFactory, IFolderRepository folderRepository, IFileRepository fileRepository, SiteGroupMember siteGroupMember, Folder primaryFolder, Folder secondaryFolder)
         {
             var log = "";
 
@@ -476,19 +476,19 @@ namespace Oqtane.Infrastructure
             return log;
         }
 
-        private async Task SynchronizeFile(IFolderRepository folderRepository, IFolderProviderFactory folderProviderFactory, Folder primaryFolder, Models.File primaryFile, Folder secondaryFolder, Models.File secondaryFile)
+        private async Task SynchronizeFile(IFolderRepository folderRepository, IStorageProviderFactory folderProviderFactory, Folder primaryFolder, Models.File primaryFile, Folder secondaryFolder, Models.File secondaryFile)
         {
-            var primaryFolderProvider = folderProviderFactory.GetProvider(primaryFolder);
-            if (await primaryFolderProvider.FileExistsAsync(primaryFolder, primaryFile.Name))
+            var primaryStorageProvider = folderProviderFactory.GetProvider(primaryFolder);
+            if (await primaryStorageProvider.FileExistsAsync(primaryFolder, primaryFile.Name))
             {
-                var secondaryFolderProvider = folderProviderFactory.GetProvider(secondaryFolder);
-                if (!await secondaryFolderProvider.FolderExistsAsync(secondaryFolder))
+                var secondaryStorageProvider = folderProviderFactory.GetProvider(secondaryFolder);
+                if (!await secondaryStorageProvider.FolderExistsAsync(secondaryFolder))
                 {
-                    await secondaryFolderProvider.CreateFolderAsync(secondaryFolder);
+                    await secondaryStorageProvider.CreateFolderAsync(secondaryFolder);
                 }
 
-                using var stream = await primaryFolderProvider.GetFileStreamAsync(primaryFolder, primaryFile.Name);
-                await secondaryFolderProvider.AddFileAsync(secondaryFolder, secondaryFile.Name, stream);
+                using var stream = await primaryStorageProvider.GetFileStreamAsync(primaryFolder, primaryFile.Name);
+                await secondaryStorageProvider.AddFileAsync(secondaryFolder, secondaryFile.Name, stream);
             }
         }
 

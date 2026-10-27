@@ -7,7 +7,7 @@ using Oqtane.Shared;
 namespace Oqtane.Modules
 {
     [OqtaneIgnore]
-    public abstract class FolderProviderSettingsControlBase : ModuleBase, IFolderProviderSettingsControl
+    public abstract class StorageProviderSettingsControlBase : ModuleBase, IStorageProviderSettingsControl
     {
         [Parameter]
         public int StorageLocationId { get; set; }

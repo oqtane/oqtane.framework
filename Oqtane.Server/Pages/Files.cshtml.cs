@@ -36,7 +36,7 @@ namespace Oqtane.Pages
         private readonly Alias _alias;
         private readonly IImageService _imageService;
         private readonly ISettingRepository _settingRepository;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
 
         public FilesModel(
             IWebHostEnvironment environment,
@@ -48,7 +48,7 @@ namespace Oqtane.Pages
             ITenantManager tenantManager,
             IImageService imageService,
             ISettingRepository settingRepository,
-            IFolderProviderFactory folderProviderFactory)
+            IStorageProviderFactory folderProviderFactory)
         {
             _environment = environment;
             _files = files;

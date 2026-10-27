@@ -20,9 +20,9 @@ namespace Oqtane.Shared
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
-        public const string PublicFolderProvider = "Oqtane.Providers.PublicFolderProvider, Oqtane.Server";
-        public const string PrivateFolderProvider = "Oqtane.Providers.PrivateFolderProvider, Oqtane.Server";
-        public static readonly string[] DefaultFolderProviders = { PublicFolderProvider, PrivateFolderProvider };
+        public const string PublicStorageProvider = "Oqtane.Providers.PublicStorageProvider, Oqtane.Server";
+        public const string PrivateStorageProvider = "Oqtane.Providers.PrivateStorageProvider, Oqtane.Server";
+        public static readonly string[] DefaultStorageProviders = { PublicStorageProvider, PrivateStorageProvider };
 
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";

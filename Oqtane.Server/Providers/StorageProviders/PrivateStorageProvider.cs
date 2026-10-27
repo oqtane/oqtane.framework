@@ -8,17 +8,17 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class PrivateFolderProvider : PublicFolderProvider
+    public class PrivateStorageProvider : PublicStorageProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantManager _tenantManager;
 
-        public PrivateFolderProvider(
+        public PrivateStorageProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
-            IFolderProviderFactory folderProviderFactory,
+            IStorageProviderFactory folderProviderFactory,
             ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, folderProviderFactory, logger)
         {
             _environment = environment;

@@ -17,10 +17,10 @@ namespace Oqtane.Services
     public class ImageService : IImageService
     {
         private readonly ILogManager _logger;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private static readonly string[] _formats = ["png", "webp"];
 
-        public ImageService(IFolderProviderFactory folderProviderFactory, ILogManager logger)
+        public ImageService(IStorageProviderFactory folderProviderFactory, ILogManager logger)
         {
             _folderProviderFactory = folderProviderFactory;
             _logger = logger;

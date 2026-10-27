@@ -41,7 +41,7 @@ namespace Oqtane.Controllers
         private readonly Alias _alias;
         private readonly ISettingRepository _settingRepository;
         private readonly IImageService _imageService;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
 
         public FileController(
             IWebHostEnvironment environment,
@@ -53,7 +53,7 @@ namespace Oqtane.Controllers
             ILogManager logger,
             ITenantManager tenantManager,
             IImageService imageService,
-            IFolderProviderFactory folderProviderFactory)
+            IStorageProviderFactory folderProviderFactory)
         {
             _environment = environment;
             _files = files;
@@ -796,7 +796,7 @@ namespace Oqtane.Controllers
 
         
 
-        private async Task<Models.File> CreateFileAsync(IFolderProvider folderProvider, int folderid, string fileName)
+        private async Task<Models.File> CreateFileAsync(IStorageProvider folderProvider, int folderid, string fileName)
         {
             var _ImageFiles = _settingRepository.GetSetting(EntityNames.Site, _alias.SiteId, "ImageFiles")?.SettingValue;
             _ImageFiles = (string.IsNullOrEmpty(_ImageFiles)) ? Constants.ImageFiles : _ImageFiles;

@@ -123,11 +123,11 @@
   <data name="Error.StorageLocation.Save" xml:space="preserve">
     <value>Error Saving Storage Location</value>
   </data>
-  <data name="FolderProvider.Text" xml:space="preserve">
-    <value>Folder Provider:</value>
+  <data name="StorageProvider.Text" xml:space="preserve">
+    <value>Storage Provider:</value>
   </data>
-  <data name="FolderProvider.HelpText" xml:space="preserve">
-    <value>Select the folder provider</value>
+  <data name="StorageProvider.HelpText" xml:space="preserve">
+    <value>Select the storage provider</value>
   </data>
   <data name="StorageLocation.Text" xml:space="preserve">
     <value>Name:</value>

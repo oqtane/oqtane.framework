@@ -14,13 +14,13 @@ namespace Oqtane.Modules.Admin.Files.Manager
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private const string DocumentExtensions = ".txt,.htm,.html";
 
         public FileManager(
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
-            IFolderProviderFactory folderProviderFactory)
+            IStorageProviderFactory folderProviderFactory)
         {
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;

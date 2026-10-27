@@ -7,19 +7,19 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class CustomFolderProvider : PublicFolderProvider
+    public class CustomStorageProvider : PublicStorageProvider
     {
         private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IWebHostEnvironment _environment;
 
-        public CustomFolderProvider(
+        public CustomStorageProvider(
             ISettingRepository settingRepository,
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
-            IFolderProviderFactory folderProviderFactory,
+            IStorageProviderFactory folderProviderFactory,
             ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, folderProviderFactory, logger)
         {
             _folderRepository = folderRepository;
@@ -29,7 +29,7 @@ namespace Oqtane.Providers
 
         public override string DisplayName => "Local Server Custom Folder Storage";
 
-        public override string SettingControlType => "Oqtane.Modules.Admin.Files.CustomFolderProviderSettingsControl, Oqtane.Client";
+        public override string SettingControlType => "Oqtane.Modules.Admin.Files.CustomStorageProviderSettingsControl, Oqtane.Client";
 
         protected override string GetFolderPath(Folder folder, string folderPath)
         {

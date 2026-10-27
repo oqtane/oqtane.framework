@@ -232,7 +232,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.RadzenTextEditor>();
 
             // file providers
-            services.AddScoped<IFolderProviderFactory, FolderProviderFactory>();
+            services.AddScoped<IStorageProviderFactory, StorageProviderFactory>();
 
             services.AddRadzenComponents();
 
@@ -432,7 +432,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var hostedServiceType = typeof(IHostedService);
-            var folderProviderType = typeof(IFolderProvider);
+            var folderProviderType = typeof(IStorageProvider);
 
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
@@ -469,8 +469,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // dynamically register folder providers
-                var folderProviderTypes = assembly.GetInterfaces<IFolderProvider>();
+                // dynamically register storage providers
+                var folderProviderTypes = assembly.GetInterfaces<IStorageProvider>();
                 foreach (var type in folderProviderTypes)
                 {
                     services.AddScoped(folderProviderType, type);

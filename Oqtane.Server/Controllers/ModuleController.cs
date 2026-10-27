@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private readonly Alias _alias;
 
         public ModuleController(
@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
             ITenantManager tenantManager,
             ISyncManager syncManager,
             ILogManager logger,
-            IFolderProviderFactory folderProviderFactory)
+            IStorageProviderFactory folderProviderFactory)
         {
             _modules = modules; 
             _pageModules = pageModules;

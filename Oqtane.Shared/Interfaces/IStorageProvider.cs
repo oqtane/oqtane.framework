@@ -4,15 +4,15 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Providers
 {
-    public interface IFolderProvider
+    public interface IStorageProvider
     {
         /// <summary>
-        /// The folder provider display name.
+        /// The storage provider display name.
         /// </summary>
         string DisplayName { get; }
 
         /// <summary>
-        /// The control type used to manage the folder provider configuration.
+        /// The control type used to manage the storage provider configuration.
         /// </summary>
         string SettingControlType { get; }
 

@@ -12,7 +12,7 @@
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="provider" HelpText="Select the folder provider." ResourceKey="FolderProvider">Folder Provider:</Label>
+                <Label Class="col-sm-3" For="provider" HelpText="Select the storage provider" ResourceKey="StorageProvider">Storage Provider:</Label>
                 <div class="col-sm-9">
                     @if (_storageLocationId > 0)
                     {
@@ -21,7 +21,7 @@
                     else
                     {
                         <select id="provider" class="form-select" value="@_provider" @onchange="OnProviderChanged" required>
-                            @foreach (var item in _providers.Where(i => _storageLocationId > 0 || !Constants.DefaultFolderProviders.Contains(i.Type)))
+                            @foreach (var item in _providers.Where(i => _storageLocationId > 0 || !Constants.DefaultStorageProviders.Contains(i.Type)))
                             {
                                 <option value="@item.Type">@item.DisplayName</option>
                             }
@@ -51,12 +51,12 @@
 @code {
     private ElementReference form;
     private bool validated = false;
-    private IList<FolderProvider> _providers;
+    private IList<StorageProvider> _providers;
     private IEnumerable<StorageLocation> _storageLocations;
     private int _storageLocationId = -1;
     private string _name;
     private string _provider;
-    private IFolderProviderSettingsControl _folderProviderSettingsControl;
+    private IStorageProviderSettingsControl _folderProviderSettingsControl;
     private RenderFragment _folderProviderSettingsFragment;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -71,7 +71,7 @@
             _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
 
             //remove default provider from the list
-            foreach (var defaultProvider in Constants.DefaultFolderProviders)
+            foreach (var defaultProvider in Constants.DefaultStorageProviders)
             {
                 var item = _providers.FirstOrDefault(i => i.Type == defaultProvider);
                 if (item != null)
@@ -95,7 +95,7 @@
                 _provider = _providers.FirstOrDefault()?.Type;
             }
 
-            await LoadFolderProviderSettingsControl();
+            await LoadStorageProviderSettingsControl();
         }
         catch (Exception ex)
         {
@@ -175,10 +175,10 @@
     private async Task OnProviderChanged(ChangeEventArgs e)
     {
         _provider = e.Value.ToString();
-        await LoadFolderProviderSettingsControl();
+        await LoadStorageProviderSettingsControl();
     }
 
-    private async Task LoadFolderProviderSettingsControl()
+    private async Task LoadStorageProviderSettingsControl()
     {
         _folderProviderSettingsControl = null;
         _folderProviderSettingsFragment = null;
@@ -187,14 +187,14 @@
         if (!string.IsNullOrEmpty(settingsControlType))
         {
             var type = Type.GetType(settingsControlType);
-            if (type != null && typeof(IFolderProviderSettingsControl).IsAssignableFrom(type))
+            if (type != null && typeof(IStorageProviderSettingsControl).IsAssignableFrom(type))
             {
                 _folderProviderSettingsFragment = builder =>
                 {
                     var sequence = 0;
                     builder.OpenComponent(sequence++, type);
                     builder.AddAttribute(sequence++, "StorageLocationId", _storageLocationId);
-                    builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IFolderProviderSettingsControl)e);
+                    builder.AddComponentReferenceCapture(sequence++, e => _folderProviderSettingsControl = (IStorageProviderSettingsControl)e);
 
                     builder.CloseComponent();
                 };
