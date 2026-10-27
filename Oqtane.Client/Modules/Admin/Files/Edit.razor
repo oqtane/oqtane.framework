@@ -124,7 +124,7 @@
                         @if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="StorageLocation" HelpText="Select the folder config." ResourceKey="StorageLocation">Folder Config:</Label>
+                                <Label Class="col-sm-3" For="StorageLocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
                                 <div class="col">
                                     <input id="StorageLocation" class="form-control" disabled value="@(_storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId)?.Name)" />
                                 </div>

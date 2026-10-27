@@ -15,7 +15,7 @@ namespace Oqtane.Services
     public interface IStorageLocationService
     {
         /// <summary>
-        /// Retrieve folder config of a <see cref="Site"/>
+        /// Retrieve storage locations of a <see cref="Site"/>
         /// </summary>
         /// <param name="siteId"></param>
         /// <returns></returns>
@@ -51,10 +51,10 @@ namespace Oqtane.Services
         /// Get the default <see cref="StorageLocation"/>.
         /// </summary>
         /// <returns></returns>
-        Task<int> GetDefaultConfigIdAsync();
+        Task<int> GetDefaultStorageLocationIdAsync();
 
         /// <summary>
-        /// Create one folder config using a <see cref="StorageLocation"/> object. 
+        /// Create a storage location 
         /// </summary>
         /// <param name="StorageLocation"></param>
         /// <returns></returns>
@@ -62,7 +62,6 @@ namespace Oqtane.Services
 
         /// <summary>
         /// Update the information about a <see cref="StorageLocation"/>
-        /// Use this to rename the folder config etc.
         /// </summary>
         /// <param name="StorageLocation"></param>
         /// <returns></returns>
@@ -115,7 +114,7 @@ namespace Oqtane.Services
             return await GetJsonAsync<IDictionary<string, string>>($"{ApiUrl}/settings/{StorageLocationId}");
         }
 
-        public async Task<int> GetDefaultConfigIdAsync()
+        public async Task<int> GetDefaultStorageLocationIdAsync()
         {
             return await GetJsonAsync<int>($"{ApiUrl}/default");
         }
