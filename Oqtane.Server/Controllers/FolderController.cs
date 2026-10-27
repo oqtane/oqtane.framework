@@ -179,7 +179,7 @@ namespace Oqtane.Controllers
                         }
                         if(folder.StorageLocationId <= 0)
                         {
-                            folder.StorageLocationId = _storageProviderFactory.GetDefaultConfigId(folder.SiteId);
+                            folder.StorageLocationId = _storageProviderFactory.GetDefaultStorageLocationId(folder.SiteId);
                         }
 
                         folder = _folders.AddFolder(folder);
@@ -225,7 +225,7 @@ namespace Oqtane.Controllers
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
 
-                        if(parent.StorageLocationId != _storageProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.StorageLocationId != parent.StorageLocationId)
+                        if(parent.StorageLocationId != _storageProviderFactory.GetDefaultStorageLocationId(folder.SiteId) && folder.StorageLocationId != parent.StorageLocationId)
                         {
                             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Not Valid {Folder}", folder);
                             HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;

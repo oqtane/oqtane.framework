@@ -9,7 +9,7 @@ namespace Oqtane.Providers
     {
         IStorageProvider GetProvider(Folder folder);
 
-        int GetDefaultConfigId(int siteId);
+        int GetDefaultStorageLocationId(int siteId);
 
         int GetStorageLocationId(int siteId, string provider);
     }

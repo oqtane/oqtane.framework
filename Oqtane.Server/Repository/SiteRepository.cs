@@ -291,7 +291,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = false,
-                StorageLocationId = _storageProviderFactory.GetDefaultConfigId(site.SiteId),
+                StorageLocationId = _storageProviderFactory.GetDefaultStorageLocationId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

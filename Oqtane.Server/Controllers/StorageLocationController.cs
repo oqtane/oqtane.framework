@@ -137,9 +137,9 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet("default")]
-        public int GetDefaultConfigId()
+        public int GetDefaultStorageLocationId()
         {
-            return _storageProviderFactory.GetDefaultConfigId(_alias.SiteId);
+            return _storageProviderFactory.GetDefaultStorageLocationId(_alias.SiteId);
         }
 
         // POST api/<controller>
