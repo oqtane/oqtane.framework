@@ -36,7 +36,7 @@ namespace Oqtane.Pages
         private readonly Alias _alias;
         private readonly IImageService _imageService;
         private readonly ISettingRepository _settingRepository;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
 
         public FilesModel(
             IWebHostEnvironment environment,
@@ -48,7 +48,7 @@ namespace Oqtane.Pages
             ITenantManager tenantManager,
             IImageService imageService,
             ISettingRepository settingRepository,
-            IStorageProviderFactory folderProviderFactory)
+            IStorageProviderFactory storageProviderFactory)
         {
             _environment = environment;
             _files = files;
@@ -59,7 +59,7 @@ namespace Oqtane.Pages
             _alias = tenantManager.GetAlias();
             _imageService = imageService;
             _settingRepository = settingRepository;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
         }
 
         public async Task<IActionResult> OnGet(string path)
@@ -165,7 +165,7 @@ namespace Oqtane.Pages
                 return Content(String.Empty);
             }
 
-            var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
+            var folderProvider = _storageProviderFactory.GetProvider(file.Folder);
             if (!await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {Folder}{FilePath}", file.Folder.Path, file.Name);

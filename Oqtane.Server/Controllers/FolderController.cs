@@ -19,7 +19,7 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class FolderController : Controller
     {
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly IFolderRepository _folders;
         private readonly IStorageLocationRepository _StorageLocations;
         private readonly IUserPermissions _userPermissions;
@@ -30,7 +30,7 @@ namespace Oqtane.Controllers
         private readonly Alias _alias;
 
         public FolderController(
-            IStorageProviderFactory folderProviderFactory,
+            IStorageProviderFactory storageProviderFactory,
             IFolderRepository folders,
             IStorageLocationRepository StorageLocations,
             IUserPermissions userPermissions,
@@ -40,7 +40,7 @@ namespace Oqtane.Controllers
             ITenantManager tenantManager,
             IPermissionRepository permissionRepository)
         {
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _folders = folders;
             _StorageLocations = StorageLocations;
             _userPermissions = userPermissions;
@@ -179,12 +179,12 @@ namespace Oqtane.Controllers
                         }
                         if(folder.StorageLocationId <= 0)
                         {
-                            folder.StorageLocationId = _folderProviderFactory.GetDefaultConfigId(folder.SiteId);
+                            folder.StorageLocationId = _storageProviderFactory.GetDefaultConfigId(folder.SiteId);
                         }
 
                         folder = _folders.AddFolder(folder);
                         //create the folder in the provider
-                        var folderProvider = _folderProviderFactory.GetProvider(folder);
+                        var folderProvider = _storageProviderFactory.GetProvider(folder);
                         await folderProvider.CreateFolderAsync(folder);
                         _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
@@ -225,7 +225,7 @@ namespace Oqtane.Controllers
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
 
-                        if(parent.StorageLocationId != _folderProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.StorageLocationId != parent.StorageLocationId)
+                        if(parent.StorageLocationId != _storageProviderFactory.GetDefaultConfigId(folder.SiteId) && folder.StorageLocationId != parent.StorageLocationId)
                         {
                             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Not Valid {Folder}", folder);
                             HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -247,7 +247,7 @@ namespace Oqtane.Controllers
                         UpdateChildFoldersPath(folder);
                     }
 
-                    var folderProvider = _folderProviderFactory.GetProvider(folder);
+                    var folderProvider = _storageProviderFactory.GetProvider(folder);
                     if (_folder.MappedPath != folder.MappedPath && _folder.StorageLocationId == folder.StorageLocationId && await folderProvider.FolderExistsAsync(_folder))
                     {
                         await folderProvider.MoveFolderAsync(_folder, folder.MappedPath);
@@ -320,7 +320,7 @@ namespace Oqtane.Controllers
             var folder = _folders.GetFolder(id, false);
             if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit))
             {
-                var folderProvider = _folderProviderFactory.GetProvider(folder);
+                var folderProvider = _storageProviderFactory.GetProvider(folder);
                 if (folderProvider != null)
                 {
                     await folderProvider.DeleteFolderAsync(folder);

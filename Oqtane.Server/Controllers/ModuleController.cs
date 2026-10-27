@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly Alias _alias;
 
         public ModuleController(
@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
             ITenantManager tenantManager,
             ISyncManager syncManager,
             ILogManager logger,
-            IStorageProviderFactory folderProviderFactory)
+            IStorageProviderFactory storageProviderFactory)
         {
             _modules = modules; 
             _pageModules = pageModules;
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _alias = tenantManager.GetAlias();
         }
 
@@ -284,7 +284,7 @@ namespace Oqtane.Controllers
 
                 // get folder
                 var folder = _folders.GetFolder(folderid, false);
-                var folderProvider = _folderProviderFactory.GetProvider(folder);
+                var folderProvider = _storageProviderFactory.GetProvider(folder);
 
                 // create json file
                 filename = Utilities.GetFriendlyUrl(Path.GetFileNameWithoutExtension(filename)) + ".json";

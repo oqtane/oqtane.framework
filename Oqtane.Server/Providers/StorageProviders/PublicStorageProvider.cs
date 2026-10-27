@@ -17,7 +17,7 @@ namespace Oqtane.Providers
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly ILogManager _logger;
 
         public PublicStorageProvider(
@@ -25,14 +25,14 @@ namespace Oqtane.Providers
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             ITenantManager tenantManager,
-            IStorageProviderFactory folderProviderFactory,
+            IStorageProviderFactory storageProviderFactory,
             ILogManager logger)
         {
             _environment = environment;
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
             _tenantManager = tenantManager;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _logger = logger;
         }
 
@@ -128,7 +128,7 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            var sourceStorageProvider = _storageProviderFactory.GetProvider(file.Folder);
             using var fileStream = await sourceStorageProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {
@@ -148,7 +148,7 @@ namespace Oqtane.Providers
             // Ensure the destination folder exists
             CreateDirectory(destinationFolderPath);
 
-            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            var sourceStorageProvider = _storageProviderFactory.GetProvider(file.Folder);
             using var fileStream = await sourceStorageProvider?.GetFileStreamAsync(file);
             if (fileStream != null)
             {

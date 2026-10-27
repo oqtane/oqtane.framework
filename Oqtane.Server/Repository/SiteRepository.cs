@@ -45,7 +45,7 @@ namespace Oqtane.Repository
         private readonly ITenantManager _tenantManager;
         private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private static readonly object _lock = new object();
 
         public SiteRepository(
@@ -64,7 +64,7 @@ namespace Oqtane.Repository
             ITenantManager tenantManager,
             ICacheManager cache,
             ILogManager logger,
-            IStorageProviderFactory folderProviderFactory)
+            IStorageProviderFactory storageProviderFactory)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -81,7 +81,7 @@ namespace Oqtane.Repository
             _tenantManager = tenantManager;
             _cache = cache;
             _logger = logger;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
         }
 
         public IEnumerable<Site> GetSites()
@@ -272,7 +272,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
+                StorageLocationId = _storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -291,7 +291,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = false,
-                StorageLocationId = _folderProviderFactory.GetDefaultConfigId(site.SiteId),
+                StorageLocationId = _storageProviderFactory.GetDefaultConfigId(site.SiteId),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -310,7 +310,7 @@ namespace Oqtane.Repository
                 Capacity = 0,
                 IsSystem = true,
                 MappedPath = Constants.UserFolderPath,
-                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
+                StorageLocationId = _storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

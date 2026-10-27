@@ -17,12 +17,12 @@ namespace Oqtane.Services
     public class ImageService : IImageService
     {
         private readonly ILogManager _logger;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private static readonly string[] _formats = ["png", "webp"];
 
-        public ImageService(IStorageProviderFactory folderProviderFactory, ILogManager logger)
+        public ImageService(IStorageProviderFactory storageProviderFactory, ILogManager logger)
         {
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _logger = logger;
         }
 
@@ -43,7 +43,7 @@ namespace Oqtane.Services
                 rotate = (int.Parse(rotate) < 0 || int.Parse(rotate) > 360) ? "0" : rotate;
                 if (!_formats.Contains(format)) format = "png";
 
-                var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
+                var folderProvider = _storageProviderFactory.GetProvider(file.Folder);
                 using (var stream = await folderProvider.GetFileStreamAsync(file))
                 {
                     stream.Position = 0;
