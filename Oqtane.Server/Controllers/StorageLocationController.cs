@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -21,8 +20,7 @@ namespace Oqtane.Controllers
     public class StorageLocationController : Controller
     {
         private readonly IStorageLocationRepository _StorageLocations;
-        private readonly IFolderProviderFactory _folderProviderFactory;
-        private readonly IUserPermissions _userPermissions;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
@@ -30,8 +28,7 @@ namespace Oqtane.Controllers
 
         public StorageLocationController(
             IStorageLocationRepository StorageLocations,
-            IFolderProviderFactory folderProviderFactory,
-            IUserPermissions userPermissions,
+            IStorageProviderFactory folderProviderFactory,
             ISyncManager syncManager,
             ILogManager logger,
             IServiceProvider serviceProvider,
@@ -39,7 +36,6 @@ namespace Oqtane.Controllers
         {
             _StorageLocations = StorageLocations;
             _folderProviderFactory = folderProviderFactory;
-            _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -58,7 +54,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {SiteId}", siteid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Get Attempt {SiteId}", siteid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 StorageLocations = null;
             }
@@ -76,7 +72,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {StorageLocationId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Get Attempt {StorageLocationId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 
                 return null;
@@ -94,7 +90,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Get Attempt {provider}", provider);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Get Attempt {provider}", provider);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 
                 return null;
@@ -102,10 +98,10 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet("providers")]
-        public IList<FolderProvider> GetProviders()
+        public IList<StorageProvider> GetProviders()
         {
-            return _serviceProvider.GetServices<IFolderProvider>()
-                .Select(i => new FolderProvider
+            return _serviceProvider.GetServices<IStorageProvider>()
+                .Select(i => new StorageProvider
                 {
                     DisplayName = i.DisplayName,
                     Type = $"{i.GetType().FullName}, {i.GetType().Assembly.GetName().Name}",
@@ -113,8 +109,8 @@ namespace Oqtane.Controllers
                 })
                 .OrderBy(i => i.Type switch
                 {
-                    Constants.PublicFolderProvider => 1,
-                    Constants.PrivateFolderProvider => 2,
+                    Constants.PublicStorageProvider => 1,
+                    Constants.PrivateStorageProvider => 2,
                     _ => 3
                 })
                 .ThenBy(i => i.DisplayName)
@@ -133,7 +129,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Settings Get Attempt {StorageLocationId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Settings Get Attempt {StorageLocationId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 
                 return null;
@@ -153,25 +149,25 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && StorageLocation.SiteId == _alias.SiteId)
             {
-                if(Constants.DefaultFolderProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
+                if(Constants.DefaultStorageProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
                 {
-                    throw new ArgumentException("Can't add system default folder config.");
+                    throw new ArgumentException("Can't add system default storage location");
                 }
 
-                var exsiting = _StorageLocations.GetStorageLocations(StorageLocation.SiteId.Value)
+                var existing = _StorageLocations.GetStorageLocations(StorageLocation.SiteId.Value)
                     .Any(c => c.Name.Equals(StorageLocation.Name, StringComparison.OrdinalIgnoreCase));
-                if(exsiting)
+                if(existing)
                 {
-                    throw new ArgumentException("A folder config with the same name already exists.");
+                    throw new ArgumentException("A storage location with the same name already exists");
                 }
 
                 StorageLocation = _StorageLocations.AddStorageLocation(StorageLocation);
                 _syncManager.AddSyncEvent(_alias, EntityNames.StorageLocation, StorageLocation.StorageLocationId, SyncEventActions.Create);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Added {StorageLocation}", StorageLocation);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Storage Location Added {StorageLocation}", StorageLocation);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Post Attempt {StorageLocation}", StorageLocation);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Post Attempt {StorageLocation}", StorageLocation);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 StorageLocation = null;
             }
@@ -185,18 +181,18 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && StorageLocation.SiteId == _alias.SiteId && StorageLocation.StorageLocationId == id && _StorageLocations.GetStorageLocation(StorageLocation.StorageLocationId) != null)
             {
-                if (Constants.DefaultFolderProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
+                if (Constants.DefaultStorageProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
                 {
-                    throw new ArgumentException("Default folder provider cannot be updated.");
+                    throw new ArgumentException("Default storage location cannot be updated.");
                 }
 
                 StorageLocation = _StorageLocations.UpdateStorageLocation(StorageLocation);
                 _syncManager.AddSyncEvent(_alias, EntityNames.StorageLocation, StorageLocation.StorageLocationId, SyncEventActions.Update);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Config Updated {StorageLocation}", StorageLocation);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Storage Location Updated {StorageLocation}", StorageLocation);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Put Attempt  {StorageLocation}", StorageLocation);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Put Attempt {StorageLocation}", StorageLocation);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 StorageLocation = null;
             }
@@ -212,11 +208,11 @@ namespace Oqtane.Controllers
             {
                 _StorageLocations.SaveSettings(id, settings);
                 _syncManager.AddSyncEvent(_alias, EntityNames.StorageLocation, StorageLocation.StorageLocationId, SyncEventActions.Update);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Config Settings Saved {Id}", id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Storage Location Settings Saved {Id}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Settings Save Attempt {Id}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Settings Save Attempt {Id}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
@@ -229,18 +225,18 @@ namespace Oqtane.Controllers
             var StorageLocation = _StorageLocations.GetStorageLocation(id);
             if (StorageLocation != null && StorageLocation.SiteId == _alias.SiteId)
             {
-                if (Constants.DefaultFolderProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
+                if (Constants.DefaultStorageProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
                 {
-                    throw new ArgumentException("Default folder provider cannot be deleted.");
+                    throw new ArgumentException("Default storage location cannot be deleted.");
                 }
 
                 _StorageLocations.DeleteStorageLocation(id);
                 _syncManager.AddSyncEvent(_alias, EntityNames.StorageLocation, id, SyncEventActions.Delete);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Config Deleted {StorageLocationId}", id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Storage Location Deleted {StorageLocationId}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Config Delete Attempt {StorageLocationId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Delete Attempt {StorageLocationId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }

@@ -5,9 +5,9 @@ using Oqtane.Models;
 
 namespace Oqtane.Providers
 {
-    public interface IFolderProviderFactory
+    public interface IStorageProviderFactory
     {
-        IFolderProvider GetProvider(Folder folder);
+        IStorageProvider GetProvider(Folder folder);
 
         int GetDefaultConfigId(int siteId);
 

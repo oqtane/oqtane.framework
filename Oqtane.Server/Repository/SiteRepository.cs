@@ -45,7 +45,7 @@ namespace Oqtane.Repository
         private readonly ITenantManager _tenantManager;
         private readonly ICacheManager _cache;
         private readonly ILogManager _logger;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private static readonly object _lock = new object();
 
         public SiteRepository(
@@ -64,7 +64,7 @@ namespace Oqtane.Repository
             ITenantManager tenantManager,
             ICacheManager cache,
             ILogManager logger,
-            IFolderProviderFactory folderProviderFactory)
+            IStorageProviderFactory folderProviderFactory)
         {
             _factory = factory;
             _roleRepository = roleRepository;
@@ -272,7 +272,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateFolderProvider),
+                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -310,7 +310,7 @@ namespace Oqtane.Repository
                 Capacity = 0,
                 IsSystem = true,
                 MappedPath = Constants.UserFolderPath,
-                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateFolderProvider),
+                StorageLocationId = _folderProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider),
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

@@ -31,15 +31,15 @@ namespace Oqtane.Services
         /// <summary>
         /// Retrieve the information of one <see cref="StorageLocation"/>
         /// </summary>
-        /// <param name="provider">the folder provider name.</param>
+        /// <param name="provider">the storage provider name.</param>
         /// <returns></returns>
         Task<StorageLocation> GetStorageLocationAsync(string provider);
 
         /// <summary>
-        /// Get folder providers available in the system.
+        /// Get storage providers available in the system.
         /// </summary>
         /// <returns></returns>
-        Task<IList<FolderProvider>> GetProvidersAsync();
+        Task<IList<StorageProvider>> GetProvidersAsync();
 
         /// <summary>
         /// Get the settings of a <see cref="StorageLocation"/>.
@@ -105,9 +105,9 @@ namespace Oqtane.Services
             return await GetJsonAsync<StorageLocation>($"{ApiUrl}/provider/{provider}");
         }
 
-        public async Task<IList<FolderProvider>> GetProvidersAsync()
+        public async Task<IList<StorageProvider>> GetProvidersAsync()
         {
-            return await GetJsonAsync<IList<FolderProvider>>($"{ApiUrl}/providers");
+            return await GetJsonAsync<IList<StorageProvider>>($"{ApiUrl}/providers");
         }
 
         public async Task<IDictionary<string, string>> GetSettingsAsync(int StorageLocationId)

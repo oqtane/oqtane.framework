@@ -12,13 +12,13 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class FolderProviderFactory : IFolderProviderFactory
+    public class StorageProviderFactory : IStorageProviderFactory
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IStorageLocationRepository _StorageLocationRepository;
         private readonly ILogManager _logger;
 
-        public FolderProviderFactory(IServiceProvider serviceProvider, IStorageLocationRepository StorageLocationRepository, IOptions<List<Models.FolderProvider>> folderProviderOptions, ILogManager logger)
+        public StorageProviderFactory(IServiceProvider serviceProvider, IStorageLocationRepository StorageLocationRepository, IOptions<List<Models.StorageProvider>> folderProviderOptions, ILogManager logger)
         {
             _serviceProvider = serviceProvider;
             _StorageLocationRepository = StorageLocationRepository;
@@ -26,13 +26,13 @@ namespace Oqtane.Providers
         }
 
         /// <summary>
-        /// Gets the default folder configuration ID for a given site. If no default configuration exists, it creates one with the name and provider set to "PublicFolderProvider".
+        /// Gets the default folder configuration ID for a given site. If no default configuration exists, it creates one with the name and provider set to "PublicStorageProvider".
         /// </summary>
         /// <param name="siteId"></param>
         /// <returns></returns>
         public int GetDefaultConfigId(int siteId)
         {
-            return GetStorageLocationId(siteId, Constants.PublicFolderProvider);
+            return GetStorageLocationId(siteId, Constants.PublicStorageProvider);
         }
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace Oqtane.Providers
         public int GetStorageLocationId(int siteId, string provider)
         {
             var config = _StorageLocationRepository.GetStorageLocations(siteId).FirstOrDefault(fp => fp.Provider == provider);
-            if (config == null && Constants.DefaultFolderProviders.Contains(provider))
+            if (config == null && Constants.DefaultStorageProviders.Contains(provider))
             {
-                var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
+                var folderProvider = _serviceProvider.GetServices<IStorageProvider>()?
                     .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(provider, StringComparison.OrdinalIgnoreCase));
                 config = new Models.StorageLocation
                 {
@@ -58,7 +58,7 @@ namespace Oqtane.Providers
             return config.StorageLocationId;
         }
 
-        public IFolderProvider GetProvider(Folder folder)
+        public IStorageProvider GetProvider(Folder folder)
         {
             if(folder == null)
             {
@@ -70,7 +70,7 @@ namespace Oqtane.Providers
                 folder.StorageLocation = _StorageLocationRepository.GetStorageLocation(folder.StorageLocationId);
             }
 
-            var folderProvider = _serviceProvider.GetServices<IFolderProvider>()?
+            var folderProvider = _serviceProvider.GetServices<IStorageProvider>()?
                 .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.StorageLocation.Provider, StringComparison.OrdinalIgnoreCase));
 
             if (folderProvider != null)

@@ -1,8 +1,8 @@
 @namespace Oqtane.Modules.Admin.Files
-@inherits FolderProviderSettingsControlBase
+@inherits StorageProviderSettingsControlBase
 @inject IFolderService FolderService
 @inject ISettingService SettingService
-@inject IStringLocalizer<CustomFolderProviderSettingsControl> Localizer
+@inject IStringLocalizer<CustomStorageProviderSettingsControl> Localizer
 
 <div class="row mb-1 align-items-center">
     <Label Class="col-sm-3" For="folderpath" ResourceKey="FolderPath" ResourceType="@resourceType" HelpText="A relative path on the local server">Folder Path: </Label>
@@ -13,7 +13,7 @@
 
 @code {
     private string _folderPath = "";
-    private string resourceType = "Oqtane.Modules.Admin.Files.CustomFolderProviderSettingsControl, Oqtane.Client"; // for localization
+    private string resourceType = "Oqtane.Modules.Admin.Files.CustomStorageProviderSettingsControl, Oqtane.Client"; // for localization
 
     protected override async Task OnInitializedAsync()
     {

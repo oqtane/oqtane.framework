@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Providers
 {
-    public interface IFolderProviderSettingsControl
+    public interface IStorageProviderSettingsControl
     {
         int StorageLocationId { get; set; }
 

@@ -12,23 +12,23 @@ using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
-    public class DatabaseFolderProvider : IFolderProvider
+    public class DatabaseStorageProvider : IStorageProvider
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
         private readonly IFileBlobRepository _fileBlobRepository;
         private readonly ITenantManager _tenantManager;
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private readonly ILogManager _logger;
 
-        public DatabaseFolderProvider(
+        public DatabaseStorageProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             IFileBlobRepository fileBlobRepository,
             ITenantManager tenantManager,
-            IFolderProviderFactory folderProviderFactory,
+            IStorageProviderFactory folderProviderFactory,
             ILogManager logger)
         {
             _environment = environment;
@@ -108,18 +108,18 @@ namespace Oqtane.Providers
 
         public virtual async Task MoveFileAsync(Models.File file, Models.Folder destinationFolder, string fileName)
         {
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
-            using var stream = await sourceFolderProvider.GetFileStreamAsync(file);
+            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            using var stream = await sourceStorageProvider.GetFileStreamAsync(file);
             await AddFileAsync(destinationFolder, fileName, stream);
             stream.Close();
 
-            await sourceFolderProvider.DeleteFileAsync(file);
+            await sourceStorageProvider.DeleteFileAsync(file);
         }
 
         public virtual async Task CopyFileAsync(Models.File file, Folder destinationFolder)
         {
-            var sourceFolderProvider = _folderProviderFactory.GetProvider(file.Folder);
-            using var stream = await sourceFolderProvider.GetFileStreamAsync(file);
+            var sourceStorageProvider = _folderProviderFactory.GetProvider(file.Folder);
+            using var stream = await sourceStorageProvider.GetFileStreamAsync(file);
             await AddFileAsync(destinationFolder, file.Name, stream);
             stream.Close();
         }

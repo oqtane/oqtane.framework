@@ -134,10 +134,10 @@ namespace Oqtane.Repository
             var StorageLocation = db.StorageLocation.Find(StorageLocationId);
             if (StorageLocation != null)
             {
-                //avoid to delete the default folder provider
-                if (Constants.DefaultFolderProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
+                // avoid deletion of the default storage location
+                if (Constants.DefaultStorageProviders.Contains(StorageLocation.Provider) || !StorageLocation.SiteId.HasValue)
                 {
-                    throw new SecurityException("Cannot delete default folder provider");
+                    throw new SecurityException("Cannot delete default storage location");
                 }
 
                 //remove all the folders

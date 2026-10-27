@@ -5,7 +5,7 @@
 @inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
 @inject IStorageLocationService StorageLocationService
-@inject IFolderProviderFactory FolderProviderFactory
+@inject IStorageProviderFactory StorageProviderFactory
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -249,7 +249,7 @@
             }
             else
             {
-                _storageLocationId = (await StorageLocationService.GetStorageLocationAsync(Constants.PublicFolderProvider))?.StorageLocationId ?? -1;
+                _storageLocationId = (await StorageLocationService.GetStorageLocationAsync(Constants.PublicStorageProvider))?.StorageLocationId ?? -1;
 
                 if (PageState.QueryString.ContainsKey("parentid"))
                 {
@@ -456,9 +456,9 @@
         _storageLocationId = storageLocationId;
     }
 
-    private bool IsDefaultFolderProvider()
+    private bool IsDefaultStorageProvider()
     {
         var storageLocation = _storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId);
-        return storageLocation != null && Constants.DefaultFolderProviders.Contains(storageLocation.Provider);
+        return storageLocation != null && Constants.DefaultStorageProviders.Contains(storageLocation.Provider);
     }
 }

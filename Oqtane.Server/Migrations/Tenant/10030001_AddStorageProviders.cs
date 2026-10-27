@@ -10,9 +10,9 @@ namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.10.03.00.01")]
-    public class AddFolderProviders : MultiDatabaseMigration
+    public class AddStorageProviders : MultiDatabaseMigration
     {
-        public AddFolderProviders(IDatabase database) : base(database)
+        public AddStorageProviders(IDatabase database) : base(database)
         {
         }
 

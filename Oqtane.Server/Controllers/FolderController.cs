@@ -19,7 +19,7 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.ApiRoute)]
     public class FolderController : Controller
     {
-        private readonly IFolderProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _folderProviderFactory;
         private readonly IFolderRepository _folders;
         private readonly IStorageLocationRepository _StorageLocations;
         private readonly IUserPermissions _userPermissions;
@@ -30,7 +30,7 @@ namespace Oqtane.Controllers
         private readonly Alias _alias;
 
         public FolderController(
-            IFolderProviderFactory folderProviderFactory,
+            IStorageProviderFactory folderProviderFactory,
             IFolderRepository folders,
             IStorageLocationRepository StorageLocations,
             IUserPermissions userPermissions,
