@@ -14,17 +14,17 @@ namespace Oqtane.Modules.Admin.Files.Manager
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private const string DocumentExtensions = ".txt,.htm,.html";
 
         public FileManager(
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
-            IStorageProviderFactory folderProviderFactory)
+            IStorageProviderFactory storageProviderFactory)
         {
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
-            _folderProviderFactory = folderProviderFactory; 
+            _storageProviderFactory = storageProviderFactory; 
         }
 
         public async Task<List<SearchContent>> GetSearchContentsAsync(PageModule pageModule, DateTime lastIndexedOn)
@@ -50,7 +50,7 @@ namespace Oqtane.Modules.Admin.Files.Manager
                         var path = folder.Path + file.Name;
 
                         var body = "";
-                        var folderProvider = _folderProviderFactory.GetProvider(folder);
+                        var folderProvider = _storageProviderFactory.GetProvider(folder);
                         if (await folderProvider.FileExistsAsync(folder, file.Name))
                         {
                             // only non-binary files can be indexed

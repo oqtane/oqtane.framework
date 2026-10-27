@@ -62,10 +62,10 @@ namespace Oqtane.Managers
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly ICacheManager _cache;
-        private readonly IStorageProviderFactory _folderProviderFactory; 
+        private readonly IStorageProviderFactory _storageProviderFactory; 
         private readonly IStringLocalizer<UserManager> _localizer;
 
-        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer, IStorageProviderFactory folderProviderFactory)
+        public UserManager(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, IFileRepository files, IProfileRepository profiles, ISettingRepository settings, ISiteRepository sites, ISyncManager syncManager, ILogManager logger, ICacheManager cache, IStringLocalizer<UserManager> localizer, IStorageProviderFactory storageProviderFactory)
         {
             _users = users;
             _roles = roles;
@@ -82,7 +82,7 @@ namespace Oqtane.Managers
             _syncManager = syncManager;
             _logger = logger;
             _cache = cache;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _localizer = localizer;
         }
 
@@ -365,7 +365,7 @@ namespace Oqtane.Managers
             var folder = _folders.GetFolder(siteid, $"{Constants.UserFolderPath}{userid}/");
             if (folder != null)
             {
-                var folderProvider = _folderProviderFactory.GetProvider(folder);
+                var folderProvider = _storageProviderFactory.GetProvider(folder);
                 await folderProvider.DeleteFolderAsync(folder);
 
                 _folders.DeleteFolder(folder.FolderId);
@@ -683,7 +683,7 @@ namespace Oqtane.Managers
             var success = true;
             int rows = 0;
             int users = 0;
-            var folderProvider = _folderProviderFactory.GetProvider(file.Folder);
+            var folderProvider = _storageProviderFactory.GetProvider(file.Folder);
             if (await folderProvider.FileExistsAsync(file.Folder, file.Name))
             {
                 var roles = _roles.GetRoles(siteId).ToList();

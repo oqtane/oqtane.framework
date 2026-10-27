@@ -20,7 +20,7 @@ namespace Oqtane.Controllers
     public class StorageLocationController : Controller
     {
         private readonly IStorageLocationRepository _StorageLocations;
-        private readonly IStorageProviderFactory _folderProviderFactory;
+        private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
@@ -28,14 +28,14 @@ namespace Oqtane.Controllers
 
         public StorageLocationController(
             IStorageLocationRepository StorageLocations,
-            IStorageProviderFactory folderProviderFactory,
+            IStorageProviderFactory storageProviderFactory,
             ISyncManager syncManager,
             ILogManager logger,
             IServiceProvider serviceProvider,
             ITenantManager tenantManager)
         {
             _StorageLocations = StorageLocations;
-            _folderProviderFactory = folderProviderFactory;
+            _storageProviderFactory = storageProviderFactory;
             _syncManager = syncManager;
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -139,7 +139,7 @@ namespace Oqtane.Controllers
         [HttpGet("default")]
         public int GetDefaultConfigId()
         {
-            return _folderProviderFactory.GetDefaultConfigId(_alias.SiteId);
+            return _storageProviderFactory.GetDefaultConfigId(_alias.SiteId);
         }
 
         // POST api/<controller>
