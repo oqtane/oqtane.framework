@@ -157,7 +157,7 @@
                         // fallback to use the first page in the collection
                         page = site.Pages.FirstOrDefault();
                     }
-                    if (page == null)
+                    if (page == null && site.Pages.Any(item => item.IsPersonalizable && !item.IsDeleted))
                     {
                         // personalized pages need to be retrieved using path
                         page = PageRepository.GetPage(route.PagePath, site.SiteId);
