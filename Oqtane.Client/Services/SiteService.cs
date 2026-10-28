@@ -56,6 +56,13 @@ namespace Oqtane.Services
         /// <returns></returns>
         Task<List<Module>> GetModulesAsync(int siteId, int pageId);
 
+        /// <summary>
+        /// Returns a list of pages (not trimmed)
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        Task<List<Page>> GetPagesAsync(int siteId);
+
         [PrivateApi]
         [Obsolete("This method is deprecated.", false)]
         void SetAlias(Alias alias);
@@ -96,6 +103,11 @@ namespace Oqtane.Services
         public async Task<List<Module>> GetModulesAsync(int siteId, int pageId)
         {
             return await GetJsonAsync<List<Module>>($"{Apiurl}/modules/{siteId}/{pageId}");
+        }
+
+        public async Task<List<Page>> GetPagesAsync(int siteId)
+        {
+            return await GetJsonAsync<List<Page>>($"{Apiurl}/pages/{siteId}");
         }
 
         [Obsolete("This method is deprecated.", false)]

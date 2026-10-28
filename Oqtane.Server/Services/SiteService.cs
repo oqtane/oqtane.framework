@@ -319,6 +319,16 @@ namespace Oqtane.Services
             return modules.OrderBy(item => item.PageId).ThenBy(item => item.Pane).ThenBy(item => item.Order).ToList();
         }
 
+        public Task<List<Page>> GetPagesAsync(int siteId)
+        {
+            var alias = _tenantManager.GetAlias();
+            var site = _cache.GetCache(alias, "Site", entry =>
+            {
+                return GetSite(siteId);
+            });
+            return Task.FromResult(site.Pages);
+        }
+
         private List<Language> GetLanguages(int siteId, int tenantId)
         {
             var languages = new List<Language>();

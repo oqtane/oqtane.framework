@@ -157,10 +157,10 @@
                         // fallback to use the first page in the collection
                         page = site.Pages.FirstOrDefault();
                     }
-                    if (page == null && site.Pages.Any(item => item.IsPersonalizable && !item.IsDeleted))
+                    if (page == null)
                     {
-                        // personalized pages need to be retrieved using path
-                        page = PageRepository.GetPage(route.PagePath, site.SiteId);
+                        // try to retrieve the page using the path (not all pages exist in the site.Pages collection)
+                        page = await GetPageByPath(site.SiteId, route.PagePath);
                     }
                     if (page == null || page.IsDeleted)
                     {
@@ -258,6 +258,25 @@
                 NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
             }
         }
+    }
+
+    private async Task<Page> GetPageByPath(int siteId, string path)
+    {   
+        // get the full collection of non-personalized pages for the site
+        var pages = await SiteService.GetPagesAsync(siteId);
+
+        // check if path exists
+        var page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+        if (page == null)
+        {
+            // check if the site contains personalizable pages
+            if (pages.Any(item => item.IsPersonalizable && !item.IsDeleted))
+            {
+                // attempt to retrieve the personalized page using the path
+                page = PageRepository.GetPage(path, siteId);
+            }
+        }
+        return page;
     }
 
     private void HandlePageNotFound(Site site, Page page, Route route)
