@@ -15,7 +15,6 @@ namespace Oqtane.Providers
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
-        private readonly IFileRepository _fileRepository;
         private readonly ITenantManager _tenantManager;
         private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly ILogManager _logger;
@@ -23,14 +22,12 @@ namespace Oqtane.Providers
         public PublicStorageProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
-            IFileRepository fileRepository,
             ITenantManager tenantManager,
             IStorageProviderFactory storageProviderFactory,
             ILogManager logger)
         {
             _environment = environment;
             _folderRepository = folderRepository;
-            _fileRepository = fileRepository;
             _tenantManager = tenantManager;
             _storageProviderFactory = storageProviderFactory;
             _logger = logger;

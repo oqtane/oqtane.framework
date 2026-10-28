@@ -18,10 +18,9 @@ namespace Oqtane.Providers
             ISettingRepository settingRepository,
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
-            IFileRepository fileRepository,
             ITenantManager tenantManager,
             IStorageProviderFactory storageProviderFactory,
-            ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, storageProviderFactory, logger)
+            ILogManager logger) : base(environment, folderRepository, tenantManager, storageProviderFactory, logger)
         {
             _folderRepository = folderRepository;
             _settingRepository = settingRepository;

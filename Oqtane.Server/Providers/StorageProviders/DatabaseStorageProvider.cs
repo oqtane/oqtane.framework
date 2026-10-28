@@ -1,43 +1,29 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Oqtane.Enums;
-using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Shared;
 
 namespace Oqtane.Providers
 {
     public class DatabaseStorageProvider : IStorageProvider
     {
-        private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
         private readonly IFileBlobRepository _fileBlobRepository;
-        private readonly ITenantManager _tenantManager;
         private readonly IStorageProviderFactory _storageProviderFactory;
-        private readonly ILogManager _logger;
 
         public DatabaseStorageProvider(
-            IWebHostEnvironment environment,
             IFolderRepository folderRepository,
             IFileRepository fileRepository,
             IFileBlobRepository fileBlobRepository,
-            ITenantManager tenantManager,
-            IStorageProviderFactory storageProviderFactory,
-            ILogManager logger)
+            IStorageProviderFactory storageProviderFactory)
         {
-            _environment = environment;
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
             _fileBlobRepository = fileBlobRepository;
-            _tenantManager = tenantManager;
             _storageProviderFactory = storageProviderFactory;
-            _logger = logger;
         }
 
         public virtual string DisplayName { get; } = "Local Database Storage";

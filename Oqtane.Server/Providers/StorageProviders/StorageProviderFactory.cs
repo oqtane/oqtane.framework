@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration.Provider;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Oqtane.Infrastructure;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -16,13 +14,11 @@ namespace Oqtane.Providers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IStorageLocationRepository _StorageLocationRepository;
-        private readonly ILogManager _logger;
 
-        public StorageProviderFactory(IServiceProvider serviceProvider, IStorageLocationRepository StorageLocationRepository, IOptions<List<Models.StorageProvider>> folderProviderOptions, ILogManager logger)
+        public StorageProviderFactory(IServiceProvider serviceProvider, IStorageLocationRepository StorageLocationRepository, IOptions<List<Models.StorageProvider>> folderProviderOptions)
         {
             _serviceProvider = serviceProvider;
             _StorageLocationRepository = StorageLocationRepository;
-            _logger = logger;
         }
 
         /// <summary>
@@ -62,11 +58,12 @@ namespace Oqtane.Providers
         {
             if (folder == null)
             {
-                throw new ArgumentException("The folder is null");
+                throw new ArgumentException("Storage Provider Cannot Be Created As Folder Is Null");
             }
 
-            if (folder.StorageLocation == null) // load the storage location manually if it is not specified
+            if (folder.StorageLocation == null)
             {
+                // note that this fallback impacts performance, so it is recommended to always include the StorageLocation for the Folder
                 folder.StorageLocation = _StorageLocationRepository.GetStorageLocation(folder.StorageLocationId);
             }
 
