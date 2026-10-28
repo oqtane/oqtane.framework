@@ -25,14 +25,14 @@ namespace Oqtane.Repository
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly ISiteRepository _sites;
         private readonly ICacheManager _cache;
-        private readonly Alias _alias;
+        private readonly ITenantManager _tenantManager;
 
         public UrlMappingRepository(IDbContextFactory<TenantDBContext> dbContextFactory, ISiteRepository sites, ICacheManager cache, ITenantManager tenantManager)
         {
             _dbContextFactory = dbContextFactory;
             _sites = sites;
             _cache = cache;
-            _alias = tenantManager.GetAlias();
+            _tenantManager = tenantManager;
         }
 
         public IEnumerable<UrlMapping> GetUrlMappings(int siteId, bool isMapped)
@@ -137,7 +137,8 @@ namespace Oqtane.Repository
 
         public UrlMapping GetUrlMapping(int siteId, string url, string referrer)
         {
-            var urlMappings = _cache.GetCache(_alias, "UrlMappings", entry =>
+            var alias = _tenantManager.GetAlias();
+            var urlMappings = _cache.GetCache(alias, "UrlMappings", entry =>
             {
                 return GetUrlMappings(siteId, true); // only mapped urls
             });
@@ -187,7 +188,8 @@ namespace Oqtane.Repository
 
         private void ClearCache()
         {
-            _cache.RemoveCache(_alias, "UrlMappings");
+            var alias = _tenantManager.GetAlias();
+            _cache.RemoveCache(alias, "UrlMappings");
         }
     }
 }

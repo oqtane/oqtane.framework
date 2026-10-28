@@ -75,8 +75,7 @@ namespace Oqtane.Providers
 
             if (folderProvider != null)
             {
-                var settings = _StorageLocationRepository.GetSettings(folder.StorageLocationId);
-                folderProvider.Initialize(settings);
+                folderProvider.Initialize(folder.StorageLocationId);
 
                 return folderProvider;
             }

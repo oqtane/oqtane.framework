@@ -11,7 +11,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Providers;
 using Oqtane.Repository;
-using Oqtane.Security;
 using Oqtane.Shared;
 
 namespace Oqtane.Controllers
@@ -20,6 +19,7 @@ namespace Oqtane.Controllers
     public class StorageLocationController : Controller
     {
         private readonly IStorageLocationRepository _StorageLocations;
+        private readonly ISettingRepository _settings;
         private readonly IStorageProviderFactory _storageProviderFactory;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
@@ -28,6 +28,7 @@ namespace Oqtane.Controllers
 
         public StorageLocationController(
             IStorageLocationRepository StorageLocations,
+            ISettingRepository settings,
             IStorageProviderFactory storageProviderFactory,
             ISyncManager syncManager,
             ILogManager logger,
@@ -35,6 +36,7 @@ namespace Oqtane.Controllers
             ITenantManager tenantManager)
         {
             _StorageLocations = StorageLocations;
+            _settings = settings;
             _storageProviderFactory = storageProviderFactory;
             _syncManager = syncManager;
             _logger = logger;
@@ -118,24 +120,6 @@ namespace Oqtane.Controllers
 
         }
 
-        [HttpGet("settings/{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
-        public IDictionary<string, string> GetSettings(int id)
-        {
-            var StorageLocation = _StorageLocations.GetStorageLocation(id);
-            if (StorageLocation != null && StorageLocation.SiteId.GetValueOrDefault(_alias.SiteId) == _alias.SiteId)
-            {
-                return _StorageLocations.GetSettings(id);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Storage Location Settings Get Attempt {StorageLocationId}", id);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-
-                return null;
-            }
-        }
-
         [HttpGet("default")]
         public int GetDefaultStorageLocationId()
         {
@@ -206,7 +190,48 @@ namespace Oqtane.Controllers
             var StorageLocation = _StorageLocations.GetStorageLocation(id);
             if (StorageLocation != null && StorageLocation.SiteId == _alias.SiteId)
             {
-                _StorageLocations.SaveSettings(id, settings);
+                if (settings == null)
+                {
+                    return;
+                }
+
+                foreach (var key in settings.Keys)
+                {
+                    if (string.IsNullOrEmpty(settings[key]))
+                    {
+                        continue;
+                    }
+
+                    var setting = _settings.GetSetting(EntityNames.StorageLocation, id, key);
+                    if (setting == null)
+                    {
+                        setting = new Setting
+                        {
+                            EntityName = EntityNames.StorageLocation,
+                            EntityId = id,
+                            SettingName = key,
+                            SettingValue = settings[key],
+                            IsPrivate = true
+                        };
+                        setting = _settings.AddSetting(setting);
+                    }
+                    else
+                    {
+                        setting.SettingValue = settings[key];
+                        _settings.UpdateSetting(setting);
+                    }
+                }
+
+                //remove any settings that are not in the dictionary
+                var savedSettings = _settings.GetSettings(EntityNames.StorageLocation, id);
+                foreach (var savedSetting in savedSettings)
+                {
+                    if (!settings.ContainsKey(savedSetting.SettingName))
+                    {
+                        _settings.DeleteSetting(EntityNames.StorageLocation, savedSetting.SettingId);
+                    }
+                }
+
                 _syncManager.AddSyncEvent(_alias, EntityNames.StorageLocation, StorageLocation.StorageLocationId, SyncEventActions.Update);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Storage Location Settings Saved {Id}", id);
             }

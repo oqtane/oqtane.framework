@@ -16,10 +16,6 @@ namespace Oqtane.Repository
 
         StorageLocation GetStorageLocation(int StorageLocationId);
 
-        IDictionary<string, string> GetSettings(int StorageLocationId);
-
-        void SaveSettings(int StorageLocationId, IDictionary<string, string> settings);
-
         StorageLocation AddStorageLocation(StorageLocation StorageLocation);
 
         StorageLocation UpdateStorageLocation(StorageLocation StorageLocation);
@@ -54,62 +50,6 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             return db.StorageLocation.AsNoTracking().FirstOrDefault(i => i.StorageLocationId == StorageLocationId);
-        }
-
-        public IDictionary<string, string> GetSettings(int StorageLocationId)
-        {
-            var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, StorageLocationId);
-            if(settings != null)
-            {
-                return settings.ToDictionary(i => i.SettingName, i => i.SettingValue);
-            }
-
-            return new Dictionary<string, string>();
-        }
-
-        public void SaveSettings(int StorageLocationId, IDictionary<string, string> settings)
-        {
-            if (settings == null)
-            {
-                return;
-            }
-
-            foreach (var key in settings.Keys)
-            {
-                if (string.IsNullOrEmpty(settings[key]))
-                {
-                    continue;
-                }
-
-                var setting = _settingRepository.GetSetting(EntityNames.StorageLocation, StorageLocationId, key);
-                if (setting == null)
-                {
-                    setting = new Setting
-                    {
-                        EntityName = EntityNames.StorageLocation,
-                        EntityId = StorageLocationId,
-                        SettingName = key,
-                        SettingValue = settings[key],
-                        IsPrivate = true
-                    };
-                    setting = _settingRepository.AddSetting(setting);
-                }
-                else
-                {
-                    setting.SettingValue = settings[key];
-                    _settingRepository.UpdateSetting(setting);
-                }
-            }
-
-            //remove any settings that are not in the dictionary
-            var savedSettings = _settingRepository.GetSettings(EntityNames.StorageLocation, StorageLocationId);
-            foreach (var savedSetting in savedSettings)
-            {
-                if (!settings.ContainsKey(savedSetting.SettingName))
-                {
-                    _settingRepository.DeleteSetting(EntityNames.StorageLocation, savedSetting.SettingId);
-                }
-            }
         }
 
         public StorageLocation AddStorageLocation(StorageLocation StorageLocation)

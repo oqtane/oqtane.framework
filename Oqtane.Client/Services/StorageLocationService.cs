@@ -42,12 +42,6 @@ namespace Oqtane.Services
         Task<IList<StorageProvider>> GetProvidersAsync();
 
         /// <summary>
-        /// Get the settings of a <see cref="StorageLocation"/>.
-        /// </summary>
-        /// <param name="StorageLocationId">Reference to a <see cref="StorageLocation"/></param>
-        Task<IDictionary<string, string>> GetSettingsAsync(int StorageLocationId);
-
-        /// <summary>
         /// Get the default <see cref="StorageLocation"/>.
         /// </summary>
         /// <returns></returns>
@@ -107,11 +101,6 @@ namespace Oqtane.Services
         public async Task<IList<StorageProvider>> GetProvidersAsync()
         {
             return await GetJsonAsync<IList<StorageProvider>>($"{ApiUrl}/providers");
-        }
-
-        public async Task<IDictionary<string, string>> GetSettingsAsync(int StorageLocationId)
-        {
-            return await GetJsonAsync<IDictionary<string, string>>($"{ApiUrl}/settings/{StorageLocationId}");
         }
 
         public async Task<int> GetDefaultStorageLocationIdAsync()

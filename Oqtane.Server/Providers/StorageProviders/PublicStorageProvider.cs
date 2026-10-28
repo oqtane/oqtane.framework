@@ -40,7 +40,7 @@ namespace Oqtane.Providers
 
         public virtual string SettingControlType { get; } = null;
 
-        public void Initialize(IDictionary<string, string> settings)
+        public virtual void Initialize(int storageLocationId)
         {
         }
 
