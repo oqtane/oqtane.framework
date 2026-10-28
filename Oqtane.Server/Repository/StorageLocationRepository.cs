@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -27,17 +24,14 @@ namespace Oqtane.Repository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IFolderRepository _folderRepository;
-        private readonly ISettingRepository _settingRepository;
 
         public StorageLocationRepository(
             IDbContextFactory<TenantDBContext> dbContextFactory,
-            IFolderRepository folderRepository,
-            ISettingRepository settingRepository
+            IFolderRepository folderRepository
             )
         {
             _dbContextFactory = dbContextFactory;
             _folderRepository = folderRepository;
-            _settingRepository = settingRepository;
         }
 
         public IEnumerable<StorageLocation> GetStorageLocations(int siteId)
@@ -80,7 +74,7 @@ namespace Oqtane.Repository
                     throw new SecurityException("Cannot delete default storage location");
                 }
 
-                //remove all the folders
+                // remove all the folders
                 _folderRepository.GetFolders(StorageLocation.SiteId.Value)
                     .Where(i => i.StorageLocationId == StorageLocationId)
                     .ToList()
@@ -89,8 +83,7 @@ namespace Oqtane.Repository
                         _folderRepository.DeleteFolder(item.FolderId);
                     });
 
-                //delete the settings
-
+                // delete the settings
                 db.StorageLocation.Remove(StorageLocation);
                 db.SaveChanges();
             }

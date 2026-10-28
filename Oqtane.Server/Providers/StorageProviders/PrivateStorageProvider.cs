@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -16,10 +14,9 @@ namespace Oqtane.Providers
         public PrivateStorageProvider(
             IWebHostEnvironment environment,
             IFolderRepository folderRepository,
-            IFileRepository fileRepository,
             ITenantManager tenantManager,
             IStorageProviderFactory storageProviderFactory,
-            ILogManager logger) : base(environment, folderRepository, fileRepository, tenantManager, storageProviderFactory, logger)
+            ILogManager logger) : base(environment, folderRepository, tenantManager, storageProviderFactory, logger)
         {
             _environment = environment;
             _tenantManager = tenantManager;
