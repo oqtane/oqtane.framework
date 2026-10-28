@@ -78,10 +78,10 @@ namespace Oqtane.Services
             });
 
             // clone object so that cache is not mutated
-            site = site.Clone();
+            var siteClone = site.Clone();
 
             // trim site settings based on user permissions
-            site.Settings = site.Settings
+            siteClone.Settings = site.Settings
                 .Where(item => !item.Value.StartsWith(_private) || _accessor.HttpContext.User.IsInRole(RoleNames.Admin))
                 .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
 
@@ -91,28 +91,32 @@ namespace Oqtane.Services
             {
                 if (!page.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, page.PermissionList) && (Utilities.IsEffectiveAndNotExpired(page.EffectiveDate, page.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList)))
                 {
-                    page.Settings = page.Settings
+                    var pageClone = page.Clone();
+                    pageClone.Settings = page.Settings
                         .Where(item => !item.Value.StartsWith(_private) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, page.PermissionList))
                         .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
-                    pages.Add(page);
+                    pages.Add(pageClone);
                 }
             }
-            site.Pages = pages;
+            siteClone.Pages = pages;
 
-            // get language display name for user
+            // get language display name
+            var languages = new List<Language>();
             foreach (Language language in site.Languages)
             {
-                language.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
+                var languageClone = language.Clone();
+                languageClone.Name = CultureInfo.GetCultureInfo(language.Code).DisplayName;
+                languages.Add(languageClone);
             }
-            site.Languages = site.Languages.OrderBy(item => item.Name).ToList();
+            siteClone.Languages = languages.OrderBy(item => item.Name).ToList();
 
             // get user
             if (_accessor.HttpContext.User.IsAuthenticated())
             {
-                site.User = _userManager.GetUser(_accessor.HttpContext.User.UserId(), site.SiteId);
+                siteClone.User = _userManager.GetUser(_accessor.HttpContext.User.UserId(), site.SiteId);
             }
 
-            return Task.FromResult(site);
+            return Task.FromResult(siteClone);
         }
 
         private Site GetSite(int siteid)
@@ -252,19 +256,18 @@ namespace Oqtane.Services
                 return GetPageModules(siteId);
             });
 
-            // clone object so that cache is not mutated
-            modules = modules.ConvertAll(module => module.Clone());
-
             // trim modules for current page based on user permissions
             var pagemodules = new List<Module>();
             foreach (Module module in modules.Where(item => (item.PageId == pageId || pageId == -1) && !item.IsDeleted && _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.View, item.PermissionList)))
             {
                 if (Utilities.IsEffectiveAndNotExpired(module.EffectiveDate, module.ExpiryDate) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                 {
-                    module.Settings = module.Settings
+                    // clone object so that cache is not mutated
+                    var moduleClone = module.Clone();
+                    moduleClone.Settings = module.Settings
                         .Where(item => !item.Value.StartsWith(_private) || _userPermissions.IsAuthorized(_accessor.HttpContext.User, PermissionNames.Edit, module.PermissionList))
                         .ToDictionary(setting => setting.Key, setting => setting.Value.Replace(_private, ""));
-                    pagemodules.Add(module);
+                    pagemodules.Add(moduleClone);
                 }
             }
             return Task.FromResult(pagemodules);
