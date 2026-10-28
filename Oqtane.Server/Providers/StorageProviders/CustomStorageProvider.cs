@@ -12,6 +12,7 @@ namespace Oqtane.Providers
         private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IWebHostEnvironment _environment;
+        private string _rootFolderPath;
 
         public CustomStorageProvider(
             ISettingRepository settingRepository,
@@ -31,6 +32,17 @@ namespace Oqtane.Providers
 
         public override string SettingControlType => "Oqtane.Modules.Admin.Files.CustomStorageProviderSettingsControl, Oqtane.Client";
 
+        public override void Initialize(int storageLocationId)
+        {
+            base.Initialize(storageLocationId);
+
+            var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, storageLocationId);
+            if (settings.Any(item => item.SettingName == "FolderPath"))
+            {
+                _rootFolderPath = settings.First(item => item.SettingName == "FolderPath").SettingValue;
+            }
+        }
+
         protected override string GetFolderPath(Folder folder, string folderPath)
         {
             if (folder != null)
@@ -38,7 +50,7 @@ namespace Oqtane.Providers
                 var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, folder.StorageLocationId);
                 if (settings.Any(item => item.SettingName == "FolderPath"))
                 {
-                    return Utilities.PathCombine(_environment.ContentRootPath, settings.First(item => item.SettingName == "FolderPath").SettingValue);
+                    return Utilities.PathCombine(_environment.ContentRootPath, _rootFolderPath);
                 }
             }
             return "";
