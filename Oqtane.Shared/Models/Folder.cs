@@ -67,7 +67,7 @@ namespace Oqtane.Models
         /// <summary>
         /// Reference to the <see cref="StorageLocation"/>.
         /// </summary>
-        public int StorageLocationId { get; set; }
+        public int? StorageLocationId { get; set; }
 
         /// <summary>
         /// TODO: todoc what would this contain?
@@ -117,6 +117,9 @@ namespace Oqtane.Models
         [NotMapped]
         [JsonIgnore] // exclude from API payload
         public bool? IsDeleted { get; set; }
+
+        [Obsolete("The Type property is deprecated in 10.3.0, replaced by using storage provider.")]
+        public string Type { get; set; }
 
         #endregion
     }

@@ -24,7 +24,6 @@ namespace Oqtane.Migrations.Tenant
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
             folderEntityBuilder.AddIntegerColumn("StorageLocationId", true);
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
-            folderEntityBuilder.DropColumn("Type");
             folderEntityBuilder.AddForeignKey("FK_Folder_StorageLocation", "StorageLocationId", "StorageLocation", "StorageLocationId", ReferentialAction.NoAction);
 
             var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);

@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Oqtane.Infrastructure.SiteTemplates;
 using Oqtane.Models;
+using Oqtane.Providers;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -98,6 +100,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "10.2.0":
                         Upgrade_10_2_0(tenant, scope);
+                        break;
+                    case "10.3.0":
+                        Upgrade_10_3_0(tenant, scope);
                         break;
                 }
             }
@@ -653,6 +658,41 @@ namespace Oqtane.Infrastructure
                 // prevent verbose logging to the console by ZiggyCreatures.Caching.Fusion library
                 _configManager.AddOrUpdateSetting("Logging:LogLevel:ZiggyCreatures.Caching.Fusion", "Warning", true);
             }
+        }
+
+        private void Upgrade_10_3_0(Tenant tenant, IServiceScope scope)
+        {
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<TenantDBContext>>();
+            var storageProviderFactory = scope.ServiceProvider.GetRequiredService<IStorageProviderFactory>();
+            using var context = db.CreateDbContext();
+
+            foreach (var site in sites.GetSites().ToList())
+            {
+                var publicStorageLocationId = storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PublicStorageProvider);
+                var privateStorageLocationId = storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider);
+
+                var folders = context.Folder.Where(i => i.SiteId == site.SiteId).ToList();
+                //update folders storage location id
+                foreach (var folder in folders)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+
+                    switch (folder.Type)
+                    {
+                        case FolderTypes.Public:
+                            folder.StorageLocationId = publicStorageLocationId;
+                            break;
+                        case FolderTypes.Private:
+                            folder.StorageLocationId = privateStorageLocationId;
+                            break;
+                    }
+
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+            }
+
+            context.SaveChanges();
         }
 
         private void AddPagesToSites(IServiceScope scope, Tenant tenant, List<PageTemplate> pageTemplates)

@@ -233,7 +233,7 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _path = folder.Path;
-                    _storageLocationId = folder.StorageLocationId;
+                    _storageLocationId = folder.StorageLocationId.Value;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;
                     _imagesizes = folder.ImageSizes;
@@ -443,7 +443,7 @@
         if (parentFolder != null)
         {
             _storageLocationId = parentFolder.StorageLocation.StorageLocationId;
-            OnStorageLocationChanged(parentFolder.StorageLocationId);
+            OnStorageLocationChanged(parentFolder.StorageLocationId.Value);
         }
     }
 
