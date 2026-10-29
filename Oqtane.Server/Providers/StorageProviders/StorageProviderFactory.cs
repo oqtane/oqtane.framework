@@ -64,7 +64,7 @@ namespace Oqtane.Providers
             if (folder.StorageLocation == null)
             {
                 // note that this fallback impacts performance, so it is recommended to always include the StorageLocation for the Folder
-                folder.StorageLocation = _StorageLocationRepository.GetStorageLocation(folder.StorageLocationId);
+                folder.StorageLocation = _StorageLocationRepository.GetStorageLocation(folder.StorageLocationId.Value);
             }
 
             var folderProvider = _serviceProvider.GetServices<IStorageProvider>()?
@@ -72,7 +72,7 @@ namespace Oqtane.Providers
 
             if (folderProvider != null)
             {
-                folderProvider.Initialize(folder.StorageLocationId);
+                folderProvider.Initialize(folder.StorageLocationId.Value);
 
                 return folderProvider;
             }

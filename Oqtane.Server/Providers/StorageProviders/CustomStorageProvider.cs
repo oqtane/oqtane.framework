@@ -46,7 +46,7 @@ namespace Oqtane.Providers
         {
             if (folder != null)
             {
-                var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, folder.StorageLocationId);
+                var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, folder.StorageLocationId.Value);
                 if (settings.Any(item => item.SettingName == "FolderPath"))
                 {
                     return Utilities.PathCombine(_environment.ContentRootPath, _rootFolderPath);
