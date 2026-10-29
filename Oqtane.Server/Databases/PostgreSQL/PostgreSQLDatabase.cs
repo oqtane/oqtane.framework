@@ -98,7 +98,7 @@ namespace Oqtane.Database.PostgreSQL
             var type = value.GetType().Name;
             if (type == "DateTime")
             {
-                return $"'{value}'";
+                return $"'{((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss")}'";
             }
             if (type == "Boolean")
             {
