@@ -62,7 +62,7 @@
                                 </div>
                             </div>
                         }
-                        @if (_parentId != -1)
+                        @if (_parentId != -1 && IsDefaultStorageProvider(_parentStorageProvider))
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
@@ -78,12 +78,12 @@
                                 </div>
                             </div>
                         }
-                        else if (_folderId != -1)
+                        else
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
                                 <div class="col-sm-9">
-                                    <input id="StorageProvider" class="form-control" readonly value="@_storageProvider" />
+                                    <input id="StorageProvider" class="form-control" disabled value="@GetStorageProviderDisplayName(_storageProvider)" />
                                 </div>
                             </div>
                         }
@@ -125,7 +125,7 @@
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
                                 <div class="col">
-                                    <input id="StorageProvider" class="form-control" disabled value="@_storageProvider" />
+                                    <input id="StorageProvider" class="form-control" disabled value="@GetStorageProviderDisplayName(_storageProvider)" />
                                 </div>
                             </div>
                         }
@@ -220,6 +220,7 @@
     private IStorageProviderSettingsControl _storageProviderSettingsControl;
     private RenderFragment _storageProviderSettingsFragment;
     private bool _refreshStorageProviderSettings = false;
+    private string _parentStorageProvider;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -268,7 +269,7 @@
                     _parentId = _folders[0].FolderId;
                 }
 
-                OnParentChanged(_parentId);
+                await OnParentChanged(_parentId);
 
                 await LoadParent();     
             }
@@ -305,6 +306,14 @@
         {
             await LoadParent();          
             await _permissionGrid.SetPermissions(_permissions);
+        }
+        else
+        {
+            var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
+            if (parentFolder != null)
+            {
+                await OnStorageProviderChanged(parentFolder.StorageProvider);
+            }
         }
     }
 
@@ -353,9 +362,14 @@
             _cachecontrol = folder.CacheControl;
             _imagesizes = folder.ImageSizes;
             _permissions = folder.PermissionList;
-            
+            _parentStorageProvider = folder.StorageProvider;
+
             await OnStorageProviderChanged(folder.StorageProvider);
-        }            
+        }
+        else
+        {
+            _parentStorageProvider = string.Empty;
+        }
     }
 
     private async Task SaveFolder()
@@ -500,19 +514,25 @@
         }
     }
 
-    private void OnParentChanged(int parentId)
+    private async Task OnParentChanged(int parentId)
     {
         _parentId = parentId;
         var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
         if (parentFolder != null)
         {
-            OnStorageProviderChanged(parentFolder.StorageProvider);
+            await OnStorageProviderChanged(parentFolder.StorageProvider);
         }
     }
 
-    private bool IsDefaultStorageProvider()
+    private bool IsDefaultStorageProvider(string provider)
     {
-        return Constants.DefaultStorageProviders.Contains(_storageProvider);
+        return Constants.DefaultStorageProviders.Contains(provider);
+    }
+
+    private string GetStorageProviderDisplayName(string storageProvider)
+    {
+        var provider = _storageProviders.FirstOrDefault(p => p.Type == storageProvider);
+        return provider != null ? provider.DisplayName : storageProvider;
     }
 
     private Dictionary<string, string> MergeSettings(IDictionary<string, string> baseSettings, IDictionary<string, string> updateSettings)
