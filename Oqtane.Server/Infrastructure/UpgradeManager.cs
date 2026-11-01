@@ -669,9 +669,6 @@ namespace Oqtane.Infrastructure
 
             foreach (var site in sites.GetSites().ToList())
             {
-                var publicStorageLocationId = storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PublicStorageProvider);
-                var privateStorageLocationId = storageProviderFactory.GetStorageLocationId(site.SiteId, Constants.PrivateStorageProvider);
-
                 var folders = context.Folder.Where(i => i.SiteId == site.SiteId).ToList();
                 //update folders storage location id
                 foreach (var folder in folders)
@@ -681,12 +678,13 @@ namespace Oqtane.Infrastructure
                     switch (folder.Type)
                     {
                         case FolderTypes.Public:
-                            folder.StorageLocationId = publicStorageLocationId;
+                            folder.StorageProvider = Constants.PublicStorageProvider;
                             break;
                         case FolderTypes.Private:
-                            folder.StorageLocationId = privateStorageLocationId;
+                            folder.StorageProvider = Constants.PrivateStorageProvider;
                             break;
                     }
+                    folder.MappedPath = folder.Path;
 
 #pragma warning restore CS0618 // Type or member is obsolete
                 }

@@ -19,8 +19,8 @@ namespace Oqtane.Providers
         /// <summary>
         /// Initializes the provider with required settings.
         /// </summary>
-        /// <param name="storageLocationId">The Storage Location Id.</param>
-        void Initialize(int storageLocationId);
+        /// <param name="folderId">The folder Id.</param>
+        void Initialize(int folderId);
 
         #region File APIs
 

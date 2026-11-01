@@ -37,6 +37,11 @@ namespace Oqtane.Models
         /// </summary>
         public string Path { get; set; }
 
+        /// <summary>
+        /// The folder storage provider.
+        /// </summary>
+        public string StorageProvider { get; set; }
+
         public string MappedPath { get; set; }
 
         /// <summary>
@@ -65,11 +70,6 @@ namespace Oqtane.Models
         public string CacheControl { get; set; }
 
         /// <summary>
-        /// Reference to the <see cref="StorageLocation"/>.
-        /// </summary>
-        public int? StorageLocationId { get; set; }
-
-        /// <summary>
         /// TODO: todoc what would this contain?
         /// </summary>
         [NotMapped]
@@ -87,8 +87,6 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public bool HasChildren { get; set; }
-
-        public StorageLocation StorageLocation { get; set; }
         
         /// <summary>
         /// Indicates if subfolder permissions should be updated to be consistent with parent folder

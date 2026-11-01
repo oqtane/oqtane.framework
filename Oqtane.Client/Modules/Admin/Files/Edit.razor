@@ -4,7 +4,6 @@
 @inject IFileService FileService
 @inject ISettingService SettingService
 @inject IServiceProvider ServiceProvider
-@inject IStorageLocationService StorageLocationService
 @inject IStorageProviderFactory StorageProviderFactory
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
@@ -66,13 +65,13 @@
                         @if (_parentId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="storagelocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
+                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
-                                        <select id="storagelocation" class="form-select" value="@_storageLocationId" @onchange="(e) => OnStorageLocationChanged(int.Parse(e.Value.ToString()))">
-                                            @foreach (var item in _storageLocations)
+                                        <select id="StorageProvider" class="form-select" value="@_storageProvider" @onchange="(e) => OnStorageProviderChanged(Convert.ToString(e.Value))">
+                                            @foreach (var item in _storageProviders)
                                             {
-                                                <option value="@item.StorageLocationId">@item.Name</option>
+                                                <option value="@item.Type">@item.DisplayName</option>
                                             }
                                         </select>
                                     </div>
@@ -82,9 +81,9 @@
                         else if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="storagelocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
+                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
                                 <div class="col-sm-9">
-                                    <input id="storagelocation" class="form-control" readonly value="@(_storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId)?.Name)" />
+                                    <input id="StorageProvider" class="form-control" readonly value="@_storageProvider" />
                                 </div>
                             </div>
                         }
@@ -124,12 +123,18 @@
                         @if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="StorageLocation" HelpText="Select the storage location for the files in this folder" ResourceKey="StorageLocation">Storage Location:</Label>
+                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
                                 <div class="col">
-                                    <input id="StorageLocation" class="form-control" disabled value="@(_storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId)?.Name)" />
+                                    <input id="StorageProvider" class="form-control" disabled value="@_storageProvider" />
                                 </div>
                             </div>
                         }
+                    }
+                    @if (_storageProviderSettingsFragment != null)
+                    {
+                        <hr />
+                        @_storageProviderSettingsFragment
+                        <hr />
                     }
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Label>
@@ -199,8 +204,8 @@
     private int _parentId = -1;
     private string _name;
     private string _path;
-    private IEnumerable<StorageLocation> _storageLocations;
-    private int _storageLocationId = -1;
+    private string _storageProvider;
+    private IEnumerable<StorageProvider> _storageProviders;
     private string _capacity = "0";
     private string _cachecontrol = string.Empty;
     private string _imagesizes = string.Empty;
@@ -212,6 +217,9 @@
     private DateTime _modifiedOn;
     private PermissionGrid _permissionGrid;
     private string _updatesubfolders = "False";
+    private IStorageProviderSettingsControl _storageProviderSettingsControl;
+    private RenderFragment _storageProviderSettingsFragment;
+    private bool _refreshStorageProviderSettings = false;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -221,7 +229,7 @@
     {
         try
         {
-            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
+            _storageProviders = await FolderService.GetStorageProvidersAsync();
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId, false);
 
             if (PageState.QueryString.ContainsKey("id"))
@@ -233,7 +241,7 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _path = folder.Path;
-                    _storageLocationId = folder.StorageLocationId.Value;
+                    _storageProvider = folder.StorageProvider;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;
                     _imagesizes = folder.ImageSizes;
@@ -249,7 +257,7 @@
             }
             else
             {
-                _storageLocationId = (await StorageLocationService.GetStorageLocationAsync(Constants.PublicStorageProvider))?.StorageLocationId ?? -1;
+                _storageProvider = Constants.PublicStorageProvider;
 
                 if (PageState.QueryString.ContainsKey("parentid"))
                 {
@@ -265,15 +273,28 @@
                 await LoadParent();     
             }
 
-            if(PageState.QueryString.ContainsKey("cid") && int.TryParse(PageState.QueryString["cid"], out int cid))
-            {
-                OnStorageLocationChanged(cid);     
-            }
+            await LoadStorageProviderSettingsControl();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", _folderId, ex.Message);
             AddModuleMessage(Localizer["Error.Folder.Load"], MessageType.Error);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender && !string.IsNullOrEmpty(_storageProvider) && _refreshStorageProviderSettings && _storageProviderSettingsControl != null)
+        {
+            var folderId = _parentId != -1 && _folderId == -1 ? _parentId : _folderId;
+            if (folderId != -1)
+            {
+                await _storageProviderSettingsControl.LoadSettingsAsync(folderId);
+            }
+
+            _refreshStorageProviderSettings = false;
         }
     }
 
@@ -287,6 +308,42 @@
         }
     }
 
+    private async Task OnStorageProviderChanged(string provider)
+    {
+        if (provider != _storageProvider && PageState.QueryString.ContainsKey("id"))
+        {
+            AddModuleMessage(Localizer["Message.StorageProvider.Changed"], MessageType.Warning);
+        }
+
+        _storageProvider = provider;
+        await LoadStorageProviderSettingsControl();
+    }
+
+    private async Task LoadStorageProviderSettingsControl()
+    {
+        _storageProviderSettingsControl = null;
+        _storageProviderSettingsFragment = null;
+
+        var settingsControlType = _storageProviders.FirstOrDefault(p => p.Type == _storageProvider)?.ControlType;
+        if (!string.IsNullOrEmpty(settingsControlType))
+        {
+            var type = Type.GetType(settingsControlType);
+            if (type != null && typeof(IStorageProviderSettingsControl).IsAssignableFrom(type))
+            {
+                _storageProviderSettingsFragment = builder =>
+                {
+                    var sequence = 0;
+                    builder.OpenComponent(sequence++, type);
+                    builder.AddComponentReferenceCapture(sequence++, e => _storageProviderSettingsControl = (IStorageProviderSettingsControl)e);
+
+                    builder.CloseComponent();
+                };
+
+                _refreshStorageProviderSettings = true;
+            }
+        }
+    }
+
     private async Task LoadParent()
     {
         var folder = await FolderService.GetFolderAsync(_parentId);
@@ -296,6 +353,8 @@
             _cachecontrol = folder.CacheControl;
             _imagesizes = folder.ImageSizes;
             _permissions = folder.PermissionList;
+            
+            await OnStorageProviderChanged(folder.StorageProvider);
         }            
     }
 
@@ -349,7 +408,7 @@
 
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
-                folder.StorageLocationId = _storageLocationId;
+                folder.StorageProvider = _storageProvider;
                 folder.Capacity = int.Parse(_capacity);
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
@@ -371,6 +430,11 @@
                 else
                 {
                     folder = await FolderService.AddFolderAsync(folder);
+                }
+
+                if (_storageProviderSettingsControl != null)
+                {
+                    await _storageProviderSettingsControl.UpdateSettingsAsync(folder.FolderId);
                 }
 
                 if (folder != null)
@@ -442,23 +506,41 @@
         var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
         if (parentFolder != null)
         {
-            _storageLocationId = parentFolder.StorageLocation.StorageLocationId;
-            OnStorageLocationChanged(parentFolder.StorageLocationId.Value);
+            OnStorageProviderChanged(parentFolder.StorageProvider);
         }
-    }
-
-    private void OnStorageLocationChanged(int storageLocationId)
-    {
-        if (storageLocationId != _storageLocationId && PageState.QueryString.ContainsKey("id"))
-        {
-            AddModuleMessage(Localizer["Message.StorageLocation.Changed"], MessageType.Warning);
-        }
-        _storageLocationId = storageLocationId;
     }
 
     private bool IsDefaultStorageProvider()
     {
-        var storageLocation = _storageLocations.FirstOrDefault(i => i.StorageLocationId == _storageLocationId);
-        return storageLocation != null && Constants.DefaultStorageProviders.Contains(storageLocation.Provider);
+        return Constants.DefaultStorageProviders.Contains(_storageProvider);
+    }
+
+    private Dictionary<string, string> MergeSettings(IDictionary<string, string> baseSettings, IDictionary<string, string> updateSettings)
+    {
+        var settings = baseSettings != null ? new Dictionary<string, string>(baseSettings) : new Dictionary<string, string>();
+        if (updateSettings != null)
+        {
+            foreach (var setting in updateSettings)
+            {
+                if (settings.ContainsKey(setting.Key))
+                {
+                    settings[setting.Key] = setting.Value;
+                }
+                else
+                {
+                    settings.Add(setting.Key, setting.Value);
+                }
+            }
+
+            foreach (var key in settings.Keys.ToList())
+            {
+                if (!updateSettings.ContainsKey(key))
+                {
+                    settings.Remove(key);
+                }
+            }
+        }
+
+        return settings;
     }
 }

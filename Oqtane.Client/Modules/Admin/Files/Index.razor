@@ -3,7 +3,6 @@
 @inject NavigationManager NavigationManager
 @inject IFolderService FolderService
 @inject IFileService FileService
-@inject IStorageLocationService StorageLocationService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
@@ -65,21 +64,6 @@ else
                 <div class="text-center">@Localizer["NoFiles"]</div>
             }
         </TabPanel>
-        <TabPanel Name="Storage" Heading="Storage" ResourceKey="StorageLocation">
-            <ActionLink Action="Storage" Text="Add Storage Location" Class="btn btn-secondary" ResourceKey="AddStorageLocation" />
-            <Pager Items="@_storageLocations" SearchProperties="Name">
-                <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@SharedLocalizer["Name"]</th>
-                </Header>
-                <Row>
-                    <td><ActionLink Action="Storage" Text="Edit" Parameters="@($"id=" + context.StorageLocationId.ToString())" ResourceKey="Edit" Disabled="@Constants.DefaultStorageProviders.Contains(context.Provider)" /></td>
-                    <td><ActionDialog Header="Delete Storage Location" Message="@string.Format(Localizer["Confirm.StorageLocation.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteStorageLocation(context))" ResourceKey="DeleteStorageLocation" Disabled="@Constants.DefaultStorageProviders.Contains(context.Provider)" /></td>
-                    <td>@context.Name</td>
-                </Row>
-            </Pager>
-        </TabPanel>
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings" Security="SecurityAccessLevel.Admin">
 			<div class="container">
                 <div class="row mb-1 align-items-center">
@@ -112,8 +96,6 @@ else
     private int _folderId = -1;
     private List<File> _files;
 
-    private IEnumerable<StorageLocation> _storageLocations;
-
     private string _imageFiles = string.Empty;
     private string _uploadableFiles = string.Empty;
     private int _maxChunkSize = 1;
@@ -132,8 +114,6 @@ else
                 _folderId = _folders[0].FolderId;
                 await GetFiles();
             }
-
-            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
 
             var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
             _imageFiles = SettingService.GetSetting(settings, "ImageFiles", Constants.ImageFiles);
@@ -198,20 +178,6 @@ else
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
             AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
-        }
-    }
-
-    private async Task DeleteStorageLocation(StorageLocation storageLocation)
-    {
-        if (!_folders.Any(item => item.StorageLocationId == storageLocation.StorageLocationId))
-        {
-            await StorageLocationService.DeleteStorageLocationAsync(storageLocation.StorageLocationId);
-            _storageLocations = await StorageLocationService.GetStorageLocationsAsync(PageState.Site.SiteId);
-            AddModuleMessage(string.Format(Localizer["Success.StorageLocation.Delete"], storageLocation.Name), MessageType.Success);
-        }
-        else
-        {
-            AddModuleMessage(Localizer["Error.StorageLocation.Delete"], MessageType.Warning);
         }
     }
 

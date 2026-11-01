@@ -7,8 +7,8 @@ namespace Oqtane.Providers
 {
     public interface IStorageProviderSettingsControl
     {
-        int StorageLocationId { get; set; }
+        Task LoadSettingsAsync(int folderId);
 
-        Task<IDictionary<string, string>> GetSettingsAsync();
+        Task UpdateSettingsAsync(int folderId);
     }
 }

@@ -31,11 +31,11 @@ namespace Oqtane.Providers
 
         public override string SettingControlType => "Oqtane.Modules.Admin.Files.CustomStorageProviderSettingsControl, Oqtane.Client";
 
-        public override void Initialize(int storageLocationId)
+        public override void Initialize(int folderId)
         {
-            base.Initialize(storageLocationId);
+            base.Initialize(folderId);
 
-            var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, storageLocationId);
+            var settings = _settingRepository.GetSettings(EntityNames.Folder, folderId);
             if (settings.Any(item => item.SettingName == "FolderPath"))
             {
                 _rootFolderPath = settings.First(item => item.SettingName == "FolderPath").SettingValue;
@@ -46,10 +46,9 @@ namespace Oqtane.Providers
         {
             if (folder != null)
             {
-                var settings = _settingRepository.GetSettings(EntityNames.StorageLocation, folder.StorageLocationId.Value);
-                if (settings.Any(item => item.SettingName == "FolderPath"))
+                if (!string.IsNullOrEmpty(_rootFolderPath))
                 {
-                    return Utilities.PathCombine(_environment.ContentRootPath, _rootFolderPath);
+                    return Utilities.PathCombine(_environment.ContentRootPath, _rootFolderPath, folder.MappedPath);
                 }
             }
             return "";

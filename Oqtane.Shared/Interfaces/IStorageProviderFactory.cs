@@ -8,9 +8,5 @@ namespace Oqtane.Providers
     public interface IStorageProviderFactory
     {
         IStorageProvider GetProvider(Folder folder);
-
-        int GetDefaultStorageLocationId(int siteId);
-
-        int GetStorageLocationId(int siteId, string provider);
     }
 }
