@@ -304,7 +304,7 @@ namespace Oqtane.Repository
                 if (parentFolder != null)
                 {
                     var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
-                    path = parentFolder.StorageProvider != folder.StorageProvider ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
+                    path = parentFolder.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(folder.StorageProvider) ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
                 }
             }
 

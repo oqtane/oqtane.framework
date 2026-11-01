@@ -227,7 +227,7 @@ namespace Oqtane.Controllers
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
 
-                        if(parent.StorageProvider != folder.StorageProvider)
+                        if(parent.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(parent.StorageProvider))
                         {
                             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Provider Not Valid {Folder}", folder);
                             HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
