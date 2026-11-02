@@ -441,7 +441,8 @@ namespace Oqtane.Shared
             return (name != null &&
                     name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
                     !Constants.InvalidFileNameEndingChars.Any(name.EndsWith) &&
-                    !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
+                    !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]) &&
+                    !name.Contains("..")); // prevent directory traversal
         }
 
         public static bool TryGetQueryValue(
