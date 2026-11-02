@@ -30,7 +30,7 @@ namespace Oqtane.Providers
 
         public virtual string SettingControlType { get; } = null;
 
-        public void Initialize(int storageLocationId)
+        public void Initialize(int folderId)
         {
         }
 

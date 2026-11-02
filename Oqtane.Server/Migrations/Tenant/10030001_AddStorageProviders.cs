@@ -18,13 +18,9 @@ namespace Oqtane.Migrations.Tenant
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var storageLocationEntityBuilder = new StorageLocationEntityBuilder(migrationBuilder, ActiveDatabase);
-            storageLocationEntityBuilder.Create();
-
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            folderEntityBuilder.AddIntegerColumn("StorageLocationId", true);
+            folderEntityBuilder.AddStringColumn("StorageProvider", 512, true);
             folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
-            folderEntityBuilder.AddForeignKey("FK_Folder_StorageLocation", "StorageLocationId", "StorageLocation", "StorageLocationId", ReferentialAction.NoAction);
 
             var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);
             fileBlobEntityBuilder.Create();

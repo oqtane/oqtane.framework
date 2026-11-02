@@ -44,7 +44,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IJobLogService, JobLogService>();
             services.AddScoped<INotificationService, Oqtane.Services.NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
-            services.AddScoped<IStorageLocationService, StorageLocationService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ISiteTemplateService, SiteTemplateService>();
             services.AddScoped<ISqlService, SqlService>();
