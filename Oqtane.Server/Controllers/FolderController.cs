@@ -332,7 +332,7 @@ namespace Oqtane.Controllers
         public async Task Delete(int id)
         {
             var folder = _folders.GetFolder(id, false);
-            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, id, PermissionNames.Edit) && !folder.IsSystem)
             {
                 var folderProvider = _storageProviderFactory.GetProvider(folder);
                 if (folderProvider != null)
