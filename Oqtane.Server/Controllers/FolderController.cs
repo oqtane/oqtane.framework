@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
-using Oqtane.Extensions;
 using Oqtane.Infrastructure;
-using Oqtane.Managers;
 using Oqtane.Models;
 using Oqtane.Providers;
 using Oqtane.Repository;
@@ -168,32 +166,36 @@ namespace Oqtane.Controllers
                 }
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
                 {
-                    if (folder.IsPathValid())
+                    // folder must have parentid and name must be valid
+                    if (folder.ParentId != null && folder.IsPathValid())
                     {
-                        if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
-                        {
-                            Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                            folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
-                        }
+                        // generate folder path
+                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                        folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
                         if (!folder.Path.EndsWith("/"))
                         {
                             folder.Path = folder.Path + "/";
                         }
-                        if(string.IsNullOrEmpty(folder.StorageProvider))
+
+                        // set default storage provider if not specified
+                        if (string.IsNullOrEmpty(folder.StorageProvider))
                         {
                             folder.StorageProvider = Constants.PrivateStorageProvider;
                         }
 
+                        // add folder
                         folder = _folders.AddFolder(folder);
+
                         //create the folder in the provider
                         var folderProvider = _storageProviderFactory.GetProvider(folder);
                         await folderProvider.CreateFolderAsync(folder);
+
                         _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Create);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Does Not Have Parent or Name Not Valid {Folder}", folder);
                         HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                         folder = null;
                     }
@@ -221,38 +223,48 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && folder.SiteId == _alias.SiteId && folder.FolderId == id && _folders.GetFolder(folder.FolderId, false) != null && _userPermissions.IsAuthorized(User, folder.SiteId, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
+                // folder name must be valid
                 if (folder.IsPathValid())
                 {
                     if (folder.ParentId != null)
                     {
+                        // generate folder path
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
-
-                        if(parent.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(parent.StorageProvider))
-                        {
-                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Provider Not Valid {Folder}", folder);
-                            HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                            return null;
-                        }
-
                         folder.Path = Utilities.UrlCombine(parent.Path, folder.Name);
                         if (!folder.Path.EndsWith("/"))
                         {
                             folder.Path = folder.Path + "/";
                         }
+
+                        if (parent.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(parent.StorageProvider))
+                        {
+                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Provider Not Valid {Folder}", folder);
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        folder.Path = ""; // only root folder has no parent
                     }
 
-                    var _folder = _folders.GetFolder(id, false);
+                    // get existing folder
+                    var existing = _folders.GetFolder(id, false);
+
+                    // update folder
                     folder = _folders.UpdateFolder(folder);
 
-                    if (folder.Path != _folder.Path) // need to update all child folder's path
+                    // update all child folder paths
+                    if (folder.Path != existing.Path) 
                     {
                         UpdateChildFoldersPath(folder);
                     }
 
+                    // update folder provider
                     var folderProvider = _storageProviderFactory.GetProvider(folder);
-                    if (_folder.MappedPath != folder.MappedPath && _folder.StorageProvider == folder.StorageProvider && await folderProvider.FolderExistsAsync(_folder))
+                    if (existing.MappedPath != folder.MappedPath && existing.StorageProvider == folder.StorageProvider && await folderProvider.FolderExistsAsync(existing))
                     {
-                        await folderProvider.MoveFolderAsync(_folder, folder.MappedPath);
+                        await folderProvider.MoveFolderAsync(existing, folder.MappedPath);
                     }
 
                     _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);
