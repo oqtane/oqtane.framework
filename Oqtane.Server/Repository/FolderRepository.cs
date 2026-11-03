@@ -55,8 +55,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    StorageProvider = item.StorageProvider,
-                    MappedPath = item.MappedPath,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -132,7 +131,6 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             //build the mapped path
-            folder.MappedPath = BuildMappedPath(folder);
             db.Folder.Add(folder);
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -143,7 +141,6 @@ namespace Oqtane.Repository
         {
             using var db = _dbContextFactory.CreateDbContext();
             //build the mapped path
-            folder.MappedPath = BuildMappedPath(folder);
             db.Entry(folder).State = EntityState.Modified;
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -173,8 +170,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    StorageProvider = item.StorageProvider,
-                    MappedPath = item.MappedPath,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -221,8 +217,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
-                    StorageProvider = item.StorageProvider,
-                    MappedPath = item.MappedPath,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -272,7 +267,7 @@ namespace Oqtane.Repository
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
-                        StorageProvider = folder.StorageProvider,
+                        StorageProviderType = folder.StorageProviderType,
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
@@ -293,22 +288,6 @@ namespace Oqtane.Repository
             _permissions.DeletePermissions(folder.SiteId, EntityNames.Folder, folderId);
             db.Folder.Remove(folder);
             db.SaveChanges();
-        }
-
-        private string BuildMappedPath(Folder folder)
-        {
-            var path = string.Empty;
-            if (folder.ParentId != null)
-            {
-                var parentFolder = GetFolder(folder.ParentId.Value);
-                if (parentFolder != null)
-                {
-                    var folderName = folder.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
-                    path = parentFolder.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(folder.StorageProvider) ? string.Empty : $"{parentFolder.MappedPath}{folderName}/";
-                }
-            }
-
-            return path;
         }
     }
 }

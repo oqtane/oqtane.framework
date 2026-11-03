@@ -27,7 +27,7 @@ namespace Oqtane.Providers
             }
 
             var folderProvider = _serviceProvider.GetServices<IStorageProvider>()?
-                .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.StorageProvider, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(i => GetTypeFullName(i.GetType()).Equals(folder.StorageProviderType, StringComparison.OrdinalIgnoreCase));
 
             if (folderProvider != null)
             {

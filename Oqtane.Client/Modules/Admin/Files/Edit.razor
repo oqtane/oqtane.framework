@@ -62,7 +62,7 @@
                                 </div>
                             </div>
                         }
-                        @if (_parentId != -1 && IsDefaultStorageProvider(_parentStorageProvider))
+                        @if (_parentId != -1)
                         {
                             <div class="row mb-1 align-items-center">
                                 <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
@@ -220,7 +220,6 @@
     private IStorageProviderSettingsControl _storageProviderSettingsControl;
     private RenderFragment _storageProviderSettingsFragment;
     private bool _refreshStorageProviderSettings = false;
-    private string _parentStorageProvider;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -242,7 +241,7 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _path = folder.Path;
-                    _storageProvider = folder.StorageProvider;
+                    _storageProvider = folder.StorageProviderType;
                     _capacity = folder.Capacity.ToString();
                     _cachecontrol = folder.CacheControl;
                     _imagesizes = folder.ImageSizes;
@@ -307,14 +306,6 @@
             await LoadParent();          
             await _permissionGrid.SetPermissions(_permissions);
         }
-        else
-        {
-            var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
-            if (parentFolder != null)
-            {
-                await OnStorageProviderChanged(parentFolder.StorageProvider);
-            }
-        }
     }
 
     private async Task OnStorageProviderChanged(string provider)
@@ -362,13 +353,6 @@
             _cachecontrol = folder.CacheControl;
             _imagesizes = folder.ImageSizes;
             _permissions = folder.PermissionList;
-            _parentStorageProvider = folder.StorageProvider;
-
-            await OnStorageProviderChanged(folder.StorageProvider);
-        }
-        else
-        {
-            _parentStorageProvider = string.Empty;
         }
     }
 
@@ -422,7 +406,7 @@
 
                 folder.SiteId = PageState.Site.SiteId;
                 folder.Name = _name;
-                folder.StorageProvider = _storageProvider;
+                folder.StorageProviderType = _storageProvider;
                 folder.Capacity = int.Parse(_capacity);
                 folder.CacheControl = _cachecontrol;
                 folder.ImageSizes = _imagesizes;
@@ -520,7 +504,7 @@
         var parentFolder = _folders.FirstOrDefault(f => f.FolderId == _parentId);
         if (parentFolder != null)
         {
-            await OnStorageProviderChanged(parentFolder.StorageProvider);
+            await OnStorageProviderChanged(parentFolder.StorageProviderType);
         }
     }
 

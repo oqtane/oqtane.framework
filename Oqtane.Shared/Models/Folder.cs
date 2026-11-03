@@ -40,9 +40,7 @@ namespace Oqtane.Models
         /// <summary>
         /// The folder storage provider.
         /// </summary>
-        public string StorageProvider { get; set; }
-
-        public string MappedPath { get; set; }
+        public string StorageProviderType { get; set; }
 
         /// <summary>
         /// Sorting order of the folder ** not used as folders are sorted in alphabetical order **
@@ -115,9 +113,6 @@ namespace Oqtane.Models
         [NotMapped]
         [JsonIgnore] // exclude from API payload
         public bool? IsDeleted { get; set; }
-
-        [Obsolete("The Type property is deprecated in 10.3.0, replaced by using storage provider.")]
-        public string Type { get; set; }
 
         #endregion
     }
