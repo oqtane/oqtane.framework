@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Oqtane.Documentation;
 using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.Modules.HtmlText.Models;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
@@ -14,7 +15,10 @@ namespace Oqtane.Modules.HtmlText.Services
 
         Task<Models.HtmlText> GetHtmlTextAsync(int moduleId);
 
+        Task<Models.HtmlText> GetHtmlTextAsync(int moduleId, int status);
+
         Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmltext);
+        Task<Models.HtmlText> UpdateHtmlTextAsync(Models.HtmlText htmltext);
 
         Task DeleteHtmlTextAsync(int htmlTextId, int moduleId);
     }
@@ -33,12 +37,22 @@ namespace Oqtane.Modules.HtmlText.Services
 
         public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
         {
-            return await GetJsonAsync<Models.HtmlText>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", EntityNames.Module, moduleId));
+            return await GetHtmlTextAsync(moduleId, WorkflowState.Published);
+        }
+
+        public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId, int status)
+        {
+            return await GetJsonAsync<Models.HtmlText>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}?status={status}", EntityNames.Module, moduleId));
         }
 
         public async Task<Models.HtmlText> AddHtmlTextAsync(Models.HtmlText htmlText)
         {
             return await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", EntityNames.Module, htmlText.ModuleId), htmlText);
+        }
+
+        public async Task<Models.HtmlText> UpdateHtmlTextAsync(Models.HtmlText htmlText)
+        {
+            return await PutJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", EntityNames.Module, htmlText.ModuleId), htmlText);
         }
 
         public async Task DeleteHtmlTextAsync(int htmlTextId, int moduleId)

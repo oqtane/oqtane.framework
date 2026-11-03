@@ -205,12 +205,21 @@
     <value>Path:</value>
   </data>
   <data name="Path.HelpText" xml:space="preserve">
-    <value>The folder path</value>
+    <value>The relative folder path for this folder</value>
   </data>
   <data name="UpdateSubfolders.Text" xml:space="preserve">
     <value>Update Subfolders?</value>
   </data>
   <data name="UpdateSubfolders.HelpText" xml:space="preserve">
     <value>Specify if permission changes made to this folder should be propagated to subfolders</value>
+  </data>
+  <data name="StorageProvider.Text" xml:space="preserve">
+    <value>Storage Provider:</value>
+  </data>
+  <data name="StorageProvider.HelpText" xml:space="preserve">
+    <value>Select the storage provider for this folder</value>
+  </data>
+  <data name="Message.StorageProvider.Changed" xml:space="preserve">
+    <value>Please Note That If You Change The Storage Provider, Any Existing Files In The Folder Will Need To Be Manually Migrated. Proceed With Caution.</value>
   </data>
 </root>

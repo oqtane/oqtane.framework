@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Shared</id>
-    <version>10.2.6</version>
+    <version>10.3.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,16 +12,16 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.2.6</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.3.0</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
       <group targetFramework="net10.0">
-        <dependency id="Microsoft.EntityFrameworkCore" version="10.0.12" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="10.0.14" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.14" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.3.13" exclude="Build,Analyzers" />
-        <dependency id="NodaTime" version="3.3.3" exclude="Build,Analyzers" />
+        <dependency id="NodaTime" version="3.3.7" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

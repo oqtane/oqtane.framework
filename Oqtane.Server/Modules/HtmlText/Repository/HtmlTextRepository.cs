@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Documentation;
+using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -12,7 +15,9 @@ namespace Oqtane.Modules.HtmlText.Repository
     {
         IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId);
         Models.HtmlText GetHtmlText(int moduleId);
+        Models.HtmlText GetHtmlText(int moduleId, int status);
         Models.HtmlText AddHtmlText(Models.HtmlText htmlText);
+        Models.HtmlText UpdateHtmlText(Models.HtmlText htmlText);
         void DeleteHtmlText(int htmlTextId);
     }
 
@@ -21,11 +26,13 @@ namespace Oqtane.Modules.HtmlText.Repository
     {
         private readonly IDbContextFactory<HtmlTextContext> _factory;
         private readonly ISettingRepository _settingRepository;
+        private readonly IHttpContextAccessor _accessor;
 
-        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory, ISettingRepository settingRepository)
+        public HtmlTextRepository(IDbContextFactory<HtmlTextContext> factory, ISettingRepository settingRepository, IHttpContextAccessor accessor)
         {
             _factory = factory;
             _settingRepository = settingRepository;
+            _accessor = accessor;
         }
 
         public IEnumerable<Models.HtmlText> GetHtmlTexts(int moduleId)
@@ -36,8 +43,13 @@ namespace Oqtane.Modules.HtmlText.Repository
 
         public Models.HtmlText GetHtmlText(int moduleId)
         {
+            return GetHtmlText(moduleId, WorkflowState.Published);
+        }
+
+        public Models.HtmlText GetHtmlText(int moduleId, int state)
+        {
             using var db = _factory.CreateDbContext();
-            return db.HtmlText.Where(item => item.ModuleId == moduleId)?
+            return db.HtmlText.Where(item => item.ModuleId == moduleId && item.State <= state)?
                 .OrderByDescending(item => item.CreatedOn).FirstOrDefault();
         }
 
@@ -56,6 +68,14 @@ namespace Oqtane.Modules.HtmlText.Repository
             }
 
             db.HtmlText.Add(htmlText);
+            db.SaveChanges();
+            return htmlText;
+        }
+
+        public Models.HtmlText UpdateHtmlText(Models.HtmlText htmlText)
+        {
+            using var db = _factory.CreateDbContext();
+            db.Entry(htmlText).State = EntityState.Modified;
             db.SaveChanges();
             return htmlText;
         }

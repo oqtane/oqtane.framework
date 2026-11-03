@@ -76,7 +76,7 @@ namespace Oqtane.Models
         {
             get
             {
-                if (Settings != null && Settings.ContainsKey($"PhotoFileId:{SiteId}") && int.TryParse(Settings[$"PhotoFileId:{SiteId}"].Replace("[Public]", "").Replace("[Private]", ""), out int photoFileId))
+                if (_photoFileId == null && Settings != null && Settings.ContainsKey($"PhotoFileId:{SiteId}") && int.TryParse(Settings[$"PhotoFileId:{SiteId}"].Replace("[Public]", "").Replace("[Private]", ""), out int photoFileId))
                 {
                     return photoFileId;
                 }

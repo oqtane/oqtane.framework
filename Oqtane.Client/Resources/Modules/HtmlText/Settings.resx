@@ -117,16 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Approver.HelpText" xml:space="preserve">
+    <value>Select the role that is allowed to approve content (note that Administrators always have approval rights)</value>
+  </data>
+  <data name="Approver.Text" xml:space="preserve">
+    <value>Approver:</value>
+  </data>
   <data name="DynamicTokens.HelpText" xml:space="preserve">
     <value>Do you wish to allow tokens to be dynamically replaced? Please note that this will affect the performance of your site.</value>
   </data>
   <data name="DynamicTokens.Text" xml:space="preserve">
     <value>Dynamic Tokens?</value>
   </data>
+  <data name="Message.Workflow.Validation" xml:space="preserve">
+    <value>Approver Is Required For Content Approval Workflow</value>
+  </data>
   <data name="Versions.HelpText" xml:space="preserve">
     <value>The number of content versions to preserve (note that zero means unlimited)</value>
   </data>
   <data name="Versions.Text" xml:space="preserve">
     <value>Versions:</value>
+  </data>
+  <data name="Workflow.HelpText" xml:space="preserve">
+    <value>The workflow to apply to the content for this site</value>
+  </data>
+  <data name="Workflow.Text" xml:space="preserve">
+    <value>Workflow:</value>
   </data>
 </root>

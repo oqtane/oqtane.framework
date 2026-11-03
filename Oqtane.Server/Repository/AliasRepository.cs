@@ -108,17 +108,6 @@ namespace Oqtane.Repository
                 }
             }
 
-            // auto register alias if there is only a single tenant/site
-            if (alias == null && aliases.Select(item => new { item.TenantId, item.SiteId }).Distinct().Count() == 1)
-            {
-                alias = new Alias();
-                alias.TenantId = aliases.First().TenantId;
-                alias.SiteId = aliases.First().SiteId;
-                alias.Name = segments[0]; // root domain
-                alias.IsDefault = false;
-                alias = AddAlias(alias);
-            }
-
             return alias;
         }
 

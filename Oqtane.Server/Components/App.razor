@@ -135,6 +135,7 @@
                 if (!alias.IsDefault)
                 {
                     HandleDefaultAliasRedirect(alias, url);
+                    return;
                 }
 
                 var site = await SiteService.GetSiteAsync(alias.SiteId);
@@ -149,11 +150,6 @@
                     }
                     _fingerprint = site.Fingerprint;
 
-                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
-                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
-
-                    var modules = new List<Module>();
-
                     Route route = new Route(url, alias.Path);
                     var page = site.Pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
                     if (page == null && route.PagePath == "") // naked path refers to site home page
@@ -163,18 +159,19 @@
                     }
                     if (page == null)
                     {
-                        // personalized pages need to be retrieved using path
-                        page = PageRepository.GetPage(route.PagePath, site.SiteId);
+                        // try to retrieve the page using the path (not all pages exist in the site.Pages collection)
+                        page = await GetPageByPath(site.SiteId, route.PagePath);
                     }
                     if (page == null || page.IsDeleted)
                     {
                         HandlePageNotFound(site, page, route);
                         return;
                     }
-                    else
-                    {
-                        modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
-                    }
+
+                    var modules = await SiteService.GetModulesAsync(site.SiteId, page.PageId);
+
+                    var cookieConsentSettings = SettingService.GetSetting(site.Settings, "CookieConsent", string.Empty);
+                    _allowCookies = string.IsNullOrEmpty(cookieConsentSettings) || await CookieConsentService.CanTrackAsync(cookieConsentSettings == "optout");
 
                     if (site.VisitorTracking && _allowCookies)
                     {
@@ -263,6 +260,25 @@
         }
     }
 
+    private async Task<Page> GetPageByPath(int siteId, string path)
+    {   
+        // get the full collection of non-personalized pages for the site
+        var pages = await SiteService.GetPagesAsync(siteId);
+
+        // check if path exists
+        var page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+        if (page == null)
+        {
+            // check if the site contains personalizable pages
+            if (pages.Any(item => item.IsPersonalizable && !item.IsDeleted))
+            {
+                // attempt to retrieve the personalized page using the path
+                page = PageRepository.GetPage(path, siteId);
+            }
+        }
+        return page;
+    }
+
     private void HandlePageNotFound(Site site, Page page, Route route)
     {
         // filter
@@ -292,7 +308,7 @@
 
         // page not found - look for url mapping
         var urlMapping = UrlMappingRepository.GetUrlMapping(site.SiteId, route.PagePath, referrer);
-        if (urlMapping != null && !string.IsNullOrEmpty(urlMapping.MappedUrl))
+        if (urlMapping != null)
         {
             // redirect to mapped url
             var url = (urlMapping.MappedUrl.StartsWith("http")) ? urlMapping.MappedUrl : route.SiteUrl + (!urlMapping.MappedUrl.StartsWith("/") ? "/" : "") + urlMapping.MappedUrl + ((!urlMapping.MappedUrl.Contains("?")) ? route.Query : "");

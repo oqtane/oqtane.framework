@@ -101,6 +101,10 @@
             if (string.IsNullOrEmpty(_name))
             {
                 _name = _url.Substring(_url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                if (_name.Contains("?"))
+                {
+                    _name = _name.Substring(0, _name.IndexOf("?", StringComparison.Ordinal));
+                }
             }
 
             if (!PageState.Site.UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
@@ -117,9 +121,17 @@
 
             try
             {
-                await FileService.UploadFileAsync(_url, _folderId, _name);
-                await logger.LogInformation("File Downloaded Successfully From Url {Url}", _url);
-                AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
+                var file = await FileService.UploadFileAsync(_url, _folderId, _name);
+                if (file != null)
+                {
+                    await logger.LogInformation("File Downloaded Successfully From Url {Url}", _url);
+                    AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
+                }
+                else
+                {
+                    await logger.LogError("Error Downloading File From Url {Url}", _url);
+                    AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
+                }
             }
             catch (Exception ex)
             {

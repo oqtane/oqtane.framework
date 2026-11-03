@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Approve.Title" xml:space="preserve">
+    <value>Approve Content</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Comment.Placeholder" xml:space="preserve">
+    <value>Reason for rejecting the content...</value>
+  </data>
   <data name="Edit.Action" xml:space="preserve">
     <value>Edit Content</value>
   </data>
@@ -125,5 +134,29 @@
   </data>
   <data name="Error.Content.Load" xml:space="preserve">
     <value>An Error Occurred Loading Content</value>
+  </data>
+  <data name="Message.Published" xml:space="preserve">
+    <value>Content Has Been Published</value>
+  </data>
+  <data name="Message.Rejected" xml:space="preserve">
+    <value>Content Has Been Rejected And Author Has Been Notified</value>
+  </data>
+  <data name="Message.Submitted" xml:space="preserve">
+    <value>Content Has Been Submitted For Review</value>
+  </data>
+  <data name="Reject.Title" xml:space="preserve">
+    <value>Reject Content</value>
+  </data>
+  <data name="Review.Title" xml:space="preserve">
+    <value>Review New Content</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Submit.Title" xml:space="preserve">
+    <value>Submit Content For Review</value>
+  </data>
+  <data name="View.Title" xml:space="preserve">
+    <value>View Published Content</value>
   </data>
 </root>

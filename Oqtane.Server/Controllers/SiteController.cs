@@ -88,5 +88,13 @@ namespace Oqtane.Controllers
         {
             return await _siteService.GetModulesAsync(siteId, pageId);
         }
+
+        // GET api/<controller>/pages/5
+        [HttpGet("pages/{siteId}")]
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task<IEnumerable<Page>> GetPages(int siteId)
+        {
+            return await _siteService.GetPagesAsync(siteId);
+        }
     }
 }

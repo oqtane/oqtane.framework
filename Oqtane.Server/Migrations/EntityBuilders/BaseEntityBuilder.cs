@@ -341,6 +341,27 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<byte[]>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: unicode, defaultValue: defaultValue);
         }
 
+        // max binary
+        public void AddMaxBinaryColumn(string name, bool nullable = false, bool unicode = true)
+        {
+            _migrationBuilder.AddColumn<byte[]>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: unicode, schema: Schema);
+        }
+
+        public void AddMaxBinaryColumn(string name, bool nullable, bool unicode, string defaultValue)
+        {
+            _migrationBuilder.AddColumn<byte[]>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: unicode, defaultValue: defaultValue, schema: Schema);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddMaxBinaryColumn(ColumnsBuilder table, string name, bool nullable = false, bool unicode = true)
+        {
+            return table.Column<byte[]>(name: RewriteName(name), nullable: nullable, unicode: unicode);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddMaxBinaryColumn(ColumnsBuilder table, string name, bool nullable, bool unicode, string defaultValue)
+        {
+            return table.Column<byte[]>(name: RewriteName(name), nullable: nullable, unicode: unicode, defaultValue: defaultValue);
+        }
+
         // alter string
         public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true, string index = "")
         {
@@ -385,27 +406,15 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, ReferentialAction onDelete)
         {
-            _migrationBuilder.AddForeignKey(
-                name: RewriteName(foreignKeyName),
-                table: RewriteName(EntityTableName),
-                column: RewriteName(columnName),
-                principalTable: RewriteName(principalTable),
-                principalColumn: RewriteName(principalColumn),
-                onDelete: onDelete,
-                schema: Schema);
-        }
-
-        public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete)
-        {
-            _migrationBuilder.AddForeignKey(
-                name: RewriteName(foreignKeyName),
-                table: RewriteName(EntityTableName),
-                column: RewriteName(columnName),
-                principalTable: RewriteName(principalTable),
-                principalColumn: RewriteName(principalColumn),
-                principalSchema: RewriteName(principalSchema),
-                onDelete: onDelete,
-                schema: Schema);
+            ActiveDatabase.AddForeignKey(
+                _migrationBuilder,
+                RewriteName(foreignKeyName),
+                RewriteName(EntityTableName),
+                RewriteName(columnName),
+                RewriteName(principalTable),
+                RewriteName(principalColumn),
+                Schema,
+                onDelete);
         }
 
         /// <summary>

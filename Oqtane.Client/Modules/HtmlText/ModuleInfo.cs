@@ -12,9 +12,9 @@ namespace Oqtane.Modules.HtmlText
         {
             Name = "HtmlText",
             Description = "Renders HTML or Text Content",
-            Version = "1.0.1",
+            Version = "1.0.2",
             ServerManagerType = "Oqtane.Modules.HtmlText.Manager.HtmlTextManager, Oqtane.Server",
-            ReleaseVersions = "1.0.0,1.0.1",
+            ReleaseVersions = "1.0.0,1.0.1,1.0.2",
             SettingsType = "Oqtane.Modules.HtmlText.Settings, Oqtane.Client",
             Resources = new List<Resource>()
             {

@@ -11,6 +11,7 @@ using Oqtane.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Oqtane.Repository;
 using Oqtane.Shared;
+using Oqtane.Modules.HtmlText.Models;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -20,14 +21,16 @@ namespace Oqtane.Modules.HtmlText.Manager
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable, ISynchronizable, ISearchable
     {
         private readonly IHtmlTextRepository _htmlTextRepository;
+        private readonly ISettingRepository _settingRepository;
         private readonly IDBContextDependencies _DBContextDependencies;
         private readonly ISqlRepository _sqlRepository;
         private readonly ITenantManager _tenantManager;
         private readonly ICacheManager _cache;
 
-        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, ICacheManager cache)
+        public HtmlTextManager(IHtmlTextRepository htmlTextRepository, ISettingRepository settingRepository, IDBContextDependencies DBContextDependencies, ISqlRepository sqlRepository, ITenantManager tenantManager, ICacheManager cache)
         {
             _htmlTextRepository = htmlTextRepository;
+            _settingRepository = settingRepository;
             _DBContextDependencies = DBContextDependencies;
             _sqlRepository = sqlRepository;
             _tenantManager = tenantManager;
@@ -64,7 +67,8 @@ namespace Oqtane.Modules.HtmlText.Manager
 
         public void ImportModule(Module module, string content, string version)
         {
-            SaveModuleContent(module, content);
+            var workflow = _settingRepository.GetSettingValue(EntityNames.Site, module.SiteId, "HtmlText:Workflow", WorkflowType.DirectPublish);
+            SaveModuleContent(module, content, workflow != WorkflowType.DirectPublish ? WorkflowState.Draft : WorkflowState.Published);
         }
 
         // ISynchronizable implementation
@@ -81,15 +85,16 @@ namespace Oqtane.Modules.HtmlText.Manager
 
         public void LoadModule(Module module, string content)
         {
-            SaveModuleContent(module, content);
+            SaveModuleContent(module, content, WorkflowState.Published);
         }
 
-        private void SaveModuleContent(Module module, string content)
+        private void SaveModuleContent(Module module, string content, int state)
         {
             content = WebUtility.HtmlDecode(content);
             var htmlText = new Models.HtmlText();
             htmlText.ModuleId = module.ModuleId;
             htmlText.Content = content;
+            htmlText.State = state;
             _htmlTextRepository.AddHtmlText(htmlText);
 
             //clear the cache for the module

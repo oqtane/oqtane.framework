@@ -91,6 +91,11 @@ namespace Oqtane.Databases
             builder.AlterColumn<string>(RewriteName(name), RewriteName(table), maxLength: length, nullable: nullable, unicode: unicode);
         }
 
+        public virtual void AddForeignKey(MigrationBuilder builder, string foreignKeyName, string table, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete)
+        {
+            builder.AddForeignKey(foreignKeyName, RewriteName(table), RewriteName(columnName), RewriteName(principalTable), null, principalSchema, RewriteName(principalColumn), ReferentialAction.NoAction, onDelete);
+        }
+
         public abstract DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);
     }
 }

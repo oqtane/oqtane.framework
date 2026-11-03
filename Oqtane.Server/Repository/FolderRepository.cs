@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -22,23 +20,17 @@ namespace Oqtane.Repository
         Folder GetFolder(int siteId, string path);
         Folder GetFolder(int siteId, string path, int userId);
         void DeleteFolder(int folderId);
-        string GetFolderPath(int folderId);
-        string GetFolderPath(Folder folder);
     }
 
     public class FolderRepository : IFolderRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPermissionRepository _permissions;
-        private readonly IWebHostEnvironment _environment;
-        private readonly ITenantManager _tenants;
 
-        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
+        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IServiceProvider serviceProvider)
         {
             _dbContextFactory = dbContextFactory;
             _permissions = permissions;
-            _environment = environment;
-            _tenants = tenants;
         }
 
         public IEnumerable<Folder> GetFolders(int siteId)
@@ -56,7 +48,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -64,6 +55,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -138,6 +130,7 @@ namespace Oqtane.Repository
         public Folder AddFolder(Folder folder)
         {
             using var db = _dbContextFactory.CreateDbContext();
+            //build the mapped path
             db.Folder.Add(folder);
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -147,6 +140,7 @@ namespace Oqtane.Repository
         public Folder UpdateFolder(Folder folder)
         {
             using var db = _dbContextFactory.CreateDbContext();
+            //build the mapped path
             db.Entry(folder).State = EntityState.Modified;
             db.SaveChanges();
             _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.PermissionList);
@@ -169,7 +163,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -177,6 +170,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -216,7 +210,6 @@ namespace Oqtane.Repository
                     FolderId = item.FolderId,
                     SiteId = item.SiteId,
                     ParentId = item.ParentId,
-                    Type = item.Type,
                     Name = item.Name,
                     Path = item.Path,
                     Order = item.Order,
@@ -224,6 +217,7 @@ namespace Oqtane.Repository
                     Capacity = item.Capacity,
                     IsSystem = item.IsSystem,
                     CacheControl = item.CacheControl,
+                    StorageProviderType = item.StorageProviderType,
                     CreatedBy = item.CreatedBy,
                     CreatedOn = item.CreatedOn,
                     ModifiedBy = item.ModifiedBy,
@@ -267,13 +261,13 @@ namespace Oqtane.Repository
                         SiteId = folder.SiteId,
                         ParentId = folder.FolderId,
                         Name = "My Folder",
-                        Type = folder.Type,
                         Path = path,
                         Order = 1,
                         ImageSizes = folder.ImageSizes,
                         Capacity = folder.Capacity,
                         CacheControl = folder.CacheControl,
                         IsSystem = true,
+                        StorageProviderType = folder.StorageProviderType,
                         PermissionList = new List<Permission>
                         {
                             new Permission(PermissionNames.Browse, userId, true),
@@ -294,30 +288,6 @@ namespace Oqtane.Repository
             _permissions.DeletePermissions(folder.SiteId, EntityNames.Folder, folderId);
             db.Folder.Remove(folder);
             db.SaveChanges();
-        }
-
-        public string GetFolderPath(int folderId)
-        {
-            using var db = _dbContextFactory.CreateDbContext();
-            var folder = db.Folder
-                .AsNoTracking()
-                .FirstOrDefault(item => item.FolderId == folderId);
-            return GetFolderPath(folder);
-        }
-
-        public string GetFolderPath(Folder folder)
-        {
-            string path = "";
-            switch (folder.Type)
-            {
-                case FolderTypes.Private:
-                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
-                case FolderTypes.Public:
-                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
-                    break;
-            }
-            return path;
         }
     }
 }

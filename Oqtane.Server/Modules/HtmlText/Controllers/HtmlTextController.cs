@@ -41,14 +41,14 @@ namespace Oqtane.Modules.HtmlText.Controllers
             }
         }
 
-        // GET api/<controller>/5
+        // GET api/<controller>/5?status=0
         [HttpGet("{moduleId}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public async Task<Models.HtmlText> Get(int moduleId)
+        public async Task<Models.HtmlText> Get(int moduleId, int status)
         {
             if (IsAuthorizedEntityId(EntityNames.Module, moduleId))
             {
-                return await _htmlTextService.GetHtmlTextAsync(moduleId);
+                return await _htmlTextService.GetHtmlTextAsync(moduleId, status);
             }
             else
             {
@@ -70,6 +70,23 @@ namespace Oqtane.Modules.HtmlText.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Post Attempt {HtmlText}", htmlText);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
+
+        // PUT api/<controller>
+        [HttpPut]
+        [Authorize(Roles = RoleNames.Registered)]
+        public async Task<Models.HtmlText> Put([FromBody] Models.HtmlText htmlText)
+        {
+            if (ModelState.IsValid && IsAuthorizedEntityId(EntityNames.Module, htmlText.ModuleId))
+            {
+                return await _htmlTextService.UpdateHtmlTextAsync(htmlText);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Html/Text Put Attempt {HtmlText}", htmlText);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }

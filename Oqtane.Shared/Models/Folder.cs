@@ -27,11 +27,6 @@ namespace Oqtane.Models
         public int? ParentId { get; set; }
 
         /// <summary>
-        /// Folder type - based on FolderTypes
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
         /// Folder name
         /// </summary>
         public string Name { get; set; }
@@ -41,6 +36,11 @@ namespace Oqtane.Models
         /// TODO: document from where the path starts
         /// </summary>
         public string Path { get; set; }
+
+        /// <summary>
+        /// The folder storage provider.
+        /// </summary>
+        public string StorageProviderType { get; set; }
 
         /// <summary>
         /// Sorting order of the folder ** not used as folders are sorted in alphabetical order **
@@ -85,7 +85,7 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public bool HasChildren { get; set; }
-
+        
         /// <summary>
         /// Indicates if subfolder permissions should be updated to be consistent with parent folder
         /// </summary>

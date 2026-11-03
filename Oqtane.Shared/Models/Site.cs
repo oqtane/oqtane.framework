@@ -248,11 +248,11 @@ namespace Oqtane.Models
                 CreatedOn = CreatedOn,
                 ModifiedBy = ModifiedBy,
                 ModifiedOn = ModifiedOn,
-                Settings = Settings.ToDictionary(setting => setting.Key, setting => setting.Value),
-                Pages = Pages.ConvertAll(page => page.Clone()),
-                Languages = Languages.ConvertAll(language => language.Clone()),
+                Settings = null,
+                Pages = null,
+                Languages = null,
                 Themes = Themes,
-                User = User?.Clone(),
+                User = null,
                 Fingerprint = Fingerprint,
                 TenantId = TenantId
             };

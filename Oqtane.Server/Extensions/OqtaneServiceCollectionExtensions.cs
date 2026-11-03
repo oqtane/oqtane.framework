@@ -28,6 +28,7 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Interfaces;
 using Oqtane.Managers;
+using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Repository;
@@ -229,6 +230,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.TextAreaTextEditor>();
             services.AddScoped<ITextEditor, Oqtane.Modules.Controls.RadzenTextEditor>();
 
+            // file providers
+            services.AddScoped<IStorageProviderFactory, StorageProviderFactory>();
+
             services.AddRadzenComponents();
 
             var localizer = services.BuildServiceProvider().GetService<IStringLocalizer<Oqtane.Modules.Controls.RadzenTextEditor>>();
@@ -320,6 +324,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<IFileBlobRepository, FileBlobRepository>();
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
@@ -425,6 +430,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var hostedServiceType = typeof(IHostedService);
+            var folderProviderType = typeof(IStorageProvider);
 
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
@@ -459,6 +465,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         services.AddSingleton(hostedServiceType, serviceType);
                     }
+                }
+
+                // dynamically register storage providers
+                var folderProviderTypes = assembly.GetInterfaces<IStorageProvider>();
+                foreach (var type in folderProviderTypes)
+                {
+                    services.AddScoped(folderProviderType, type);
                 }
 
                 // dynamically register server startup services

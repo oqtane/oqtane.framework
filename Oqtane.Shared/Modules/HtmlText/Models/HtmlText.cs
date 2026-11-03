@@ -1,6 +1,7 @@
 using Oqtane.Models;
 using System.ComponentModel.DataAnnotations;
 using Oqtane.Documentation;
+using System;
 
 namespace Oqtane.Modules.HtmlText.Models
 {
@@ -11,5 +12,7 @@ namespace Oqtane.Modules.HtmlText.Models
         public int HtmlTextId { get; set; }
         public int ModuleId { get; set; }
         public string Content { get; set; }
+        public int State { get; set; }
+        public string Comment { get; set; }
     }
 }

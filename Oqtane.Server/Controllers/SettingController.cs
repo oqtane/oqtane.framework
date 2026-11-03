@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Oqtane.Enums;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -438,7 +439,7 @@ namespace Oqtane.Controllers
                 case EntityNames.Role:
                     if (FormatName(permissionName) == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin);
+                        authorized = User.IsInRole(RoleNames.Admin) && User.SiteId() == _alias.SiteId;
                     }
                     else
                     {
@@ -492,7 +493,7 @@ namespace Oqtane.Controllers
                     break;
                 case EntityNames.Site:
                 case EntityNames.Role:
-                    filter = !User.IsInRole(RoleNames.Admin);
+                    filter = !(User.IsInRole(RoleNames.Admin) && User.SiteId() == _alias.SiteId);
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:

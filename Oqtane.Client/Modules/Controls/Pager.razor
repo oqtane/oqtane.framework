@@ -12,7 +12,6 @@
         {
             <form autocomplete="off" @onsubmit:preventDefault="true">
                 <div class="input-group my-3 @SearchBoxClass">
-                    @* <input type="text" id="pagersearch" class="form-control" placeholder=@string.Format(Localizer["SearchPlaceholder"], FormatSearchProperties()) @bind="@_search" @onkeydown="HandleSearchKeyDown" /> *@
                     <input type="text"
                            id="pagersearch"
                            class="form-control"
@@ -564,7 +563,7 @@
         {
             Items = AllItems.Where(item =>
             {
-                var values = SearchProperties.Split(',')
+                var values = SearchProperties.Split(',', StringSplitOptions.TrimEntries)
                     .Select(itemType => GetPropertyValue(item, itemType))
                     .Where(value => value != null)
                     .Select(value => value.ToString().ToLower());

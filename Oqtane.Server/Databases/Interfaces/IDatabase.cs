@@ -38,6 +38,8 @@ namespace Oqtane.Databases.Interfaces
 
         public void AlterStringColumn(MigrationBuilder builder, string name, string table, int length, bool nullable, bool unicode, string index);
 
+        public void AddForeignKey(MigrationBuilder builder, string foreignKeyName, string table, string columnName, string principalTable, string principalColumn, string principalSchema, ReferentialAction onDelete);
+
         public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);
     }
 }
