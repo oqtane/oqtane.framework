@@ -19,8 +19,10 @@ namespace Oqtane.Migrations.Tenant
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
-            folderEntityBuilder.AddStringColumn("StorageProvider", 512, true);
-            folderEntityBuilder.AddStringColumn("MappedPath", 512, true);
+            folderEntityBuilder.AddStringColumn("StorageProviderType", 512, true);
+            folderEntityBuilder.UpdateData("StorageProviderType", $"'{Constants.PublicStorageProvider}'", $"{DelimitName(RewriteName("Type"))} = 'Public'");
+            folderEntityBuilder.UpdateData("StorageProviderType", $"'{Constants.PrivateStorageProvider}'", $"{DelimitName(RewriteName("Type"))} = 'Private'");
+            folderEntityBuilder.DropColumn("Type");
 
             var fileBlobEntityBuilder = new FileBlobEntityBuilder(migrationBuilder, ActiveDatabase);
             fileBlobEntityBuilder.Create();

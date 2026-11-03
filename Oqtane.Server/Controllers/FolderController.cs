@@ -178,9 +178,9 @@ namespace Oqtane.Controllers
                         }
 
                         // set default storage provider if not specified
-                        if (string.IsNullOrEmpty(folder.StorageProvider))
+                        if (string.IsNullOrEmpty(folder.StorageProviderType))
                         {
-                            folder.StorageProvider = Constants.PrivateStorageProvider;
+                            folder.StorageProviderType = Constants.PrivateStorageProvider;
                         }
 
                         // add folder
@@ -235,13 +235,6 @@ namespace Oqtane.Controllers
                         {
                             folder.Path = folder.Path + "/";
                         }
-
-                        if (parent.StorageProvider != folder.StorageProvider && !Constants.DefaultStorageProviders.Contains(parent.StorageProvider))
-                        {
-                            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Provider Not Valid {Folder}", folder);
-                            HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                            return null;
-                        }
                     }
                     else
                     {
@@ -262,9 +255,11 @@ namespace Oqtane.Controllers
 
                     // update folder provider
                     var folderProvider = _storageProviderFactory.GetProvider(folder);
-                    if (existing.MappedPath != folder.MappedPath && existing.StorageProvider == folder.StorageProvider && await folderProvider.FolderExistsAsync(existing))
+
+                    //only move the folder if both the source and new storage providers are default storage providers and the folder exists in the source provider
+                    if (existing.Path != folder.Path && existing.StorageProviderType == folder.StorageProviderType && await folderProvider.FolderExistsAsync(existing))
                     {
-                        await folderProvider.MoveFolderAsync(existing, folder.MappedPath);
+                        await folderProvider.MoveFolderAsync(existing, folder.Path);
                     }
 
                     _syncManager.AddSyncEvent(_alias, EntityNames.Folder, folder.FolderId, SyncEventActions.Update);

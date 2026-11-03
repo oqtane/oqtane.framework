@@ -267,12 +267,11 @@ namespace Oqtane.Repository
                 ParentId = null,
                 Name = "Root",
                 Path = "",
-                MappedPath = "",
                 Order = 1,
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                StorageProvider = Constants.PrivateStorageProvider,
+                StorageProviderType = Constants.PrivateStorageProvider,
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -286,12 +285,11 @@ namespace Oqtane.Repository
                 ParentId = folder.FolderId,
                 Name = "Public",
                 Path = "Public/",
-                MappedPath = "Public/",
                 Order = 1,
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = false,
-                StorageProvider = Constants.PublicStorageProvider,
+                StorageProviderType = Constants.PublicStorageProvider,
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -309,8 +307,7 @@ namespace Oqtane.Repository
                 ImageSizes = "",
                 Capacity = 0,
                 IsSystem = true,
-                MappedPath = Constants.UserFolderPath,
-                StorageProvider = Constants.PrivateStorageProvider,
+                StorageProviderType = Constants.PrivateStorageProvider,
                 PermissionList = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

@@ -12,7 +12,7 @@ namespace Oqtane.Providers
         private readonly IFolderRepository _folderRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IWebHostEnvironment _environment;
-        private string _rootFolderPath;
+        private string _folderPath;
 
         public CustomStorageProvider(
             ISettingRepository settingRepository,
@@ -38,7 +38,7 @@ namespace Oqtane.Providers
             var settings = _settingRepository.GetSettings(EntityNames.Folder, folderId);
             if (settings.Any(item => item.SettingName == "FolderPath"))
             {
-                _rootFolderPath = settings.First(item => item.SettingName == "FolderPath").SettingValue;
+                _folderPath = settings.First(item => item.SettingName == "FolderPath").SettingValue;
             }
         }
 
@@ -46,9 +46,9 @@ namespace Oqtane.Providers
         {
             if (folder != null)
             {
-                if (!string.IsNullOrEmpty(_rootFolderPath))
+                if (!string.IsNullOrEmpty(_folderPath))
                 {
-                    return Utilities.PathCombine(_environment.ContentRootPath, _rootFolderPath, folder.MappedPath);
+                    return Utilities.PathCombine(_environment.ContentRootPath, _folderPath);
                 }
             }
             return "";
