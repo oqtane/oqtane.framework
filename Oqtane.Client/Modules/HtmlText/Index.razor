@@ -13,7 +13,7 @@
         @if (PageState.EditMode)
         {
             <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
-            @if (_htmltext != null && _htmltext.State == WorkflowState.Draft || (_htmltext.State == WorkflowState.Review && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin)))
+            @if (_htmltext != null && (_htmltext.State == WorkflowState.Draft || (_htmltext.State == WorkflowState.Review && UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))))
             {
                 <form method="post" class="app-form-inline ms-1" @formname="@($"HtmlTextPublishForm:{ModuleState.PageModuleId}")" @onsubmit="Publish" data-enhance>
                     <input type="hidden" name="@Constants.RequestVerificationToken" value="@SiteState.AntiForgeryToken" />
