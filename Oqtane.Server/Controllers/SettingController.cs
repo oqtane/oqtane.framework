@@ -27,6 +27,7 @@ namespace Oqtane.Controllers
     {
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
+        private readonly IRoleRepository _roles;
         private readonly IUserPermissions _userPermissions;
         private readonly IVisitorCookieService _visitorCookieService;
         private readonly ISyncManager _syncManager;
@@ -50,7 +51,7 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, IVisitorCookieService visitorCookieService, ITenantManager tenantManager, ISyncManager syncManager, 
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IRoleRepository roles, IUserPermissions userPermissions, IVisitorCookieService visitorCookieService, ITenantManager tenantManager, ISyncManager syncManager, 
             IOptions<CookieAuthenticationOptions> cookieOptions, IOptionsSnapshot<CookieAuthenticationOptions> cookieOptionsSnapshot, IOptionsMonitorCache<CookieAuthenticationOptions> cookieOptionsMonitorCache,
             IOptions<OpenIdConnectOptions> oidcOptions, IOptionsSnapshot<OpenIdConnectOptions> oidcOptionsSnapshot, IOptionsMonitorCache<OpenIdConnectOptions> oidcOptionsMonitorCache,
             IOptions<OAuthOptions> oauthOptions, IOptionsSnapshot<OAuthOptions> oauthOptionsSnapshot, IOptionsMonitorCache<OAuthOptions> oauthOptionsMonitorCache,
@@ -59,6 +60,7 @@ namespace Oqtane.Controllers
         {
             _settings = settings;
             _pageModules = pageModules;
+            _roles = roles;
             _userPermissions = userPermissions;
             _visitorCookieService = visitorCookieService;
             _syncManager = syncManager;
@@ -436,14 +438,30 @@ namespace Oqtane.Controllers
                     }
                     break;
                 case EntityNames.Site:
-                case EntityNames.Role:
-                    if (FormatName(permissionName) == PermissionNames.Edit)
+                    if (entityId == _alias.SiteId)
                     {
-                        authorized = User.IsInRole(RoleNames.Admin) && User.SiteId() == _alias.SiteId;
+                        if (FormatName(permissionName) == PermissionNames.Edit)
+                        {
+                            authorized = User.IsInRole(RoleNames.Admin);
+                        }
+                        else
+                        {
+                            authorized = true;
+                        }
                     }
-                    else
+                    break;
+                case EntityNames.Role:
+                    var role = _roles.GetRole(entityId);
+                    if (role != null && role.SiteId == _alias.SiteId)
                     {
-                        authorized = true;
+                        if (FormatName(permissionName) == PermissionNames.Edit)
+                        {
+                            authorized = User.IsInRole(RoleNames.Admin);
+                        }
+                        else
+                        {
+                            authorized = true;
+                        }
                     }
                     break;
                 case EntityNames.Page:
@@ -492,8 +510,11 @@ namespace Oqtane.Controllers
                     filter = !User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
+                    filter = !(entityId == _alias.SiteId && User.IsInRole(RoleNames.Admin));
+                    break;
                 case EntityNames.Role:
-                    filter = !(User.IsInRole(RoleNames.Admin) && User.SiteId() == _alias.SiteId);
+                    var role = _roles.GetRole(entityId);
+                    filter = !(role != null && role.SiteId == _alias.SiteId && User.IsInRole(RoleNames.Admin));
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
