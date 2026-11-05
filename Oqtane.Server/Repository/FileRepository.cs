@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace Oqtane.Repository
         File GetFile(int folderId, string fileName);
         File GetFile(int siteId, string folderPath, string fileName);
         void DeleteFile(int fileId);
+        public string GetFilePath(int fileId);
+        public string GetFilePath(File file);
     }
 
     public class FileRepository : IFileRepository
@@ -175,6 +178,24 @@ namespace Oqtane.Repository
         private string GetFileUrl(File file, Alias alias)
         {
             return Utilities.FileUrl(alias, file.Folder.Path, file.Name);
+        }
+
+        [Obsolete("GetFilePath(int fileId) is deprecated. Use StorageProvider instead", false)]
+        public string GetFilePath(int fileId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            var file = db.File.Find(fileId);
+            return GetFilePath(file);
+        }
+
+        [Obsolete("GetFilePath(File file) is deprecated. Use StorageProvider instead", false)]
+        public string GetFilePath(File file)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            if (file == null) return null;
+            var folder = file.Folder ?? db.Folder.AsNoTracking().FirstOrDefault(item => item.FolderId == file.FolderId);
+            var filepath = Path.Combine(_folderRepository.GetFolderPath(folder), file.Name);
+            return filepath;
         }
     }
 }

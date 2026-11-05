@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -20,17 +21,23 @@ namespace Oqtane.Repository
         Folder GetFolder(int siteId, string path);
         Folder GetFolder(int siteId, string path, int userId);
         void DeleteFolder(int folderId);
+        public string GetFolderPath(int folderId);
+        public string GetFolderPath(Folder folder);
     }
 
     public class FolderRepository : IFolderRepository
     {
         private readonly IDbContextFactory<TenantDBContext> _dbContextFactory;
         private readonly IPermissionRepository _permissions;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ITenantManager _tenants;
 
-        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants, IServiceProvider serviceProvider)
+        public FolderRepository(IDbContextFactory<TenantDBContext> dbContextFactory, IPermissionRepository permissions, IWebHostEnvironment environment, ITenantManager tenants)
         {
             _dbContextFactory = dbContextFactory;
             _permissions = permissions;
+            _environment = environment;
+            _tenants = tenants;
         }
 
         public IEnumerable<Folder> GetFolders(int siteId)
@@ -289,5 +296,32 @@ namespace Oqtane.Repository
             db.Folder.Remove(folder);
             db.SaveChanges();
         }
+
+        [Obsolete("GetFolderPath(int folderId) is deprecated. Use StorageProvider instead", false)]
+        public string GetFolderPath(int folderId)
+        {
+            using var db = _dbContextFactory.CreateDbContext();
+            var folder = db.Folder
+                .AsNoTracking()
+                .FirstOrDefault(item => item.FolderId == folderId);
+            return GetFolderPath(folder);
+        }
+
+        [Obsolete("GetFolderPath(Folder folder) is deprecated. Use StorageProvider instead", false)]
+        public string GetFolderPath(Folder folder)
+        {
+            string path = "";
+            switch (folder.StorageProviderType)
+            {
+                case Constants.PrivateStorageProvider:
+                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
+                case Constants.PublicStorageProvider:
+                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
+            }
+            return path;
+        }
+
     }
 }
