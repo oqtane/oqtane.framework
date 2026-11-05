@@ -112,7 +112,7 @@ namespace Oqtane.Controllers
             Setting setting = _settings.GetSetting(entityName, id);
             if (setting != null && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
-                if (FilterPrivate(entityName, id) && setting.IsPrivate)
+                if (FilterPrivate(entityName, setting.EntityId) && setting.IsPrivate)
                 {
                     setting = null;
                 }
