@@ -1,13 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Oqtane.Models;
+using Oqtane.Providers.StorageProviders;
 using Oqtane.Repository;
 
 namespace Oqtane.Providers
 {
-    public class DatabaseStorageProvider : IStorageProvider
+    public class DatabaseStorageProvider : StorageProviderBase
     {
         private readonly IFolderRepository _folderRepository;
         private readonly IFileRepository _fileRepository;
@@ -26,46 +28,45 @@ namespace Oqtane.Providers
             _storageProviderFactory = storageProviderFactory;
         }
 
-        public virtual string DisplayName { get; } = "Local Database Storage";
+        public override string DisplayName { get; } = "Local Database Storage";
 
-        public virtual string SettingControlType { get; } = null;
-
-        public void Initialize(int folderId)
+        public override async Task<bool> FileExistsAsync(Models.File file)
         {
+            if (file == null)
+            {
+                return false;
+            }
+
+            var folder = file.Folder ?? _folderRepository.GetFolder(file.FolderId);
+            return await FileExistsAsync(folder, file.Name);
         }
 
-        public virtual async Task<bool> FileExistsAsync(Models.File file)
-        {
-            var blob = _fileBlobRepository.GetFileBlob(file.FolderId, file.Name);
-            return blob != null;
-        }
-
-        public virtual async Task<bool> FileExistsAsync(Models.Folder folder, string fileName)
+        public override async Task<bool> FileExistsAsync(Models.Folder folder, string fileName)
         {
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
             return blob != null;
         }
 
-        public virtual async Task<IList<string>> GetFilesAsync(Folder folder)
+        public override async Task<IList<string>> GetFilesAsync(Folder folder)
         {
             return _fileRepository.GetFiles(folder.FolderId)
                 .Select(i => i.Name)
                 .ToList();
         }
 
-        public virtual async Task<long> GetFileSizeAsync(Models.File file)
+        public override async Task<long> GetFileSizeAsync(Models.File file)
         {
             var blob = _fileBlobRepository.GetFileBlob(file.FolderId, file.Name);
             return blob?.Blob?.Length ?? 0;
         }
 
-        public virtual async Task<long> GetFileSizeAsync(Models.Folder folder, string fileName)
+        public override async Task<long> GetFileSizeAsync(Models.Folder folder, string fileName)
         {
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
             return blob?.Blob?.Length ?? 0;
         }
 
-        public virtual async Task<Stream> GetFileStreamAsync(Models.File file)
+        public override async Task<Stream> GetFileStreamAsync(Models.File file)
         {
             var blob = _fileBlobRepository.GetFileBlob(file.FolderId, file.Name);
             if(blob?.Blob != null)
@@ -76,7 +77,7 @@ namespace Oqtane.Providers
             return null;
         }
 
-        public virtual async Task<Stream> GetFileStreamAsync(Models.Folder folder, string fileName)
+        public override async Task<Stream> GetFileStreamAsync(Models.Folder folder, string fileName)
         {
             var blob = _fileBlobRepository.GetFileBlob(folder.FolderId, fileName);
             if (blob?.Blob != null)
@@ -87,12 +88,12 @@ namespace Oqtane.Providers
             return null;
         }
 
-        public virtual async Task DeleteFileAsync(Models.File file)
+        public override async Task DeleteFileAsync(Models.File file)
         {
             _fileBlobRepository.DeleteFileBlob(file.FolderId, file.Name);
         }
 
-        public virtual async Task MoveFileAsync(Models.File file, Models.Folder destinationFolder, string fileName)
+        public override async Task MoveFileAsync(Models.File file, Models.Folder destinationFolder, string fileName)
         {
             var sourceStorageProvider = _storageProviderFactory.GetProvider(file.Folder);
             using var stream = await sourceStorageProvider.GetFileStreamAsync(file);
@@ -102,7 +103,7 @@ namespace Oqtane.Providers
             await sourceStorageProvider.DeleteFileAsync(file);
         }
 
-        public virtual async Task CopyFileAsync(Models.File file, Folder destinationFolder)
+        public override async Task CopyFileAsync(Models.File file, Folder destinationFolder)
         {
             var sourceStorageProvider = _storageProviderFactory.GetProvider(file.Folder);
             using var stream = await sourceStorageProvider.GetFileStreamAsync(file);
@@ -110,7 +111,7 @@ namespace Oqtane.Providers
             stream.Close();
         }
 
-        public virtual async Task AddFileAsync(Models.Folder folder, string fileName, Stream fileStream)
+        public override async Task AddFileAsync(Models.Folder folder, string fileName, Stream fileStream)
         {
             using var memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
@@ -134,25 +135,25 @@ namespace Oqtane.Providers
             }
         }
 
-        public virtual async Task<bool> FolderExistsAsync(Models.Folder folder)
+        public override async Task<bool> FolderExistsAsync(Models.Folder folder)
         {
             return true;
         }
 
-        public virtual async Task CreateFolderAsync(Models.Folder folder)
+        public override async Task CreateFolderAsync(Models.Folder folder)
         {
             
         }
 
-        public virtual async Task MoveFolderAsync(Models.Folder sourceFolder, string destinationPath)
+        public override async Task MoveFolderAsync(Models.Folder sourceFolder, string destinationPath)
         {
         }
 
-        public virtual async Task DeleteFolderAsync(Models.Folder folder)
+        public override async Task DeleteFolderAsync(Models.Folder folder)
         {
         }
 
-        public virtual async Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, bool recursive)
+        public override async Task<IList<string>> GetSubFoldersAsync(Models.Folder parentFolder, bool recursive)
         {
             var folders = new List<string>();
 
@@ -167,6 +168,11 @@ namespace Oqtane.Providers
             }
 
             return folders;
+        }
+
+        public override Task<string> GetFilePathAsync(Models.File file)
+        {
+            throw new InvalidOperationException("Database Provider doesn't support file path retrieval");
         }
     }
 }
