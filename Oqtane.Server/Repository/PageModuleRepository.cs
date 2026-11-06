@@ -59,9 +59,6 @@ namespace Oqtane.Repository
 
         public PageModule AddPageModule(PageModule pageModule)
         {
-            pageModule.Page = null;
-            pageModule.Module = null;
-            
             using var db = _dbContextFactory.CreateDbContext();
             db.PageModule.Add(pageModule);
             db.SaveChanges();
@@ -70,9 +67,6 @@ namespace Oqtane.Repository
 
         public PageModule UpdatePageModule(PageModule pageModule)
         {
-            pageModule.Page = null;
-            pageModule.Module = null;
-
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(pageModule).State = EntityState.Modified;
             db.SaveChanges();
