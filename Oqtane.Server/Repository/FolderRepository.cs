@@ -307,7 +307,7 @@ namespace Oqtane.Repository
             return GetFolderPath(folder);
         }
 
-        [Obsolete("GetFolderPath(Folder folder) is deprecated. Use StorageProvider instead", false)]
+        [Obsolete("GetFolderPath(Folder folder) is only supported for StorageProviders which manage files on the local server", false)]
         public string GetFolderPath(Folder folder)
         {
             string path = "";

@@ -180,7 +180,7 @@ namespace Oqtane.Repository
             return Utilities.FileUrl(alias, file.Folder.Path, file.Name);
         }
 
-        [Obsolete("GetFilePath(int fileId) is deprecated. Use StorageProvider instead", false)]
+        [Obsolete("GetFilePath(int fileId) is only supported for StorageProviders which manage files on the local server", false)]
         public string GetFilePath(int fileId)
         {
             using var db = _dbContextFactory.CreateDbContext();
@@ -188,7 +188,7 @@ namespace Oqtane.Repository
             return GetFilePath(file);
         }
 
-        [Obsolete("GetFilePath(File file) is deprecated. Use StorageProvider instead", false)]
+        [Obsolete("GetFilePath(File file) is only supported for StorageProviders which manage files on the local server", false)]
         public string GetFilePath(File file)
         {
             using var db = _dbContextFactory.CreateDbContext();
