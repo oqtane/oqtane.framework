@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="Oqtane.Updater\Oqtane.Updater.csproj" DefaultStartup="true" />
-  <Project Path="Oqtane.Updater.Tests\Oqtane.Updater.Tests.csproj" />
 </Solution>
