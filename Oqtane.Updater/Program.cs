@@ -70,21 +70,34 @@ namespace Oqtane.Updater
                         UpdateOfflineContent(offlineFilePath, offlineTemplate, 5, "Retrieving List Of Files From Upgrade Package");
                         WriteLog(logFilePath, "Retrieving List Of Files From Upgrade Package..." + Environment.NewLine);
                         List<string> files = new List<string>();
-                        using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                        bool success = true;
+                        try
                         {
-                            foreach (ZipArchiveEntry entry in archive.Entries)
+                            var targets = new HashSet<string>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+                            using (ZipArchive archive = ZipFile.OpenRead(packagename))
                             {
-                                if (!string.IsNullOrEmpty(entry.Name))
+                                foreach (ZipArchiveEntry entry in archive.Entries)
                                 {
-                                    files.Add(Path.Combine(contentrootfolder, entry.FullName));
-                                    WriteLog(logFilePath, "Check File: " + entry.FullName + Environment.NewLine);
+                                    string filename = GetEntryFilePath(contentrootfolder, entry);
+                                    if (filename != null)
+                                    {
+                                        if (!targets.Add(filename))
+                                        {
+                                            throw new InvalidDataException("Duplicate upgrade package path: " + entry.FullName);
+                                        }
+                                        files.Add(filename);
+                                        WriteLog(logFilePath, "Check File: " + entry.FullName + Environment.NewLine);
+                                    }
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            WriteLog(logFilePath, "Error Reading Upgrade Package: " + ex.Message + Environment.NewLine);
+                            success = false;
+                        }
 
-                        bool success = true;
-
-                        if (backup)
+                        if (success && backup)
                         {
                             UpdateOfflineContent(offlineFilePath, offlineTemplate, 10, "Preparing Backup Folder");
                             WriteLog(logFilePath, "Preparing Backup Folder: " + backupfolder + Environment.NewLine);
@@ -112,7 +125,7 @@ namespace Oqtane.Updater
                                 WriteLog(logFilePath, "Backing Up Files..." + Environment.NewLine);
                                 foreach (string file in files)
                                 {
-                                    string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
+                                    string filename = Path.Combine(backupfolder, Path.GetRelativePath(contentrootfolder, file));
                                     try
                                     {
                                         if (File.Exists(file))
@@ -169,9 +182,9 @@ namespace Oqtane.Updater
                                     {
                                         if (success)
                                         {
-                                            if (!string.IsNullOrEmpty(entry.Name))
+                                            string filename = GetEntryFilePath(contentrootfolder, entry);
+                                            if (filename != null)
                                             {
-                                                string filename = Path.Combine(contentrootfolder, entry.FullName);
                                                 if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                                 {
                                                     Directory.CreateDirectory(Path.GetDirectoryName(filename));
@@ -243,7 +256,7 @@ namespace Oqtane.Updater
                                         foreach (string file in files)
                                         {
                                             File.Delete(file);
-                                            string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
+                                            string filename = Path.Combine(backupfolder, Path.GetRelativePath(contentrootfolder, file));
                                             if (File.Exists(filename))
                                             {
                                                 File.Copy(filename, file);
@@ -263,8 +276,8 @@ namespace Oqtane.Updater
                         }
                         else
                         {
-                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Could Not Backup Files", "bg-danger");
-                            WriteLog(logFilePath, "Upgrade Failed: Could Not Backup Files" + Environment.NewLine);
+                            UpdateOfflineContent(offlineFilePath, offlineTemplate, 95, "Upgrade Failed: Could Not Prepare Files", "bg-danger");
+                            WriteLog(logFilePath, "Upgrade Failed: Could Not Prepare Files" + Environment.NewLine);
                         }
 
 
@@ -293,6 +306,27 @@ namespace Oqtane.Updater
             {
                 Console.WriteLine("Missing ContentRootPath and WebRootPath Parameters");
             }
+        }
+
+        private static string GetEntryFilePath(string rootFolder, ZipArchiveEntry entry)
+        {
+            // Older release ZIPs contain Windows separators, which are literal filename characters on Unix.
+            string relativePath = entry.FullName.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+            if (Path.IsPathRooted(relativePath) || relativePath.Contains(':'))
+            {
+                throw new InvalidDataException("Invalid upgrade package path: " + entry.FullName);
+            }
+
+            string rootPath = Path.GetFullPath(rootFolder);
+            string rootPrefix = Path.EndsInDirectorySeparator(rootPath) ? rootPath : rootPath + Path.DirectorySeparatorChar;
+            string filename = Path.GetFullPath(Path.Combine(rootPath, relativePath));
+            var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            if (!filename.StartsWith(rootPrefix, comparison))
+            {
+                throw new InvalidDataException("Upgrade package path is outside the application folder: " + entry.FullName);
+            }
+
+            return Path.EndsInDirectorySeparator(relativePath) ? null : filename;
         }
 
         private static bool CanAccessFile(string filepath)
