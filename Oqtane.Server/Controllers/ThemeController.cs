@@ -304,11 +304,11 @@ namespace Oqtane.Controllers
                 tokenReplace.AddSource(() =>
                 {
                     return new Dictionary<string, object>()
-                            {
-                                { "FrameworkVersion", Constants.Version },
-                                { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Client.dll</HintPath></Reference>" },
-                                { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net10.0\\Oqtane.Shared.dll</HintPath></Reference>" },
-                            };
+                        {
+                            { "FrameworkVersion", Constants.Version },
+                            { "ClientReference", $"<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net{Environment.Version.Major}.0\\Oqtane.Client.dll</HintPath></Reference>" },
+                            { "SharedReference", $"<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\{rootFolder}\\Oqtane.Server\\bin\\Debug\\net{Environment.Version.Major}.0\\Oqtane.Shared.dll</HintPath></Reference>" },
+                        };
                 });
             }
             else
