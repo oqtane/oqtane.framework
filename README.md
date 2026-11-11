@@ -14,6 +14,10 @@ Oqtane is being developed based on some fundamental principles which are outline
 
 [10.3.1](https://github.com/oqtane/oqtane.framework/releases/tag/v10.3.1) was released on November 4, 2026.
 
+# Oqtane Plus
+
+The power of open source... built for business. [Oqtane Plus](https://www.oqtane.com/products/oqtane-plus) is a commercial support offering for organizations that need more... more confidence, higher accountability, and expert guidance from the official maintainers of the Oqtane platform. Oqtane Plus adds the peace of mind to deploy the Oqtane Framework confidently in production and operate at scale.
+
 # Try It Now!
 
 Microsoft's Public Cloud (requires an Azure account)  
