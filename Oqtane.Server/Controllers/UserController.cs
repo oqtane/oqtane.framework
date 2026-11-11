@@ -205,7 +205,7 @@ namespace Oqtane.Controllers
         public async Task<User> Put(int id, [FromBody] User user)
         {
             var existing = _userManager.GetUser(user.UserId, user.SiteId);
-            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null && existing.Username == user.Username
                 && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
             {
                 // only authorized users can update the email confirmation
