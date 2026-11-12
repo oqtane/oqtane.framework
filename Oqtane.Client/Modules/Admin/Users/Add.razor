@@ -205,6 +205,11 @@
         try
         {
             var message = "";
+            var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
+            if (user != null && !string.IsNullOrEmpty(user.Roles))
+            {
+                message += Localizer["Message.User.Exists"];
+            }
             if (string.IsNullOrEmpty(_username) || !await UserService.ValidateUsernameAsync(_username))
             {
                 message += ((message == "") ? "" : " ") + Localizer["Message.Username.Invalid"];
@@ -217,7 +222,7 @@
             {
                 if (ValidateProfiles())
                 {
-                    var user = new User();
+                    user = new User();
                     user.SiteId = PageState.Site.SiteId;
                     user.Username = _username;
                     user.Password = ""; // will be auto generated
