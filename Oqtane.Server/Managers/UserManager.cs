@@ -766,6 +766,7 @@ namespace Oqtane.Managers
                                         {
                                             if (!string.IsNullOrEmpty(displayname))
                                             {
+                                                user = GetUser(user.UserId, siteId);
                                                 user.DisplayName = displayname;
                                                 user.Password = "";
                                                 user = await UpdateUser(user);
