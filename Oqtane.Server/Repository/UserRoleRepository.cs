@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -79,6 +80,9 @@ namespace Oqtane.Repository
 
         public UserRole AddUserRole(UserRole userRole)
         {
+            var user = userRole.User;
+            var role = userRole.Role;
+
             userRole.User = null;
             userRole.Role = null;
 
@@ -89,8 +93,11 @@ namespace Oqtane.Repository
             db.UserRole.Add(userRole);
             db.SaveChanges();
 
+            userRole.User = user;
+            userRole.Role = role;
+
             // host roles can only exist at global level - remove any site specific user roles
-            var role = _roles.GetRole(userRole.RoleId);
+            role = _roles.GetRole(userRole.RoleId);
             if (role.Name == RoleNames.Host)
             {
                 DeleteUserRoles(userRole.UserId);
@@ -108,6 +115,9 @@ namespace Oqtane.Repository
 
         public UserRole UpdateUserRole(UserRole userRole)
         {
+            var user = userRole.User;
+            var role = userRole.Role;
+
             userRole.User = null;
             userRole.Role = null;
 
@@ -117,6 +127,9 @@ namespace Oqtane.Repository
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(userRole).State = EntityState.Modified;
             db.SaveChanges();
+
+            userRole.User = user;
+            userRole.Role = role;
 
             if (!userRole.IgnoreSecurityStamp)
             {
