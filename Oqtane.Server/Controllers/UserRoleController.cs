@@ -1,15 +1,17 @@
+using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Oqtane.Enums;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Oqtane.Infrastructure;
-using Oqtane.Repository;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Models;
+using Oqtane.Repository;
 using Oqtane.Security;
-using System;
+using Oqtane.Services;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -82,7 +84,7 @@ namespace Oqtane.Controllers
         public UserRole Get(int id)
         {
             var userrole = _userRoles.GetUserRole(id);
-            if (userrole != null && SiteValid(userrole.Role.SiteId) && IsAuthorized(userrole.UserId, userrole.Role.Name, userrole.Role.SiteId ?? -1))
+            if (userrole != null && (userrole.Role.SiteId == _alias.SiteId || (userrole.Role.SiteId == null && User.IsInRole(RoleNames.Host))) && IsAuthorized(userrole.UserId, userrole.Role.Name, userrole.Role.SiteId ?? -1))
             {
                 return Filter(userrole, _userPermissions.GetUser().UserId);
             }
@@ -161,8 +163,7 @@ namespace Oqtane.Controllers
         [Authorize(Policy = $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public UserRole Post([FromBody] UserRole userRole)
         {
-            var role = _roles.GetRole(userRole.RoleId);
-            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name))
+            if (ModelState.IsValid && UserRoleValid(userRole))
             {
                 userRole = _userRoles.AddUserRole(userRole);
                 _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Create);
@@ -183,8 +184,7 @@ namespace Oqtane.Controllers
         [Authorize(Policy = $"{EntityNames.UserRole}:{PermissionNames.Write}:{RoleNames.Admin}")]
         public UserRole Put(int id, [FromBody] UserRole userRole)
         {
-            var role = _roles.GetRole(userRole.RoleId);
-            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && userRole.UserRoleId == id && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
+            if (ModelState.IsValid && UserRoleValid(userRole) && userRole.UserRoleId == id && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
                 _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
@@ -206,12 +206,23 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             UserRole userRole = _userRoles.GetUserRole(id);
-            if (userRole != null && SiteValid(userRole.Role.SiteId) && RoleValid(userRole.Role.Name))
+            if (userRole != null && UserRoleValid(userRole))
             {
-                _userRoles.DeleteUserRole(id);
-                _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Delete);
-                _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
+                if (userRole.Role.Name == RoleNames.Registered)
+                {
+                    userRole.ExpiryDate = DateTime.UtcNow;
+                    _userRoles.UpdateUserRole(userRole);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Update);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
+                }
+                else
+                {
+                    _userRoles.DeleteUserRole(id);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.UserRole, userRole.UserRoleId, SyncEventActions.Delete);
+                    _syncManager.AddSyncEvent(_alias, EntityNames.User, userRole.UserId, SyncEventActions.Reload);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
+                }
 
                 if (userRole.Role.Name == RoleNames.Host)
                 {
@@ -231,14 +242,42 @@ namespace Oqtane.Controllers
             }
         }
 
-        private bool SiteValid(int? SiteId)
+        private bool UserRoleValid(UserRole userRole)
         {
-            return (SiteId == _alias.SiteId || (SiteId == null && User.IsInRole(RoleNames.Host)));
-        }
-
-        private bool RoleValid(string RoleName)
-        {
-            return (RoleName != RoleNames.Host || User.IsInRole(RoleNames.Host));
+            var valid = false;
+            if (userRole.Role == null)
+            {
+                userRole.Role = _roles.GetRole(userRole.RoleId);
+            }
+            if (User.IsInRole(RoleNames.Host))
+            {
+                if (userRole.Role.SiteId == null || userRole.Role.SiteId == _alias.SiteId)
+                {
+                    // ensure user is registered for the site
+                    var userRoles = _userRoles.GetUserRoles(userRole.UserId, _alias.SiteId);
+                    if (userRoles.Any(item => item.Role.Name == RoleNames.Registered))
+                    {
+                        valid = true;
+                    }
+                }
+            }
+            else
+            {
+                if (userRole.Role.SiteId == _alias.SiteId)
+                {
+                    // only existing host users are allowed to add the host role
+                    if (userRole.Role.Name != RoleNames.Host)
+                    {
+                        // ensure user is registered for the site
+                        var userRoles = _userRoles.GetUserRoles(userRole.UserId, userRole.Role.SiteId.Value);
+                        if (userRoles.Any(item => item.Role.Name == RoleNames.Registered))
+                        {
+                            valid = true;
+                        }
+                    }
+                }
+            }
+            return valid;
         }
     }
 }
