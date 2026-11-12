@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
@@ -183,11 +182,12 @@ namespace Oqtane.Managers
             }
             else
             {
+                var existing = GetUser(user.Username, user.SiteId);
                 succeeded = true;
                 if (!user.IsAuthenticated)
                 {
                     // validate if the user already exists for the site
-                    succeeded = string.IsNullOrEmpty(GetUser(user.Username, user.SiteId).Roles);
+                    succeeded = string.IsNullOrEmpty(existing.Roles);
                     if (succeeded)
                     {
                         // a user is registering for a new site - ensure their password is valid
@@ -200,6 +200,14 @@ namespace Oqtane.Managers
                         user.EmailConfirmed = succeeded;
                     }
                     else
+                    {
+                        errors = "User Already Exists In Site";
+                    }
+                }
+                else // host user can add existing user to site (if they are not a registered already)
+                {
+                    succeeded = string.IsNullOrEmpty(existing.Roles);
+                    if (!succeeded)
                     {
                         errors = "User Already Exists In Site";
                     }

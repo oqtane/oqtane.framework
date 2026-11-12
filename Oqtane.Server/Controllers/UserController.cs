@@ -169,7 +169,7 @@ namespace Oqtane.Controllers
                 bool allowregistration;
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
                 {
-                    user.IsAuthenticated = true; // admins can add any existing user to a site
+                    user.IsAuthenticated = User.IsInRole(RoleNames.Host); // only host users can add existing users to a site
                     allowregistration = true;
                 }
                 else
