@@ -187,24 +187,24 @@ namespace Oqtane.Infrastructure
             {
                 string message = log.Message;
                 string properties = "";
-                if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(log.Properties))
+                if (!string.IsNullOrEmpty(log.Message) && log.Message.Contains("{") && log.Message.Contains("}") && !string.IsNullOrEmpty(log.Properties))
                 {
-                    // get the named holes in the message and replace values
+                    // get the named parameters in the message and replace values
                     object[] values = JsonSerializer.Deserialize<object[]>(log.Properties);
                     List<string> names = new List<string>();
-                    int index = message.IndexOf("{");
+                    int index = log.Message.IndexOf("{");
                     while (index != -1)
                     {
-                        if (message.IndexOf("}", index) != -1)
+                        if (log.Message.IndexOf("}", index) != -1)
                         {
-                            names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
+                            names.Add(log.Message.Substring(index + 1, log.Message.IndexOf("}", index) - index - 1));
                             if (values.Length > (names.Count - 1))
                             {
                                 var value = (values[names.Count - 1] == null) ? "null" : values[names.Count - 1].ToString();
                                 message = message.Replace("{" + names[names.Count - 1] + "}", value);
                             }
                         }
-                        index = (index < message.Length - 1) ? message.IndexOf("{", index + 1) : -1;
+                        index = (index < log.Message.Length - 1) ? log.Message.IndexOf("{", index + 1) : -1;
                     }
                     // rebuild properties into dictionary
                     Dictionary<string, object> propertyDictionary = new Dictionary<string, object>();
