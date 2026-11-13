@@ -132,9 +132,8 @@
             {
                 var url = WebUtility.UrlDecode(Context.Request.GetEncodedUrl());
 
-                if (!alias.IsDefault)
+                if (!alias.IsDefault && HandleDefaultAliasRedirect(alias, url))
                 {
-                    HandleDefaultAliasRedirect(alias, url);
                     return;
                 }
 
@@ -238,7 +237,7 @@
         _initialized = true;
     }
 
-    private void HandleDefaultAliasRedirect(Alias alias, string url)
+    private bool HandleDefaultAliasRedirect(Alias alias, string url)
     {
         // get aliases for site and tenant
         var aliases = AliasRepository.GetAliases().Where(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId);
@@ -248,6 +247,7 @@
         {
             // redirect to default alias
             NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+            return true;
         }
         else // no default alias specified - use first alias
         {
@@ -256,8 +256,10 @@
             {
                 // redirect to first alias
                 NavigationManager.NavigateTo(url.Replace(alias.Name, defaultAlias.Name), true);
+                return true;
             }
         }
+        return false;
     }
 
     private async Task<Page> GetPageByPath(int siteId, string path)
