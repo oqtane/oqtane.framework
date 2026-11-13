@@ -88,6 +88,7 @@ namespace Oqtane.Services
 
                         await folderProvider.AddFileAsync(file.Folder, imageName, imageStream);
 
+                        imageStream.Position = 0;
                         return imageStream;
                     }
                 }
