@@ -31,8 +31,8 @@ namespace Oqtane.Security
                         var userManager = context.HttpContext.RequestServices.GetService(typeof(IUserManager)) as IUserManager;
                         var user = userManager.GetUser(context.Principal.UserId(), alias.SiteId); // cached
 
-                        // check if user is valid, not deleted, has roles, and security stamp has not changed for this tenant
-                        if (user != null && !user.IsDeleted && !string.IsNullOrEmpty(user.Roles) && (context.Principal.SecurityStamp() == user.SecurityStamp || context.Principal.SiteKey() != alias.SiteKey))
+                        // check if user exists, is not deleted, username matches,has roles, and security stamp has not changed (ignoring host users as their security stamp will vary across tenants)
+                        if (user != null && !user.IsDeleted && user.Username == context.Principal.Identity.Name && !string.IsNullOrEmpty(user.Roles) && (context.Principal.SecurityStamp() == user.SecurityStamp || (user.Roles.Contains($";{RoleNames.Host};") && alias.TenantId != context.Principal.TenantId())))
                         {
                             // validate security stamp and sitekey (in case user has changed tenants/sites in installation)
                             if (context.Principal.SecurityStamp() != user.SecurityStamp || context.Principal.SiteKey() != alias.SiteKey || !context.Principal.Roles().Any())
