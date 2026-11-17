@@ -241,6 +241,10 @@ namespace Oqtane.Pages
                         return BrokenFile();
                     }
                 }
+                else
+                {
+                    imageStream = await folderProvider.GetFileStreamAsync(file.Folder, imageName);
+                }
 
                 if (imageStream == null)
                 {

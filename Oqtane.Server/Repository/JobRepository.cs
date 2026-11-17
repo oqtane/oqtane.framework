@@ -49,6 +49,7 @@ namespace Oqtane.Repository
         {
             _db.Job.Add(job);
             _db.SaveChanges();
+            _cache.RemoveCache($"Job:{job.JobType}");
             return job;
         }
 

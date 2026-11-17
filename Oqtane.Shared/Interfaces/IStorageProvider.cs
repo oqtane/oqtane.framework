@@ -24,6 +24,8 @@ namespace Oqtane.Providers
 
         #region File APIs
 
+        Task<bool> FileExistsAsync(Models.File file);
+
         Task<bool> FileExistsAsync(Models.Folder folder,  string fileName);
 
         Task<IList<string>> GetFilesAsync(Models.Folder folder);
@@ -44,6 +46,7 @@ namespace Oqtane.Providers
 
         Task CopyFileAsync(Models.File file, Models.Folder destinationFolder);
 
+        Task<string> GetFilePathAsync(Models.File file);
 
         #endregion
 

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
@@ -94,11 +93,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && siteGroup.SiteGroupId == id)
             {
-                if (!User.IsInRole(RoleNames.Host) && siteGroup.Synchronize)
+                if (!User.IsInRole(RoleNames.Host))
                 {
                     // admins can only update the synchronize field
+                    var synchronize = siteGroup.Synchronize;
                     siteGroup = _siteGroupRepository.GetSiteGroup(siteGroup.SiteGroupId, false);
-                    siteGroup.Synchronize = true;
+                    siteGroup.Synchronize = synchronize;
                 }
                 siteGroup = _siteGroupRepository.UpdateSiteGroup(siteGroup);
                 _syncManager.AddSyncEvent(_alias, EntityNames.SiteGroup, siteGroup.SiteGroupId, SyncEventActions.Update);

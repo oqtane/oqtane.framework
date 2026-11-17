@@ -183,17 +183,8 @@ else
         try
         {
             var userrole = await UserRoleService.GetUserRoleAsync(UserRoleId);
-            if (userrole.Role.Name == RoleNames.Registered)
-            {
-                userrole.ExpiryDate = DateTime.UtcNow;
-                await UserRoleService.UpdateUserRoleAsync(userrole);
-                await logger.LogInformation("User {Username} Expired From Role {Role}", userrole.User.Username, userrole.Role.Name);
-            }
-            else
-            {
-                await UserRoleService.DeleteUserRoleAsync(UserRoleId);
-                await logger.LogInformation("User {Username} Removed From Role {Role}", userrole.User.Username, userrole.Role.Name);
-            }
+            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+            await logger.LogInformation("User {Username} Removed From Role {Role}", userrole.User.Username, userrole.Role.Name);
             AddModuleMessage(Localizer["Confirm.User.RoleRemoved"], MessageType.Success);
             await GetUserRoles();
             StateHasChanged();

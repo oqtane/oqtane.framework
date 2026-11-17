@@ -28,22 +28,20 @@ namespace Oqtane.Controllers
         private readonly IUserManager _userManager;
         private readonly ISiteRepository _sites;
         private readonly IUserPermissions _userPermissions;
+        private readonly IUserRoleRepository _userRoles;
         private readonly IJwtManager _jwtManager;
-        private readonly IFileRepository _files;
-        private readonly ISettingRepository _settings;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IJwtManager jwtManager, IFileRepository files, ISettingRepository settings, ISyncManager syncManager, ILogManager logger)
+        public UserController(IUserRepository users, ITenantManager tenantManager, IUserManager userManager, ISiteRepository sites, IUserPermissions userPermissions, IUserRoleRepository userRoles, IJwtManager jwtManager, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
             _tenantManager = tenantManager;
             _userManager = userManager;
             _sites = sites;
             _userPermissions = userPermissions;
+            _userRoles = userRoles;
             _jwtManager = jwtManager;
-            _files = files;
-            _settings = settings;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -169,7 +167,7 @@ namespace Oqtane.Controllers
                 bool allowregistration;
                 if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
                 {
-                    user.IsAuthenticated = true; // admins can add any existing user to a site
+                    user.IsAuthenticated = User.IsInRole(RoleNames.Host); // only host users can add existing users to a site
                     allowregistration = true;
                 }
                 else
@@ -205,15 +203,33 @@ namespace Oqtane.Controllers
         public async Task<User> Put(int id, [FromBody] User user)
         {
             var existing = _userManager.GetUser(user.UserId, user.SiteId);
-            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null
-                && (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin) || User.Identity.Name == user.Username))
+            if (ModelState.IsValid && user.SiteId == _tenantManager.GetAlias().SiteId && user.UserId == id && existing != null && existing.Username == user.Username)
             {
-                // only authorized users can update the email confirmation
-                if (!_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
+                var authorized = false;
+                if (User.Identity.Name == user.Username || User.IsInRole(RoleNames.Host))
                 {
-                    user.EmailConfirmed = existing.EmailConfirmed;
+                    // users can update their own account and host users can update any account
+                    authorized = true;
                 }
-                user = await _userManager.UpdateUser(user);
+                else
+                {
+                    if (_userPermissions.IsAuthorized(User, user.SiteId, EntityNames.User, -1, PermissionNames.Write, RoleNames.Admin))
+                    {
+                        // administrators can only update accounts which are registered for the site
+                        var userRoles = _userRoles.GetUserRoles(user.UserId, user.SiteId);
+                        authorized = userRoles != null && userRoles.Any(item => item.Role.Name == RoleNames.Registered);
+                    }
+                }
+                if (authorized)
+                {
+                    user = await _userManager.UpdateUser(user);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Put Attempt {User}", user);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return null;
+                }
             }
             else
             {

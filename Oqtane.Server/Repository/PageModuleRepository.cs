@@ -59,23 +59,37 @@ namespace Oqtane.Repository
 
         public PageModule AddPageModule(PageModule pageModule)
         {
-            pageModule.Page = null;
+            var module = pageModule.Module;
+            var page = pageModule.Page;
+
             pageModule.Module = null;
-            
+            pageModule.Page = null;
             using var db = _dbContextFactory.CreateDbContext();
+
             db.PageModule.Add(pageModule);
             db.SaveChanges();
+
+            pageModule.Module = module;
+            pageModule.Page = page;
+
             return pageModule;
         }
 
         public PageModule UpdatePageModule(PageModule pageModule)
         {
-            pageModule.Page = null;
+            var module = pageModule.Module;
+            var page = pageModule.Page;
+
             pageModule.Module = null;
+            pageModule.Page = null;
 
             using var db = _dbContextFactory.CreateDbContext();
             db.Entry(pageModule).State = EntityState.Modified;
             db.SaveChanges();
+
+            pageModule.Module = module;
+            pageModule.Page = page;
+
             return pageModule;
         }
 

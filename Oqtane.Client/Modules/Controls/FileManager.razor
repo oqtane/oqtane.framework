@@ -22,7 +22,10 @@
                                     <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
                                     @foreach (Folder folder in _folders)
                                     {
-                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                        @if (string.IsNullOrEmpty(StorageProviderTypes) || StorageProviderTypes.Contains(folder.StorageProviderType, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                        }
                                     }
                                 </select>
                             </div>
@@ -163,6 +166,9 @@
     public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
+    public string StorageProviderTypes { get; set; } = ""; // optional - comma delimited list of storage provider types that are allowed for folders - default is all storage providers
+
+    [Parameter]
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
 
     [Parameter]
@@ -268,7 +274,7 @@
 
         if (ShowFolders)
         {
-            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);            
             if (_folders.Count == 1)
             {
                 FolderId = _folders.First().FolderId;

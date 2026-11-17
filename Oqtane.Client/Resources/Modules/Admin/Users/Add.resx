@@ -126,9 +126,6 @@
   <data name="Identity.Name" xml:space="preserve">
     <value>Identity</value>
   </data>
-  <data name="Message.Username.Exists" xml:space="preserve">
-    <value>Username Already Exists</value>
-  </data>
   <data name="DisplayName.HelpText" xml:space="preserve">
     <value>The full name of the user</value>
   </data>
@@ -169,12 +166,15 @@
     <value>Language:</value>
   </data>
   <data name="CultureCode.HelpText" xml:space="preserve">
-    <value />
+    <value>The user's preferred language. Note that you will only be able to choose from languages supported on this site.</value>
   </data>
   <data name="Message.Username.Invalid" xml:space="preserve">
     <value>The Username Provided Does Not Meet The System Requirement, It Can Only Contains Letters Or Digits And No Spaces.</value>
   </data>
   <data name="Message.Email.Invalid" xml:space="preserve">
     <value>The Email Provided Is Not Valid</value>
+  </data>
+  <data name="Message.User.Exists" xml:space="preserve">
+    <value>User Already Exists In Site</value>
   </data>
 </root>
