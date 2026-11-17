@@ -104,7 +104,7 @@
             <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
                 <div class="quill-text-editor-settings">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Scope" ResourceKey="Scope" ResourceType="@resourceType" HelpText="Specify if settings are scoped to the module or site">Scope: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="Scope" ResourceKey="Scope" ResourceType="@resourceType" HelpText="Specify if settings are scoped to the module or site">Scope: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="Scope" class="form-select" value="@_scopeSetting" @onchange="(e => ScopeChanged(e))">
                                 <option value="Module">@SharedLocalizer["Module"]</option>
@@ -116,7 +116,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify if editors can use the Rich Text Editor">Rich Text Editor? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="AllowRichText" ResourceKey="AllowRichText" ResourceType="@resourceType" HelpText="Specify if editors can use the Rich Text Editor">Rich Text Editor? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="AllowRichText" class="form-select" @bind="@_allowRichTextSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify if editors can use the Raw HTML Editor">Raw HTML Editor? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="AllowRawHtml" ResourceKey="AllowRawHtml" ResourceType="@resourceType" HelpText="Specify if editors can use the Raw HTML Editor">Raw HTML Editor? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="AllowRawHtml" class="form-select" @bind="@_allowRawHtmlSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify if editors can upload and insert images">Insert Images? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="AllowFileManagement" ResourceKey="AllowFileManagement" ResourceType="@resourceType" HelpText="Specify if editors can upload and insert images">Insert Images? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="AllowFileManagement" class="form-select" @bind="@_allowFileManagementSetting" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -143,13 +143,13 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Theme" ResourceKey="Theme" ResourceType="@resourceType" HelpText="Specify the Rich Text Editor's theme">Theme: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="Theme" ResourceKey="Theme" ResourceType="@resourceType" HelpText="Specify the Rich Text Editor's theme">Theme: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input type="text" id="Theme" class="form-control" @bind="_themeSetting" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="DebugLevel" ResourceKey="DebugLevel" ResourceType="@resourceType" HelpText="Specify the Debug Level">Debug Level: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="DebugLevel" ResourceKey="DebugLevel" ResourceType="@resourceType" HelpText="Specify the Debug Level">Debug Level: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="DebugLevel" class="form-select" @bind="_debugLevelSetting">
                                 @foreach (var level in _debugLevels)
@@ -160,7 +160,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="ToolbarContent" ResourceKey="ToolbarContent" ResourceType="@resourceType" HelpText="Specify any toolbar content to customize the Rich Text Editor">Toolbar Content: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="ToolbarContent" ResourceKey="ToolbarContent" ResourceType="@resourceType" HelpText="Specify any toolbar content to customize the Rich Text Editor">Toolbar Content: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <textarea id="ToolbarContent" class="form-control" @bind="_toolbarContentSetting" rows="3" />
                         </div>

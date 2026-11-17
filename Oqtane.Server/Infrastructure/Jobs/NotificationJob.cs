@@ -10,6 +10,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using MailKit.Security;
+using MailKit;
 
 namespace Oqtane.Infrastructure
 {

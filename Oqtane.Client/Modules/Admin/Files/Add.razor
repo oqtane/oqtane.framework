@@ -12,7 +12,7 @@
     <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" ShowSuccess="true" />
                 </div>
@@ -26,13 +26,13 @@
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="url" class="form-control" @bind="@_url" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="folder" class="form-select" @bind="@_folderId" required>
                                 <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Enter the name of the file being downloaded" ResourceKey="Name">Name: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the name of the file being downloaded" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="name" class="form-control" @bind="@_name" />
                         </div>

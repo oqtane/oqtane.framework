@@ -22,19 +22,19 @@ else
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="alias" HelpText="The primary url for the site. This can be a domain name (ie. domain.com), subdomain (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder)." ResourceKey="Aliases">Url: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="alias" HelpText="The primary url for the site. This can be a domain name (ie. domain.com), subdomain (ie. sub.domain.com) or a virtual folder (ie. domain.com/folder)." ResourceKey="Aliases">Url: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="alias" class="form-control" @bind="@_urls" required></input>
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="siteTemplate" class="form-select" @bind="@_sitetemplatetype" required>
                         <option value="-">&lt;@Localizer["SiteTemplate.Select"]&gt;</option>
@@ -46,7 +46,7 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="tenant" HelpText="Select the database for the site" ResourceKey="Tenant">Database: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="tenant" HelpText="Select the database for the site" ResourceKey="Tenant">Database: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="tenant" class="form-select" value="@_tenantid" @onchange="(e => TenantChanged(e))" required>
                         <option value="-">&lt;@Localizer["Tenant.Select"]&gt;</option>
@@ -64,13 +64,13 @@ else
                     <hr class="app-rule" />
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="name" HelpText="Enter the name for the database. Note that this will be the tenant name which is used within the framework to identify the database." ResourceKey="TenantName">Name: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the name for the database. Note that this will be the tenant name which is used within the framework to identify the database." ResourceKey="TenantName">Name: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="name" class="form-control" @bind="@_tenantName" maxlength="100" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="databaseType" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="databaseType" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         @if (_databases != null)
                         {
@@ -103,20 +103,20 @@ else
                 else
                 {
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
                         </div>
                     </div>
                 }
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of an existing host user" ResourceKey="HostUsername">Host Username:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of an existing host user" ResourceKey="HostUsername">Host Username:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="hostUsername" class="form-control" @bind="@_hostusername" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password of an existing host user" ResourceKey="HostPassword">Host Password:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password of an existing host user" ResourceKey="HostPassword">Host Password:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" autocomplete="new-password" required />
                     </div>

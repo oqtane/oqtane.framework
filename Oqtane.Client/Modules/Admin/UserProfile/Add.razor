@@ -11,19 +11,19 @@
 {
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="to" HelpText="Enter the user you wish to send a message to" ResourceKey="To">To: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="to" HelpText="Enter the user you wish to send a message to" ResourceKey="To">To: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <AutoComplete OnSearch="GetUsers" Placeholder="@Localizer["Username.Enter"]" @ref="username" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="subject" class="form-control" @bind="@subject" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <textarea id="message" class="form-control" @bind="@body" rows="5" />
         </div>

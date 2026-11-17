@@ -26,13 +26,13 @@
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="timezone" HelpText="The default time zone for the site" ResourceKey="TimeZone">Time Zone:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="timezone" HelpText="The default time zone for the site" ResourceKey="TimeZone">Time Zone:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="timezone" class="form-select" @bind="@_timezoneid">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -44,7 +44,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc..." ResourceKey="Culture">Culture:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="culture" HelpText="The default language of the site's content as well as the culture for formatting dates, times, numbers, currency symbols, etc..." ResourceKey="Culture">Culture:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="culture" class="form-select" @bind="@_culturecode">
                         <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -58,7 +58,7 @@
             @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Deleted? </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Deleted? </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="isDeleted" class="form-select" @bind="@_isdeleted" required>
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -68,7 +68,7 @@
                 </div>
             }
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared." ResourceKey="SiteMap">Site Map: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="sitemap" HelpText="The site map url for this site which can be submitted to search engines for indexing. The sitemap is cached for 5 minutes and the cache can be manually cleared." ResourceKey="SiteMap">Site Map: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <div class="input-group">
                         <input id="sitemap" class="form-control" @bind="@_sitemap" disabled />
@@ -78,13 +78,13 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="siteguid" HelpText="The Unique Identifier For The Site" ResourceKey="SiteGuid">ID: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="siteguid" HelpText="The Unique Identifier For The Site" ResourceKey="SiteGuid">ID: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="siteguid" class="form-control" @bind="@_siteguid" required disabled />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="version" HelpText="The site version (for site content migrations)" ResourceKey="Version">Version: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="version" HelpText="The site version (for site content migrations)" ResourceKey="Version">Version: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="version" class="form-control" @bind="@_version" required disabled />
                 </div>
@@ -94,7 +94,7 @@
         <Section Name="Theme" Heading="Theme" ResourceKey="Theme">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                             @foreach (var theme in _themes)
@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
                             @if (_containers != null)
@@ -119,7 +119,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype" required>
                             <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site. Please note this option must be used in conjunction with a Theme which supports cookie consent." ResourceKey="CookieConsent">Cookie Consent: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="cookieconsent" HelpText="Specify if cookie consent is enabled on this site. Please note this option must be used in conjunction with a Theme which supports cookie consent." ResourceKey="CookieConsent">Cookie Consent: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="cookieconsent" class="form-select" @bind="@_cookieconsent">
                             <option value="">@SharedLocalizer["Disabled"]</option>
@@ -148,13 +148,13 @@
         <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <FileManager FileId="@_logofileid" Filter="@_imagefiles" @ref="_logofilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <FileManager FileId="@_faviconfileid" Filter="ico,png,gif" @ref="_faviconfilemanager" />
                     </div>
@@ -164,7 +164,7 @@
         <Section Name="Functionality" Heading="Functionality" ResourceKey="Functionality">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="textEditor" HelpText="Select the text editor for the site" ResourceKey="TextEditor">Text Editor: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="textEditor" HelpText="Select the text editor for the site" ResourceKey="TextEditor">Text Editor: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="textEditor" class="form-select" @bind="@_textEditor" required>
                             @if (_textEditors != null)
@@ -182,13 +182,13 @@
         <Section Name="PageContent" Heading="Page Content" ResourceKey="PageContent">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3"></textarea>
                     </div>
@@ -198,7 +198,7 @@
         <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SmtpEnabled">Enabled? </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpenabled" HelpText="Specify if SMTP is enabled for this site" ResourceKey="SmtpEnabled">Enabled? </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="smtpenabled" class="form-select" value="@_smtpenabled" @onchange="(e => SMTPEnabledChanged(e))">
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -209,19 +209,19 @@
                 @if (_smtpenabled == "True" && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="host" class="form-control" @bind="@_smtphost" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="port" class="form-control" @bind="@_smtpport" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="smtpssl" HelpText="Specify the type of SSL connection for your SMTP server" ResourceKey="SmtpSSL">SSL Options: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpssl" HelpText="Specify the type of SSL connection for your SMTP server" ResourceKey="SmtpSSL">SSL Options: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="smtpssl" class="form-select" @bind="@_smtpssl">
                                 <option value="None">@Localizer["None"]</option>
@@ -233,7 +233,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="smtpauthentication" HelpText="Specify the SMTP authentication type" ResourceKey="SMTPAuthentication">Authentication: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpauthentication" HelpText="Specify the SMTP authentication type" ResourceKey="SMTPAuthentication">Authentication: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="smtpauthentication" class="form-select" value="@_smtpauthentication" @onchange="(e => SMTPAuthenticationChanged(e))">
                                 <option value="Basic">@Localizer["Basic"]</option>
@@ -244,13 +244,13 @@
                     @if (_smtpauthentication == "Basic")
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmtpUsername">Username: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="username" class="form-control" @bind="@_smtpusername" autocomplete="off" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <input id="password" type="@_smtppasswordtype" class="form-control" @bind="@_smtppassword" autocomplete="off" />
@@ -262,19 +262,19 @@
                     else
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="smtpauthority" HelpText="The Authority Url for the SMTP provider" ResourceKey="SmtpAuthority">Authority Url:</Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpauthority" HelpText="The Authority Url for the SMTP provider" ResourceKey="SmtpAuthority">Authority Url:</Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="smtpauthority" class="form-control" @bind="@_smtpauthority" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="smtpclientid" HelpText="The Client ID for the SMTP provider" ResourceKey="SmtpClientID">Client ID:</Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpclientid" HelpText="The Client ID for the SMTP provider" ResourceKey="SmtpClientID">Client ID:</Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="smtpclientid" class="form-control" @bind="@_smtpclientid" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="smtpclientsecret" HelpText="The Client Secret for the SMTP provider" ResourceKey="SmtpClientSecret">Client Secret:</Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpclientsecret" HelpText="The Client Secret for the SMTP provider" ResourceKey="SmtpClientSecret">Client Secret:</Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <input type="@_smtpclientsecrettype" id="smtpclientsecret" class="form-control" @bind="@_smtpclientsecret" />
@@ -283,20 +283,20 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="smtpscopes" HelpText="A list of Scopes for the SMTP provider (separated by commas)" ResourceKey="SmtpScopes">Scopes:</Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="smtpscopes" HelpText="A list of Scopes for the SMTP provider (separated by commas)" ResourceKey="SmtpScopes">Scopes:</Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="smtpscopes" class="form-control" @bind="@_smtpscopes" />
                             </div>
                         </div>
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="sender" HelpText="Enter the email address which emails will be sent from. Please note that this email address usually needs to be authorized with the SMTP provider." ResourceKey="SmtpSender">Email Sender: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="sender" HelpText="Enter the email address which emails will be sent from. Please note that this email address usually needs to be authorized with the SMTP provider." ResourceKey="SmtpSender">Email Sender: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="sender" class="form-control" @bind="@_smtpsender" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="retention" HelpText="Number of days of notifications to retain" ResourceKey="Retention">Retention (Days): </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
                         </div>
@@ -309,7 +309,7 @@
         <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)" ResourceKey="EnablePWA">Is Enabled? </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)" ResourceKey="EnablePWA">Is Enabled? </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="isEnabled" class="form-select" @bind="@_pwaisenabled" required>
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -318,13 +318,13 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension." ResourceKey="PwaApplicationIcon">App Icon: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension." ResourceKey="PwaApplicationIcon">App Icon: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <FileManager FileId="@_pwaappiconfileid" Filter="png" @ref="_pwaappiconfilemanager" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension." ResourceKey="PwaSplashIcon">Splash Icon: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension." ResourceKey="PwaSplashIcon">Splash Icon: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <FileManager FileId="@_pwasplashiconfileid" Filter="png" @ref="_pwasplashiconfilemanager" />
                     </div>
@@ -336,7 +336,7 @@
             <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="rendermode" HelpText="The default render mode for the site" ResourceKey="Rendermode">Render Mode: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="rendermode" class="form-select" value="@_rendermode" @onchange="(e => RenderModeChanged(e))" required>
                                 <option value="@RenderModes.Interactive">@(SharedLocalizer["RenderMode" + @RenderModes.Interactive])</option>
@@ -348,7 +348,7 @@
                     @if (_rendermode == RenderModes.Static)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="enhancednavigation" HelpText="Indicates if enhanced navigation should be used with static rendering" ResourceKey="EnhancedNavigation">Enhanced Navigation: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="enhancednavigation" HelpText="Indicates if enhanced navigation should be used with static rendering" ResourceKey="EnhancedNavigation">Enhanced Navigation: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="enhancednavigation" class="form-select" @bind="@_enhancednavigation" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -358,7 +358,7 @@
                         </div>
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="runtime" HelpText="The hosting model for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="runtime" HelpText="The hosting model for UI components which require interactivity" ResourceKey="Runtime">Interactivity: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="runtime" class="form-select" @bind="@_runtime" required>
                                 <option value="@Runtimes.Server">@(SharedLocalizer["Runtime" + @Runtimes.Server])</option>
@@ -368,7 +368,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="prerender" HelpText="Specifies if interactive components should prerender their output on the server" ResourceKey="Prerender">Prerender: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="prerender" HelpText="Specifies if interactive components should prerender their output on the server" ResourceKey="Prerender">Prerender: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="prerender" class="form-select" @bind="@_prerender" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -377,7 +377,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="hybrid" HelpText="Specifies if the site can be integrated with an external .NET MAUI hybrid application" ResourceKey="Hybrid">Hybrid? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="hybrid" HelpText="Specifies if the site can be integrated with an external .NET MAUI hybrid application" ResourceKey="Hybrid">Hybrid? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="hybrid" class="form-select" @bind="@_hybrid" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -392,7 +392,7 @@
                     @if (!_addAlias)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="aliases" HelpText="The urls for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Urls: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="aliases" HelpText="The urls for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="Aliases">Urls: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <select id="aliases" class="form-select" value="@_aliasid" @onchange="(e => AliasChanged(e))">
@@ -413,13 +413,13 @@
                     @if (_aliasid != -1 || _addAlias)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="aliasname" HelpText="A url for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="AliasName">Url: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="aliasname" HelpText="A url for this site. This can include domain names (ie. domain.com), subdomains (ie. sub.domain.com) or virtual folders (ie. domain.com/folder)." ResourceKey="AliasName">Url: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="aliasname" class="form-control" @bind="@_aliasname" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="defaultalias" HelpText="The default alias for the site. Requests for non-default aliases will be redirected to the default alias." ResourceKey="DefaultAlias">Default? </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="defaultalias" HelpText="The default alias for the site. Requests for non-default aliases will be redirected to the default alias." ResourceKey="DefaultAlias">Default? </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="defaultalias" class="form-select" @bind="@_defaultalias">
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -453,7 +453,7 @@
                     @if (!_addSiteGroup)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="group" HelpText="The site groups in this tenant (database)" ResourceKey="SiteGroupMembers">Group: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="group" HelpText="The site groups in this tenant (database)" ResourceKey="SiteGroupMembers">Group: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <select id="group" class="form-select" value="@_siteGroupId" @onchange="(e => SiteGroupChanged(e))">
@@ -474,13 +474,13 @@
                     @if (_siteGroupId != -1 || _addSiteGroup)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Name: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="groupname" HelpText="Name of the site group" ResourceKey="GroupName">Name: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="groupname" class="form-control" @bind="@_groupName" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="grouptype" HelpText="Defines the specific behavior of the site group" ResourceKey="GroupType">Type: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="grouptype" HelpText="Defines the specific behavior of the site group" ResourceKey="GroupType">Type: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="grouptype" class="form-select" @bind="@_groupType">
                                     <option value="@SiteGroupTypes.Synchronization">@Localizer[@SiteGroupTypes.Synchronization]</option>
@@ -493,7 +493,7 @@
                     @if (_siteGroupId != -1)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="site" HelpText="The sites which are members of this site group" ResourceKey="Site">Members: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="site" HelpText="The sites which are members of this site group" ResourceKey="Site">Members: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <div class="input-group">
                                     <select id="site" class="form-select" value="@_siteId" @onchange="(e => SiteChanged(e))">
@@ -518,7 +518,7 @@
                     @if (_siteGroupId != -1 && _siteId != -1)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected member is the primary site of the site group" ResourceKey="Primary">Primary? </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="primary" HelpText="Indicates if the selected member is the primary site of the site group" ResourceKey="Primary">Primary? </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="primary" class="form-select" @bind="@_primary">
                                     <option value="False">@SharedLocalizer["No"]</option>
@@ -529,7 +529,7 @@
                         @if (_primary == "False" && !string.IsNullOrEmpty(_synchronized) && (_groupType == SiteGroupTypes.Synchronization || _groupType == SiteGroupTypes.ChangeDetection))
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="synchronized" HelpText="The date/time when the site was last synchronized" ResourceKey="Synchronized">Synchronized: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="synchronized" HelpText="The date/time when the site was last synchronized" ResourceKey="Synchronized">Synchronized: </Oqtane.Modules.Controls.Label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
                                         <input id="synchronized" class="form-control" @bind="@_synchronized" disabled />
@@ -564,19 +564,19 @@
             <Section Name="TenantInformation" Heading="Database" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="tenant" HelpText="The name of the database used for the site. Note that this is not the physical database name but rather the tenant name which is used within the framework to identify a database." ResourceKey="Tenant">Database: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="tenant" class="form-control" @bind="@_tenant" readonly />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="database" HelpText="The type of database" ResourceKey="Database">Type: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="database" HelpText="The type of database" ResourceKey="Database">Type: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="database" class="form-control" @bind="@_database" readonly />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="connectionstring" HelpText="The name of the connection string in appsettings.json which will be used to connect to the database" ResourceKey="ConnectionString">Connection: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="connectionstring" HelpText="The name of the connection string in appsettings.json which will be used to connect to the database" ResourceKey="ConnectionString">Connection: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="connectionstring" class="form-control" @bind="@_connectionstring" readonly />
                         </div>

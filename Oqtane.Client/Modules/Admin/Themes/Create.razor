@@ -14,19 +14,19 @@
 {
 	<div class="container">
 		<div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+			<Oqtane.Modules.Controls.Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Oqtane.Modules.Controls.Label>
 			<div class="col-sm-9">
 				<input id="owner" class="form-control" @bind="@_owner" />
 			</div>
 		</div>
 		<div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="module" HelpText="Enter a name for this theme. It should not contain spaces or punctuation." ResourceKey="ThemeName">Theme Name: </Label>
+			<Oqtane.Modules.Controls.Label Class="col-sm-3" For="module" HelpText="Enter a name for this theme. It should not contain spaces or punctuation." ResourceKey="ThemeName">Theme Name: </Oqtane.Modules.Controls.Label>
 			<div class="col-sm-9">
 				<input id="module" class="form-control" @bind="@_theme" />
 			</div>
 		</div>
 		<div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="template" HelpText="Select a theme template. Templates are located in the wwwroot/Themes/Templates folder on the server." ResourceKey="Template">Template: </Label>
+			<Oqtane.Modules.Controls.Label Class="col-sm-3" For="template" HelpText="Select a theme template. Templates are located in the wwwroot/Themes/Templates folder on the server." ResourceKey="Template">Template: </Oqtane.Modules.Controls.Label>
 			<div class="col-sm-9">
 				<select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
 					<option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
@@ -40,7 +40,7 @@
         @if (_type == "External")
         {
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="reference" class="form-select" @bind="@_reference">
                         @foreach (string version in _versions)
@@ -57,7 +57,7 @@
             @if (!string.IsNullOrEmpty(_location))
             {
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="location" HelpText="Location where the theme will be created" ResourceKey="Location">Location: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="location" HelpText="Location where the theme will be created" ResourceKey="Location">Location: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="module" class="form-control" @bind="@_location" readonly />
                     </div>

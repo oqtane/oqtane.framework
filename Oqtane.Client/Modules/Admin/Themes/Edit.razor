@@ -14,13 +14,13 @@
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="The name of the theme" ResourceKey="Name">Name: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="The name of the theme" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="name" class="form-control" @bind="@_name" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="isenabled" HelpText="Is theme enabled for this site?" ResourceKey="IsEnabled">Enabled? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="isenabled" HelpText="Is theme enabled for this site?" ResourceKey="IsEnabled">Enabled? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="isenabled" class="form-select" @bind="@_isenabled" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -34,43 +34,43 @@
             <Section Name="Information" ResourceKey="Information" Heading="Information">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="themename" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="themename" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="themename" class="form-control" @bind="@_themeName" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="version" HelpText="The version of the theme" ResourceKey="Version">Version: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="version" HelpText="The version of the theme" ResourceKey="Version">Version: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="version" class="form-control" @bind="@_version" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this theme was installed. This value must be specified within the theme's ITheme interface specification." ResourceKey="PackageName">Package Name: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="packagename" HelpText="The unique name of the package from which this theme was installed. This value must be specified within the theme's ITheme interface specification." ResourceKey="PackageName">Package Name: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="packagename" class="form-control" @bind="@_packagename" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="owner" class="form-control" @bind="@_owner" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="url" HelpText="The url of the theme" ResourceKey="Url">Url: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="url" HelpText="The url of the theme" ResourceKey="Url">Url: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="url" class="form-control" @bind="@_url" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="contact" HelpText="The contact for the theme" ResourceKey="Contact">Contact: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="contact" HelpText="The contact for the theme" ResourceKey="Contact">Contact: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="contact" class="form-control" @bind="@_contact" disabled />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             @if (_license.StartsWith("http") || _license.StartsWith("/") || _license.StartsWith("~"))
                             {
@@ -83,7 +83,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="fingerprint" HelpText="A unique identifier for the theme's static resources. This value can be changed by clicking the Save option below (ie. cache busting)." ResourceKey="Fingerprint">Fingerprint: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="fingerprint" HelpText="A unique identifier for the theme's static resources. This value can be changed by clicking the Save option below (ie. cache busting)." ResourceKey="Fingerprint">Fingerprint: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="fingerprint" class="form-control" @bind="@_fingerprint" disabled />
                         </div>

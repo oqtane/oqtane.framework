@@ -17,7 +17,7 @@ else
 			<div class="container g-0">
 				<div class="row mb-1 align-items-center">
 					<div class="col-sm-4">
-						<Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
+						<Oqtane.Modules.Controls.Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Oqtane.Modules.Controls.Label><br /><br />
 						<select id="level" class="form-select" value="@_level" @onchange="(e => LevelChanged(e))">
 							<option value="-">&lt;@Localizer["AllLevels"]&gt;</option>
 							<option value="Trace">@Localizer["Trace"]</option>
@@ -29,7 +29,7 @@ else
 						</select>
 					</div>            
 					<div class="col-sm-4">
-						<Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
+						<Oqtane.Modules.Controls.Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Oqtane.Modules.Controls.Label><br /><br />
 						<select id="function" class="form-select" value="@_function" @onchange="(e => FunctionChanged(e))">
 							<option value="-">&lt;@Localizer["AllFunctions"]&gt;</option>
 							<option value="Create">@Localizer["Create"]</option>
@@ -41,7 +41,7 @@ else
 						</select>
 					</div>            
 					<div class="col-sm-4">
-						<Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
+						<Oqtane.Modules.Controls.Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Oqtane.Modules.Controls.Label><br /><br />
 						<select id="rows" class="form-select" value="@_rows" @onchange="(e => RowsChanged(e))">
 							<option value="10">10</option>
 							<option value="50">50</option>
@@ -79,7 +79,7 @@ else
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="retention" HelpText="Number of days of events to retain" ResourceKey="Retention">Retention (Days): </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="retention" HelpText="Number of days of events to retain" ResourceKey="Retention">Retention (Days): </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
                         <input id="retention" type="number" min="0" step="1" class="form-control" @bind="@_retention" />
 					</div>
