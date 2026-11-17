@@ -9,13 +9,13 @@
     <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="username" HelpText="Your username will be populated from the link you received in the password reset notification" ResourceKey="Username">Username: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="Your username will be populated from the link you received in the password reset notification" ResourceKey="Username">Username: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="username" type="text" class="form-control" @bind="@_username" readonly />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="password" HelpText="The new password. It must satisfy complexity rules for the site." ResourceKey="Password">Password: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="password" HelpText="The new password. It must satisfy complexity rules for the site." ResourceKey="Password">Password: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
 				<div class="input-group">
 					<input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" required />
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="confirm" HelpText="Enter the password again. It must exactly match the password entered above." ResourceKey="Confirm">Confirm: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="confirm" HelpText="Enter the password again. It must exactly match the password entered above." ResourceKey="Confirm">Confirm: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
 				<div class="input-group">
 					<input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" required />

@@ -12,25 +12,25 @@
     {
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="username" HelpText="The user who sent the message" ResourceKey="From">From:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="The user who sent the message" ResourceKey="From">From:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="username" class="form-control" @bind="@username" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="subject" class="form-control" @bind="@subject" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label class="col-sm-3" For="date" HelpText="The date the message was sent" ResourceKey="Date">Sent:</Label>
+                <Oqtane.Modules.Controls.Label class="col-sm-3" For="date" HelpText="The date the message was sent" ResourceKey="Date">Sent:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="date" class="form-control" @bind="@createdon" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label class="col-sm-3" For="message" HelpText="The contents of the message" ResourceKey="Message">Message:</Label>
+                <Oqtane.Modules.Controls.Label class="col-sm-3" For="message" HelpText="The contents of the message" ResourceKey="Message">Message:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <textarea id="message" class="form-control" @bind="@body" rows="5" readonly />
                 </div>
@@ -41,19 +41,19 @@
     {
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="username" HelpText="The user who will be the recipient of the message" ResourceKey="To">To:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="The user who will be the recipient of the message" ResourceKey="To">To:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="username" class="form-control" @bind="@username" readonly />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="subject" HelpText="The subject of the message" ResourceKey="Subject">Subject:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="subject" class="form-control" @bind="@subject" readonly="@(!reply)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label class="col-sm-3" For="message" HelpText="The content of the message" ResourceKey="Message">Message:</Label>
+                <Oqtane.Modules.Controls.Label class="col-sm-3" For="message" HelpText="The content of the message" ResourceKey="Message">Message:</Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <textarea id="message" class="form-control" @bind="@body" rows="5" readonly="@(!reply)" />
                 </div>

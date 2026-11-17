@@ -9,55 +9,55 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="title" class="form-control" @bind="@_title" maxlength="50" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <textarea id="description" class="form-control" @bind="@_description" rows="3" maxlength="256" required></textarea>
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="category" class="form-control" @bind="@_category" maxlength="50" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="order" class="form-control" @bind="@_vieworder" min="0" max="9999" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="length" class="form-control" @bind="@_maxlength" min="0" max="524288" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="rows" HelpText="The number of rows for text entry (one is the default)" ResourceKey="Rows">Rows: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="rows" class="form-control" @bind="@_rows" min="1" max="10" type="number" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="defaultVal" class="form-control" @bind="@_defaultvalue" maxlength="2000" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from Settings." ResourceKey="Options">Options: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options. Options can contain a key and value if they are seperated by a colon (ie. key:value). You can also dynamically load your options from Settings." ResourceKey="Options">Options: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <div class="input-group">
                     @if (_optiontype == "Settings")
@@ -79,7 +79,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="required" class="form-select" @bind="@_isrequired" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -88,19 +88,19 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="validation" HelpText="Optionally provide a regular expression (RegExp) for validating the value entered" ResourceKey="Validation">Validation: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="validation" HelpText="Optionally provide a regular expression (RegExp) for validating the value entered" ResourceKey="Validation">Validation: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="validation" class="form-control" @bind="@_validation" maxlength="200" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="autocomplete" HelpText="The HTML autocomplete attribute allows you to specify browser behavior for automated user assistance in filling out form field values. Allowable values are blank (default), 'on', 'off', or any value from the standardized taxonomy defined for this attribute." ResourceKey="Autocomplete">Autocomplete: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="autocomplete" HelpText="The HTML autocomplete attribute allows you to specify browser behavior for automated user assistance in filling out form field values. Allowable values are blank (default), 'on', 'off', or any value from the standardized taxonomy defined for this attribute." ResourceKey="Autocomplete">Autocomplete: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="autocomplete" class="form-control" @bind="@_autocomplete" maxlength="30" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="private" class="form-select" @bind="@_isprivate" required>
                     <option value="True">@SharedLocalizer["Yes"]</option>

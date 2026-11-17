@@ -6,13 +6,13 @@
 
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="searchprovider" HelpText="Specify the search provider for this site" ResourceKey="SearchProvider">Search Provider: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="searchprovider" HelpText="Specify the search provider for this site" ResourceKey="SearchProvider">Search Provider: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="searchprovider" class="form-control" @bind="@_searchProvider" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="enabled" HelpText="Specify if search indexing is enabled" ResourceKey="Enabled">Indexing Enabled? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="enabled" HelpText="Specify if search indexing is enabled" ResourceKey="Enabled">Indexing Enabled? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="enabled" class="form-select" @bind="@_enabled">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -21,31 +21,31 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="lastindexedon" HelpText="The date/time which the site was last indexed on" ResourceKey="LastIndexedOn">Last Indexed: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="lastindexedon" HelpText="The date/time which the site was last indexed on" ResourceKey="LastIndexedOn">Last Indexed: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="lastindexedon" class="form-control" @bind="@_lastIndexedOn" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="ignorepages" HelpText="Comma delimited list of pages which should be ignored (based on their path)" ResourceKey="IgnorePages">Ignore Pages: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="ignorepages" HelpText="Comma delimited list of pages which should be ignored (based on their path)" ResourceKey="IgnorePages">Ignore Pages: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <textarea id="ignorepages" class="form-control" @bind="@_ignorePages" rows="3"></textarea>
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="ignoreentities" HelpText="Comma delimited list of entities which should be ignored" ResourceKey="IgnoreEntities">Ignore Entities: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="ignoreentities" HelpText="Comma delimited list of entities which should be ignored" ResourceKey="IgnoreEntities">Ignore Entities: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <textarea id="ignoreentities" class="form-control" @bind="@_ignoreEntities" rows="3"></textarea>
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="minimumwordlength" HelpText="Minimum length of a word to be indexed" ResourceKey="MinimumWordLength">Word Length: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="minimumwordlength" HelpText="Minimum length of a word to be indexed" ResourceKey="MinimumWordLength">Word Length: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="minimumwordlength" class="form-control" type="number" min="0" step="1" @bind="@_minimumWordLength" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="ignorewords" HelpText="Comma delimited list of words which should be ignored" ResourceKey="IgnoreWords">Ignore Words: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="ignorewords" HelpText="Comma delimited list of words which should be ignored" ResourceKey="IgnoreWords">Ignore Words: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <textarea id="ignorewords" class="form-control" @bind="@_ignoreWords" rows="3"></textarea>
         </div>

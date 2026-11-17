@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Oqtane.Server</id>
-    <version>10.3.2</version>
+    <version>11.0.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -12,52 +12,53 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.3.2</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v10.3.1</releaseNotes>
     <readme>readme.md</readme>
     <icon>icon.png</icon>
     <tags>oqtane</tags>
     <dependencies>
-      <group targetFramework="net10.0">
-        <dependency id="Oqtane.Client" version="10.3.2" exclude="Build,Analyzers" />
-        <dependency id="Oqtane.Shared" version="10.3.2" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="10.0.15" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.15" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="10.0.15" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="10.0.15" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Caching.StackExchangeRedis" version="10.0.15" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" version="10.0.15" exclude="Build,Analyzers" />
+      <group targetFramework="net11.0">
+        <dependency id="Oqtane.Client" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Oqtane.Shared" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Components.WebAssembly.Server" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Authentication.OpenIdConnect" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Caching.StackExchangeRedis" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Identity.Client" version="4.92.0" exclude="Build,Analyzers" />
         <dependency id="SixLabors.ImageSharp" version="4.1.3" exclude="Build,Analyzers" />
         <dependency id="HtmlAgilityPack" version="1.13.1" exclude="Build,Analyzers" />
-        <dependency id="Swashbuckle.AspNetCore" version="10.3.1" exclude="Build,Analyzers" />
-        <dependency id="MailKit" version="4.18.2" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="MailKit" version="5.0.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.9.0" exclude="Build,Analyzers" />
         <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.9.0" exclude="Build,Analyzers" />
-        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.15" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="26.10.0" exclude="Build,Analyzers" />
-        <dependency id="MySql.EntityFrameworkCore" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="MySql.EntityFrameworkCore" version="11.0.0-preview" exclude="Build,Analyzers" />
         <dependency id="EFCore.NamingConventions" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="10.0.3" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="10.0.15" exclude="Build,Analyzers" />
+        <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="11.0.0-rc.3" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="11.0.0" exclude="Build,Analyzers" />
         <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.5" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="10.0.15" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="11.0.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>
     <frameworkReferences>
-      <group targetFramework="net10.0">
+      <group targetFramework="net11.0">
         <frameworkReference name="Microsoft.AspNetCore.App" />
       </group>
     </frameworkReferences>
   </metadata>
   <files>
-    <file src="..\Oqtane.Server\bin\Release\net10.0\Oqtane.Server.dll" target="lib\net10.0" /> 
-    <file src="..\Oqtane.Server\bin\Release\net10.0\Oqtane.Server.pdb" target="lib\net10.0" /> 
-    <file src="..\Oqtane.Server\obj\Release\net10.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
-    <file src="..\Oqtane.Server\obj\Release\net10.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
-    <file src="..\Oqtane.Server\obj\Release\net10.0\staticwebassets\msbuild.build.Oqtane.Server.props" target="build\Oqtane.Server.props" />
-    <file src="..\Oqtane.Server\obj\Release\net10.0\staticwebassets\msbuild.buildMultiTargeting.Oqtane.Server.props" target="buildMultiTargeting\Oqtane.Server.props" />
-    <file src="..\Oqtane.Server\obj\Release\net10.0\staticwebassets\msbuild.buildTransitive.Oqtane.Server.props" target="buildTransitive\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\bin\Release\net11.0\Oqtane.Server.dll" target="lib\net11.0" /> 
+    <file src="..\Oqtane.Server\bin\Release\net11.0\Oqtane.Server.pdb" target="lib\net11.0" /> 
+    <file src="..\Oqtane.Server\obj\Release\net11.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props" target="build\Microsoft.AspNetCore.StaticWebAssetEndpoints.props" />
+    <file src="..\Oqtane.Server\obj\Release\net11.0\staticwebassets\msbuild.Oqtane.Server.Microsoft.AspNetCore.StaticWebAssets.props" target="build\Microsoft.AspNetCore.StaticWebAssets.props" />
+    <file src="..\Oqtane.Server\obj\Release\net11.0\staticwebassets\msbuild.build.Oqtane.Server.props" target="build\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net11.0\staticwebassets\msbuild.buildMultiTargeting.Oqtane.Server.props" target="buildMultiTargeting\Oqtane.Server.props" />
+    <file src="..\Oqtane.Server\obj\Release\net11.0\staticwebassets\msbuild.buildTransitive.Oqtane.Server.props" target="buildTransitive\Oqtane.Server.props" />
     <file src="..\Oqtane.Server\wwwroot\**\*" exclude="..\Oqtane.Server\wwwroot\Modules\Templates\**;..\Oqtane.Server\wwwroot\Themes\Templates\**" target="staticwebassets" />
     <file src="icon.png" target="" />
     <file src="readme.md" target="" />

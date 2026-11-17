@@ -61,7 +61,7 @@ else
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="tracking" HelpText="Specify if visitor tracking is enabled" ResourceKey="Tracking">Tracking Enabled? </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="tracking" HelpText="Specify if visitor tracking is enabled" ResourceKey="Tracking">Tracking Enabled? </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<select id="tracking" class="form-select" @bind="@_tracking" >
 							<option value="True">@SharedLocalizer["Yes"]</option>
@@ -70,25 +70,25 @@ else
 					</div>
 				</div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="duration" HelpText="The duration of a browsing session considered to be a distinct visit (in minutes)" ResourceKey="Duration">Session Duration: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="duration" HelpText="The duration of a browsing session considered to be a distinct visit (in minutes)" ResourceKey="Duration">Session Duration: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="duration" class="form-control" type="number" min="0" step="1" @bind="@_duration" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked" ResourceKey="Filter">Filter: </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="filter" HelpText="Comma delimited list of terms which may exist in IP addresses, user agents, or languages identifying visitors which should not be tracked" ResourceKey="Filter">Filter: </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<textarea id="filter" class="form-control" @bind="@_filter" rows="3"></textarea>
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention: </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="retention" HelpText="Number of days of visitor activity to retain" ResourceKey="Retention">Retention: </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
                         <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="correlation" HelpText="Indicate if new visitors to this site should be correlated based on their IP Address" ResourceKey="Correlation">Correlate Visitors? </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="correlation" HelpText="Indicate if new visitors to this site should be correlated based on their IP Address" ResourceKey="Correlation">Correlate Visitors? </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
                         <select id="correlation" class="form-select" @bind="@_correlation">
 							<option value="true">@SharedLocalizer["True"]</option>
@@ -103,7 +103,7 @@ else
         <TabPanel Name="Robots" Heading="Robots.txt" ResourceKey="Robots">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="robots" HelpText="Specify your robots.txt instructions to provide bots with guidance on which parts of your site should be indexed" ResourceKey="Robots">Instructions: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="robots" HelpText="Specify your robots.txt instructions to provide bots with guidance on which parts of your site should be indexed" ResourceKey="Robots">Instructions: </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
                         <textarea id="robots" class="form-control" @bind="@_robots" rows="3"></textarea>
                     </div>

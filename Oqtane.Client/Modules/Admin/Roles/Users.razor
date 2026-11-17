@@ -15,25 +15,25 @@ else
     <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="role" class="form-control" @bind="@name" disabled />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="user" HelpText="Select a user" ResourceKey="User">User: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
 					<AutoComplete OnSearch="GetUsers" Placeholder="@Localizer["User.Select"]" @ref="user" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
                 </div>
