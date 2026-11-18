@@ -1,5 +1,5 @@
 dotnet build -c Release ..\Oqtane.slnx
-FixProps.exe
+copy /Y "C:\Oqtane\staticwebassets" "..\Oqtane.Server\obj\Release\net11.0\staticwebassets"
 nuget.exe pack Oqtane.Client.nuspec
 nuget.exe pack Oqtane.Server.nuspec
 nuget.exe pack Oqtane.Shared.nuspec                  
