@@ -142,13 +142,13 @@
             @if (_registryaccount)
             {
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="registryurl" class="form-control" @bind="@_registryurl" disabled />
                     </div>
                 </div>                
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="registryemail" class="form-control" @bind="@_registryemail" disabled />
                     </div>
@@ -157,19 +157,19 @@
             else
             {
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="registryurl" HelpText="The Url for the Marketplace. If this field is blank it means the installation is restricted from using the Marketplace." ResourceKey="RegistryUrl">Marketplace Url: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="registryurl" class="form-control" @bind="@_registryurl" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="registryemail" HelpText="The email address you use to sign in to the Marketplace" ResourceKey="RegistryEmail">Email: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="registryemail" class="form-control" @bind="@_registryemail" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="registrypassword" HelpText="The password you use to sign in to the Marketplace" ResourceKey="RegistryPassword">Password: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="registrypassword" HelpText="The password you use to sign in to the Marketplace" ResourceKey="RegistryPassword">Password: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="registrypassword" type="@_passwordType" class="form-control" @bind="@_registrypassword" />
@@ -193,7 +193,7 @@
     <TabPanel Name="Upload" ResourceKey="Upload">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" HelpText="Upload one or more theme packages." ResourceKey="Theme">Theme: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" HelpText="Upload one or more theme packages." ResourceKey="Theme">Theme: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" OnUpload="OnUpload" />
                 </div>

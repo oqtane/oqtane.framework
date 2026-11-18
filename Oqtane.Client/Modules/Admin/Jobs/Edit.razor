@@ -14,19 +14,19 @@
                 <ModuleMessage Message="@Localizer["JobNotEditable"]" Type="MessageType.Warning" />
             }
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="type" class="form-control" @bind="@_jobType" required disabled />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="name" class="form-control" @bind="@_name" maxlength="200" required disabled="@(!_editable)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="enabled" class="form-select" @bind="@_isEnabled" required disabled="@(!_editable)">
                         <option value="True">@SharedLocalizer["Yes"]</option>
@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="runs-every" class="form-control mb-1" @bind="@_interval" maxlength="4" required disabled="@(!_editable)" />
                     <select id="runs-every" class="form-select" @bind="@_frequency" required disabled="@(!_editable)">
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="starting" HelpText="Optionally enter the date and time when this job should start executing" ResourceKey="Starting">Starting: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="starting" HelpText="Optionally enter the date and time when this job should start executing" ResourceKey="Starting">Starting: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <div class="row">
                         <div class="col">
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="ending" HelpText="Optionally enter the date and time when this job should stop executing" ResourceKey="Ending">Ending: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="ending" HelpText="Optionally enter the date and time when this job should stop executing" ResourceKey="Ending">Ending: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <div class="row">
                         <div class="col">
@@ -75,19 +75,19 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="maximumduration" HelpText="The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically." ResourceKey="MaximumDuration">Maximum Duration: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="maximumduration" HelpText="The maximum duration in minutes that the job is expected to run. If the job is still running after this time, it will assume the job terminated unexpectedly and it will reset itself automatically." ResourceKey="MaximumDuration">Maximum Duration: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="maximumduration" type="number" min="0" step="1" class="form-control" @bind="@_maximumDuration" maxlength="3" required disabled="@(!_editable)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="retention" type="number" min="0" step="1" class="form-control" @bind="@_retentionHistory" maxlength="3" required disabled="@(!_editable)" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="next" HelpText="The date and time when this job will execute next. This value cannot be modified. Use the settings above to control the execution of the job." ResourceKey="NextExecution">Next Execution: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="next" HelpText="The date and time when this job will execute next. This value cannot be modified. Use the settings above to control the execution of the job." ResourceKey="NextExecution">Next Execution: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="next" class="form-control" @bind="@_nextDate" disabled />
                 </div>

@@ -30,25 +30,25 @@
         <TabPanel Name="Identity" Heading="Identity" ResourceKey="Identity">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@_username" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="email" class="form-control" @bind="@_email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@_displayname" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="timezone" class="form-select" @bind="@_timezoneid">
                             <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="culture" HelpText="Your preferred language for interacting with the UI. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="culture" HelpText="Your preferred language for interacting with the UI. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="culture" class="form-select" @bind="@_culturecode">
                             <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@_photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="@_photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <FileManager FileId="@_photofileid" Filter="@PageState.Site.ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@PageState.User.FolderId" @ref="_filemanager" />
                     </div>
@@ -86,7 +86,7 @@
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
@@ -95,7 +95,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
@@ -113,7 +113,7 @@
                 <Section Name="MFA" Heading="Multi-Factor Authentication" ResourceKey="MFA">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="twofactor" HelpText="Indicates if you are using two factor authentication. Two factor authentication requires you to enter a verification code sent via email after you sign in." ResourceKey="TwoFactor"></Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="twofactor" class="form-select" @bind="@_twofactor" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -203,7 +203,7 @@
                                 _category = p.Category;
                             }
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Oqtane.Modules.Controls.Label>
                                 <div class="col-sm-9">
                                     @if (!string.IsNullOrEmpty(p.Options))
                                     {

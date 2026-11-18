@@ -18,19 +18,19 @@
         <TabPanel Name="Identity" Heading="Identity" ResourceKey="Identity">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username">Username:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username">Username:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@_username" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email">Email:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email">Email:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="email" class="form-control" @bind="@_email" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirmed" HelpText="Indicates if the user's email is verified" ResourceKey="Confirmed">Verified?</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="confirmed" HelpText="Indicates if the user's email is verified" ResourceKey="Confirmed">Verified?</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="confirmed" class="form-select" @bind="@_confirmed">
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -39,13 +39,13 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName">Full Name:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName">Full Name:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@_displayname" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="timezone" HelpText="Your time zone" ResourceKey="TimeZone">Time Zone:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="timezone" class="form-select" @bind="@_timezoneid">
                             <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="culture" HelpText="The user's preferred language. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="culture" HelpText="The user's preferred language. Note that you will only be able to choose from languages supported on this site." ResourceKey="CultureCode">Language:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="culture" class="form-select" @bind="@_culturecode">
                             <option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
@@ -71,7 +71,7 @@
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted">Deleted?</Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted">Deleted?</Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="isdeleted" class="form-select" @bind="@_isdeleted">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -81,13 +81,13 @@
                     </div>
                 }
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin">Last Login:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="lastlogin" HelpText="The date and time when the user last signed in" ResourceKey="LastLogin">Last Login:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="lastlogin" class="form-control" @bind="@_lastlogin" readonly />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="lastipaddress" HelpText="The IP Address of the user recorded during their last login" ResourceKey="LastIPAddress">Last IP Address:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="lastipaddress" HelpText="The IP Address of the user recorded during their last login" ResourceKey="LastIPAddress">Last IP Address:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="lastipaddress" class="form-control" @bind="@_lastipaddress" readonly />
                     </div>
@@ -98,7 +98,7 @@
             <ModuleMessage Message="@_passwordrequirements" Type="MessageType.Info" />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password">Password:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password">Password:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="password" type="@_passwordtype" class="form-control" @bind="@_password" autocomplete="new-password" />
@@ -107,7 +107,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm">Confirm Password:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm">Confirm Password:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <div class="input-group">
                             <input id="confirm" type="@_passwordtype" class="form-control" @bind="@_confirm" autocomplete="new-password" />
@@ -178,7 +178,7 @@
                             _category = p.Category;
                         }
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 @if (!string.IsNullOrEmpty(p.Options))
                                 {

@@ -8,19 +8,19 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="includeentities" ResourceKey="IncludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to include in the search results. By default all entities will be included.">Include Entities: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="includeentities" ResourceKey="IncludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to include in the search results. By default all entities will be included.">Include Entities: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="includeentities" type="text" class="form-control" @bind="@_includeEntities" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="excludeentities" ResourceKey="ExcludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to exclude from search results. By default no entities will be excluded.">Exclude Entities: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="excludeentities" ResourceKey="ExcludeEntities" ResourceType="@resourceType" HelpText="Comma delimited list of entities to exclude from search results. By default no entities will be excluded.">Exclude Entities: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="excludeentities" class="form-control" @bind="@_excludeEntities" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="daterange" ResourceKey="DateRange" ResourceType="@resourceType" HelpText="Enter the date range for search results. The default includes all content.">Date Range: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="daterange" ResourceKey="DateRange" ResourceType="@resourceType" HelpText="Enter the date range for search results. The default includes all content.">Date Range: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <div class="input-group">
                     <input type="date" class="form-control" @bind="@_fromDate" />
@@ -30,14 +30,14 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="pagesize" ResourceKey="PageSize" ResourceType="@resourceType" HelpText="The maximum number of search results to retrieve. The default is unlimited.">Page Size: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="pagesize" ResourceKey="PageSize" ResourceType="@resourceType" HelpText="The maximum number of search results to retrieve. The default is unlimited.">Page Size: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="pagesize" type="text" class="form-control" @bind="@_pageSize" />
             </div>
         </div>
         <hr />
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="sortfield" ResourceKey="SortField" ResourceType="@resourceType" HelpText="Specify the default sort field">Sort By: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="sortfield" ResourceKey="SortField" ResourceType="@resourceType" HelpText="Specify the default sort field">Sort By: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="softfield" class="form-select" @bind="@_sortField">
                     <option value="Relevance">@Localizer["Relevance"]</option>
@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="sortorder" ResourceKey="SortOrder" ResourceType="@resourceType" HelpText="Specify the default sort order">Sort Order: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="sortorder" ResourceKey="SortOrder" ResourceType="@resourceType" HelpText="Specify the default sort order">Sort Order: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="softorder" class="form-select" @bind="@_sortOrder">
                     <option value="Ascending">@Localizer["Ascending"]</option>
@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="bodylength" ResourceKey="BodyLength" ResourceType="@resourceType" HelpText="The number of characters displayed for each search result summary. The default is 255 characters.">Body Size: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="bodylength" ResourceKey="BodyLength" ResourceType="@resourceType" HelpText="The number of characters displayed for each search result summary. The default is 255 characters.">Body Size: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="bodylength" type="text" class="form-control" @bind="@_bodyLength" />
             </div>

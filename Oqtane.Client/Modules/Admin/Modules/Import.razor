@@ -9,14 +9,14 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="file" HelpText="Optionally upload or select a file to import for this module" ResourceKey="File">File: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="file" HelpText="Optionally upload or select a file to import for this module" ResourceKey="File">File: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <FileManager Filter="json" OnSelectFile="OnSelectFile" />
             </div>
         </div>
         <hr />
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="content" HelpText="Provide the module content to import" ResourceKey="Content">Content: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="content" HelpText="Provide the module content to import" ResourceKey="Content">Content: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <textarea id="content" class="form-control" @bind="@_content" rows="5" required></textarea>
             </div>

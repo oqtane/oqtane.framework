@@ -25,7 +25,7 @@
             <h2>@Localizer["DatabaseConfig"]</h2><br />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="databasetype" HelpText="Select the type of database you wish to use" ResourceKey="DatabaseType">Database:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="databasetype" HelpText="Select the type of database you wish to use" ResourceKey="DatabaseType">Database:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         @if (_databases != null)
                         {
@@ -58,7 +58,7 @@
 				else
 				{
 					<div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
+						<Oqtane.Modules.Controls.Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Oqtane.Modules.Controls.Label>
 						<div class="col-sm-9">
 							<textarea id="connectionstring" class="form-control" @bind="@_connectionString" rows="3"></textarea>
 						</div>
@@ -70,13 +70,13 @@
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Provide a username for the primary user account" ResourceKey="Username">Username:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="username" HelpText="Provide a username for the primary user account" ResourceKey="Username">Username:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="username" type="text" class="form-control" maxlength="256" @bind="@_hostUsername" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="Provide a password for the primary user account" ResourceKey="Password">Password:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="password" HelpText="Provide a password for the primary user account" ResourceKey="Password">Password:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
 						<div class="input-group">
                             <input id="password" type="@_passwordType" class="form-control" maxlength="256" @bind="@_hostPassword" autocomplete="new-password" />
@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
 						<div class="input-group">
                             <input id="confirm" type="@_confirmPasswordType" class="form-control" maxlength="256" @bind="@_confirmPassword" autocomplete="new-password" />
@@ -94,19 +94,19 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" maxlength="256" @bind="@_hostEmail" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="name" HelpText="Provide the full name of the host user" ResourceKey="Name">Full Name:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Provide the full name of the host user" ResourceKey="Name">Full Name:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" maxlength="50" @bind="@_hostName" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="template" HelpText="Select a site template" ResourceKey="Template">Template:</Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="template" HelpText="Select a site template" ResourceKey="Template">Template:</Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         @if (_templates != null)
                         {

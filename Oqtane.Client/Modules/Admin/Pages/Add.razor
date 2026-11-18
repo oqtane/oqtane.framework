@@ -14,7 +14,7 @@
             <TabPanel Name="Settings" ResourceKey="Settings" Heading="Settings">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="name" class="form-control" @bind="@_name" maxlength="100" required />
                         </div>
@@ -22,7 +22,7 @@
                     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))" required>
                                     <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
@@ -37,7 +37,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="insert" class="form-select" @bind="@_insert" required>
                                     @if (_children != null && _children.Count > 0)
@@ -64,7 +64,7 @@
                     else
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
                                     <option value="@(_parent.PageId)">@(new string('-', _parent.Level * 2))@(_parent.Name)</option>
@@ -72,7 +72,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="insert" class="form-select" @bind="@_insert" required>
                                     <option value=">>">@Localizer["AtEnd"]</option>
@@ -81,25 +81,25 @@
                         </div>
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="title" class="form-control" @bind="@_title" maxlength="200" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="path" class="form-control" @bind="@_path" maxlength="256" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="url" class="form-control" @bind="@_url" maxlength="500" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -111,7 +111,7 @@
                 <Section Name="Theme" Heading="Theme" ResourceKey="Theme">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                                     @foreach (var theme in _themes)
@@ -129,7 +129,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="container" class="form-select" @bind="@_containertype" required>
                                     @foreach (var container in _containers)
@@ -144,7 +144,7 @@
                 <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-8">
                                 <InputList Value="@_icon" ValueChanged="IconChanged" DataList="@_icons" ResourceKey="Icon" ResourceType="@_iconresources" />
                             </div>
@@ -153,7 +153,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="navigation" class="form-select" @bind="@_isnavigation" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -162,7 +162,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="clickable" class="form-select" @bind="@_isclickable" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
@@ -171,13 +171,13 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this page is active" ResourceKey="EffectiveDate">Effective Date: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input type="date" id="effectiveDate" class="form-control" @bind="@_effectivedate" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="expiryDate" HelpText="The date that this page expires" ResourceKey="ExpiryDate">Expiry Date: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input type="date" id="expiryDate" class="form-control" @bind="@_expirydate" />
                             </div>
@@ -187,13 +187,13 @@
                 <Section Name="PageContent" ResourceKey="PageContent" Heading=@Localizer["PageContent.Heading"]>
                     <div class="container">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="headcontent" HelpText="Optionally enter content to be included in the page head (ie. meta, link, or script tags)" ResourceKey="HeadContent">Head Content: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <textarea id="headcontent" class="form-control" @bind="@_headcontent" rows="3" maxlength="4000"></textarea>
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="bodycontent" HelpText="Optionally enter content to be included in the page body (ie. script tags)" ResourceKey="BodyContent">Body Content: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <textarea id="bodycontent" class="form-control" @bind="@_bodycontent" rows="3" maxlength="4000"></textarea>
                             </div>

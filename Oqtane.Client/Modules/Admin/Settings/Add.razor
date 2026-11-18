@@ -8,7 +8,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="entityName" HelpText="Entity Name" ResourceKey="EntityName">Entity:</Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="entityName" HelpText="Entity Name" ResourceKey="EntityName">Entity:</Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <div class="input-group">
                     @if (_entityNameElement == "input")
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="entityId" HelpText="Entity Id" ResourceKey="EntityId">Id:</Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="entityId" HelpText="Entity Id" ResourceKey="EntityId">Id:</Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <div class="input-group">
                     @if (_entityIdElement == "input")
@@ -52,19 +52,19 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="settingName" HelpText="Setting Name" ResourceKey="SettingName">Name:</Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="settingName" HelpText="Setting Name" ResourceKey="SettingName">Name:</Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="settingName" class="form-control" @bind="@_settingName" maxlength="256" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="settingValue" HelpText="Setting Value" ResourceKey="SettingValue">Value:</Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="settingValue" HelpText="Setting Value" ResourceKey="SettingValue">Value:</Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="SettingValue" class="form-control" @bind="@_settingValue" maxlength="256" />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="isPrivate" HelpText="Private" ResourceKey="IsPrivate">Private?</Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="isPrivate" HelpText="Private" ResourceKey="IsPrivate">Private?</Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="isPrivate" class="form-select" @bind="@_isPrivate">
                     <option value="True">@SharedLocalizer["Yes"]</option>

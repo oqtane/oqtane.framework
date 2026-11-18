@@ -28,7 +28,6 @@ namespace Oqtane.Extensions
 
             if (environment.IsDevelopment())
             {
-                app.UseWebAssemblyDebugging();
                 app.UseForwardedHeaders();
             }
             else

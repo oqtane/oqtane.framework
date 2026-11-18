@@ -61,7 +61,7 @@
             <hr />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="state" HelpText="The current state of the content" ResourceKey="State">State: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="state" HelpText="The current state of the content" ResourceKey="State">State: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         @DisplayState(_detail.State)
                     </div>
@@ -72,19 +72,19 @@
                         @switch (_detail.State)
                         {
                             case WorkflowState.Draft:
-                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was created" ResourceKey="CreatedOn">Created On: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was created" ResourceKey="CreatedOn">Created On: </Oqtane.Modules.Controls.Label>
                                 break;
                             case WorkflowState.Review:
-                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was submitted for review" ResourceKey="SubmittedOn">Submitted On: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was submitted for review" ResourceKey="SubmittedOn">Submitted On: </Oqtane.Modules.Controls.Label>
                                 break;
                             case WorkflowState.Published:
-                                <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was published" ResourceKey="PublishedOn">Published On: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was published" ResourceKey="PublishedOn">Published On: </Oqtane.Modules.Controls.Label>
                                 break;
                         }
                     }
                     else
                     {
-                        <Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was rejected" ResourceKey="RejectedOn">Rejected On: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedon" HelpText="The date the content was rejected" ResourceKey="RejectedOn">Rejected On: </Oqtane.Modules.Controls.Label>
                     }
                     <div class="col-sm-9">
                         <input id="modifiedon" class="form-control" @bind="@_detail.ModifiedOn" disabled />
@@ -96,19 +96,19 @@
                         @switch (_detail.State)
                         {
                             case WorkflowState.Draft:
-                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who created the content" ResourceKey="CreatedBy">Created By: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedby" HelpText="The user who created the content" ResourceKey="CreatedBy">Created By: </Oqtane.Modules.Controls.Label>
                                 break;
                             case WorkflowState.Review:
-                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who submitted the content the review" ResourceKey="SubmittedBy">Submitted By: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedby" HelpText="The user who submitted the content the review" ResourceKey="SubmittedBy">Submitted By: </Oqtane.Modules.Controls.Label>
                                 break;
                             case WorkflowState.Published:
-                                <Label Class="col-sm-3" For="modifiedby" HelpText="The user who published the content" ResourceKey="PublishedBy">Published By: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedby" HelpText="The user who published the content" ResourceKey="PublishedBy">Published By: </Oqtane.Modules.Controls.Label>
                                 break;
                         }
                     }
                     else
                     {
-                        <Label Class="col-sm-3" For="modifiedon" HelpText="The user who rejected the content" ResourceKey="RejectedBy">Rejected By: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modifiedon" HelpText="The user who rejected the content" ResourceKey="RejectedBy">Rejected By: </Oqtane.Modules.Controls.Label>
                     }
                     <div class="col-sm-9">
                         <input id="modifiedby" class="form-control" @bind="@_detail.ModifiedBy" disabled />
@@ -117,7 +117,7 @@
                 @if (!string.IsNullOrEmpty(_detail.Comment))
                 {
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="comment" HelpText="The reason the content was rejected" ResourceKey="Comment">Comment: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="comment" HelpText="The reason the content was rejected" ResourceKey="Comment">Comment: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">                             
                             <textarea id="comment" class="form-control" rows="3" @bind="@_detail.Comment" disabled />
                         </div>

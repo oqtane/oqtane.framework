@@ -18,7 +18,7 @@
                     @if (!_isSystem)
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 @if (_parentId == -1)
                                 {
@@ -41,7 +41,7 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 @if (_isSystem)
                                 {
@@ -56,7 +56,7 @@
                         @if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Oqtane.Modules.Controls.Label>
                                 <div class="col-sm-9">
                                     <input id="path" class="form-control" @bind="@_path" disabled />
                                 </div>
@@ -65,7 +65,7 @@
                         @if (_parentId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Oqtane.Modules.Controls.Label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
                                         <select id="StorageProvider" class="form-select" value="@_storageProvider" @onchange="(e) => OnStorageProviderChanged(Convert.ToString(e.Value))">
@@ -81,7 +81,7 @@
                         else
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Oqtane.Modules.Controls.Label>
                                 <div class="col-sm-9">
                                     <input id="StorageProvider" class="form-control" disabled value="@GetStorageProviderDisplayName(_storageProvider)" />
                                 </div>
@@ -91,7 +91,7 @@
                     else
                     {
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="parent" class="form-select" value="@_parentId" disabled>
                                     @if (_parentId == -1)
@@ -109,13 +109,13 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="name" class="form-control" @bind="@_name" disabled />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="path" HelpText="The folder path" ResourceKey="Path">Path: </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <input id="path" class="form-control" @bind="@_path" disabled />
                             </div>
@@ -123,7 +123,7 @@
                         @if (_folderId != -1)
                         {
                             <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Label>
+                                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="StorageProvider" HelpText="Select the storage provider for this folder" ResourceKey="StorageProvider">Storage Provider:</Oqtane.Modules.Controls.Label>
                                 <div class="col">
                                     <input id="StorageProvider" class="form-control" disabled value="@GetStorageProviderDisplayName(_storageProvider)" />
                                 </div>
@@ -137,19 +137,19 @@
                         <hr />
                     }
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="capacity" class="form-control" @bind="@_capacity" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="cachecontrol" HelpText="Optionally provide a Cache-Control directive for this folder. For example 'public, max-age=60' indicates that files in this folder should be cached for 60 seconds. Please note that when caching is enabled, changes to files will not be immediately reflected in the UI." ResourceKey="CacheControl">Caching: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="cachecontrol" HelpText="Optionally provide a Cache-Control directive for this folder. For example 'public, max-age=60' indicates that files in this folder should be cached for 60 seconds. Please note that when caching is enabled, changes to files will not be immediately reflected in the UI." ResourceKey="CacheControl">Caching: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="cachecontrol" class="form-control" @bind="@_cachecontrol" maxlength="50" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="imagesizes" HelpText="Optionally enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes (not recommended)." ResourceKey="ImageSizes">Image Sizes: </Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="imagesizes" HelpText="Optionally enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,400x400). Use * to indicate the folder supports all image sizes (not recommended)." ResourceKey="ImageSizes">Image Sizes: </Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="imagesizes" class="form-control" @bind="@_imagesizes" maxlength="512" />
                         </div>
@@ -173,7 +173,7 @@
                     {
                         <hr />
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="updatesubfolders" HelpText="Specify if permission changes made to this folder should be propagated to subfolders" ResourceKey="UpdateSubfolders">Update Subfolders? </Label>
+                            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="updatesubfolders" HelpText="Specify if permission changes made to this folder should be propagated to subfolders" ResourceKey="UpdateSubfolders">Update Subfolders? </Oqtane.Modules.Controls.Label>
                             <div class="col-sm-9">
                                 <select id="updatesubfolders" class="form-select" @bind="@_updatesubfolders" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>

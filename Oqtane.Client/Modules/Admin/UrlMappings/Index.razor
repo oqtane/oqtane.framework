@@ -57,7 +57,7 @@ else
         <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
 			<div class="container">
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="capturebrokenurls" HelpText="Specify if broken Urls should be captured automatically and saved in Url Mappings" ResourceKey="CaptureBrokenUrls">Capture Broken Urls? </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="capturebrokenurls" HelpText="Specify if broken Urls should be captured automatically and saved in Url Mappings" ResourceKey="CaptureBrokenUrls">Capture Broken Urls? </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<select id="capturebrokenurls" class="form-select" @bind="@_capturebrokenurls" >
 							<option value="True">@SharedLocalizer["Yes"]</option>
@@ -66,7 +66,7 @@ else
 					</div>
 				</div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="retention" HelpText="Number of days of broken urls to retain" ResourceKey="Retention">Retention (Days): </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="retention" HelpText="Number of days of broken urls to retain" ResourceKey="Retention">Retention (Days): </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="retention" class="form-control" type="number" min="0" step="1" @bind="@_retention" />
                     </div>

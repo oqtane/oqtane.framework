@@ -10,7 +10,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="dynamictokens" ResourceKey="DynamicTokens" ResourceType="@resourceType" HelpText="Do you wish to allow tokens to be dynamically replaced? Please note that this will affect the performance of your site.">Dynamic Tokens? </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="dynamictokens" ResourceKey="DynamicTokens" ResourceType="@resourceType" HelpText="Do you wish to allow tokens to be dynamically replaced? Please note that this will affect the performance of your site.">Dynamic Tokens? </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <select id="dynamictokens" class="form-select" @bind="@_dynamictokens">
                     <option value="true">@SharedLocalizer["Yes"]</option>
@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="versions" ResourceKey="Versions" ResourceType="@resourceType" HelpText="The number of content versions to preserve (note that zero means unlimited)">Versions: </Label>
+            <Oqtane.Modules.Controls.Label Class="col-sm-3" For="versions" ResourceKey="Versions" ResourceType="@resourceType" HelpText="The number of content versions to preserve (note that zero means unlimited)">Versions: </Oqtane.Modules.Controls.Label>
             <div class="col-sm-9">
                 <input id="versions" type="number" min="0" max="9" step="1" class="form-control" @bind="@_versions" />
             </div>
@@ -28,7 +28,7 @@
         {
             <hr />
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="workflow" ResourceKey="Workflow" ResourceType="@resourceType" HelpText="The workflow to apply to the content for this site">Workflow: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="workflow" ResourceKey="Workflow" ResourceType="@resourceType" HelpText="The workflow to apply to the content for this site">Workflow: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <select id="workflow" class="form-select custom-select" @bind="@_workflow">
                         <option value="@WorkflowType.DirectPublish">@Localizer["Direct Publish"]</option>
@@ -39,7 +39,7 @@
             @if (_workflow != WorkflowType.DirectPublish)
             {
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="approver" ResourceKey="Approver" ResourceType="@resourceType" HelpText="Select the role that is allowed to approve content (note that Administrators always have approval rights)">Approver: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="approver" ResourceKey="Approver" ResourceType="@resourceType" HelpText="Select the role that is allowed to approve content (note that Administrators always have approval rights)">Approver: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <select id="approver" class="form-select custom-select" @bind="@_approver">
 							<option value="">&lt;@SharedLocalizer["Not Specified"]&gt;</option>

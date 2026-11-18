@@ -23,7 +23,7 @@ namespace Oqtane.Modules.Controls
         {
             try
             {
-                await _jsRuntime.InvokeAsync<object>(
+                await _jsRuntime.InvokeVoidAsync(
                     "Oqtane.RichTextEditor.createQuill",
                     quillElement, toolbar, readOnly, placeholder, theme, debugLevel);
                 return;
@@ -80,7 +80,7 @@ namespace Oqtane.Modules.Controls
         {
             try
             {
-                _jsRuntime.InvokeAsync<object>(
+                _jsRuntime.InvokeVoidAsync(
                     "Oqtane.RichTextEditor.loadQuillContent",
                     quillElement, content);
                 return Task.CompletedTask;
@@ -95,7 +95,7 @@ namespace Oqtane.Modules.Controls
         {
             try
             {
-                _jsRuntime.InvokeAsync<object>(
+                _jsRuntime.InvokeVoidAsync(
                     "Oqtane.RichTextEditor.enableQuillEditor", quillElement, mode);
                 return Task.CompletedTask;
             }
@@ -121,7 +121,7 @@ namespace Oqtane.Modules.Controls
         {
             try
             {
-                _jsRuntime.InvokeAsync<object>(
+                _jsRuntime.InvokeVoidAsync(
                     "Oqtane.RichTextEditor.insertQuillImage",
                     quillElement, imageUrl, altText, editorIndex);
                 return Task.CompletedTask;

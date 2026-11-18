@@ -9,7 +9,7 @@
     <TabPanel Name="Content" Heading="Content" ResourceKey="Content">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="content" HelpText="Select the Export option and you will be able to view the module content" ResourceKey="Content">Content: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="content" HelpText="Select the Export option and you will be able to view the module content" ResourceKey="Content">Content: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <textarea id="content" class="form-control" @bind="@_content" rows="5" readonly></textarea>
                 </div>
@@ -22,13 +22,13 @@
     <TabPanel Name="File" Heading="File" ResourceKey="File">
         <div class="container">
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="folder" HelpText="Select a folder where you wish to save the exported content" ResourceKey="Folder">Folder: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="folder" HelpText="Select a folder where you wish to save the exported content" ResourceKey="Folder">Folder: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <FileManager ShowFiles="false" ShowUpload="false" @ref="_filemanager" />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="filename" HelpText="Specify a name for the file (without an extension)" ResourceKey="Filename">Filename: </Label>
+                <Oqtane.Modules.Controls.Label Class="col-sm-3" For="filename" HelpText="Specify a name for the file (without an extension)" ResourceKey="Filename">Filename: </Oqtane.Modules.Controls.Label>
                 <div class="col-sm-9">
                     <input id="content" type="text" class="form-control" @bind="@_filename" />
                 </div>

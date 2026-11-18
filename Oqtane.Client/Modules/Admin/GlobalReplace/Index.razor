@@ -7,19 +7,19 @@
 
 <div class="container">
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="find" HelpText="Specify the content which needs to be replaced" ResourceKey="Find">Find What: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="find" HelpText="Specify the content which needs to be replaced" ResourceKey="Find">Find What: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="find" class="form-control" @bind="@_find" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="replace" HelpText="Specify the replacement content" ResourceKey="Replace">Replace With: </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="replace" HelpText="Specify the replacement content" ResourceKey="Replace">Replace With: </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <input id="replace" class="form-control" @bind="@_replace" />
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="casesensitive" HelpText="Specify if the replacement operation should be case sensitive" ResourceKey="CaseSensitive">Match Case? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="casesensitive" HelpText="Specify if the replacement operation should be case sensitive" ResourceKey="CaseSensitive">Match Case? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="casesensitive" class="form-select" @bind="@_caseSensitive">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="site" HelpText="Specify if site information should be updated (ie. name, head content, body content, settings)" ResourceKey="Site">Site Info? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="site" HelpText="Specify if site information should be updated (ie. name, head content, body content, settings)" ResourceKey="Site">Site Info? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="site" class="form-select" @bind="@_site">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -37,7 +37,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="pages" HelpText="Specify if page information should be updated (ie. name, title, head content, body content, settings)" ResourceKey="Pages">Page Info? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="pages" HelpText="Specify if page information should be updated (ie. name, title, head content, body content, settings)" ResourceKey="Pages">Page Info? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="pages" class="form-select" @bind="@_pages">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -46,7 +46,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="modules" HelpText="Specify if module information should be updated (ie. title, header, footer, settings)" ResourceKey="Modules">Module Info? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="modules" HelpText="Specify if module information should be updated (ie. title, header, footer, settings)" ResourceKey="Modules">Module Info? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="modules" class="form-select" @bind="@_modules">
                 <option value="True">@SharedLocalizer["Yes"]</option>
@@ -55,7 +55,7 @@
         </div>
     </div>
     <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="content" HelpText="Specify if module content should be updated" ResourceKey="Content">Module Content? </Label>
+        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="content" HelpText="Specify if module content should be updated" ResourceKey="Content">Module Content? </Oqtane.Modules.Controls.Label>
         <div class="col-sm-9">
             <select id="content" class="form-select" @bind="@_content">
                 <option value="True">@SharedLocalizer["Yes"]</option>

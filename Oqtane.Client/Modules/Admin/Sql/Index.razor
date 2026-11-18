@@ -16,7 +16,7 @@ else
 {
     <div class="container">
 		<div class="row mb-1 align-items-center">
-			<Label Class="col-sm-3" For="connection" HelpText="Select a database connection (from appsettings.json)" ResourceKey="Connection">Connection: </Label>
+			<Oqtane.Modules.Controls.Label Class="col-sm-3" For="connection" HelpText="Select a database connection (from appsettings.json)" ResourceKey="Connection">Connection: </Oqtane.Modules.Controls.Label>
 			<div class="col-sm-9">
 				<select id="tenant" class="form-select" value="@_connection" @onchange="(e => ConnectionChanged(e))">
 					<option value="-">&lt;@Localizer["Connection.Select"]&gt;</option>
@@ -31,13 +31,13 @@ else
 		@if (_connection == "+")
 		{
 			<div class="row mb-1 align-items-center">
-				<Label Class="col-sm-3" For="name" HelpText="Enter the name of the connection" ResourceKey="Name">Name: </Label>
+				<Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Enter the name of the connection" ResourceKey="Name">Name: </Oqtane.Modules.Controls.Label>
 				<div class="col-sm-9">
 					<input id="name" class="form-control" @bind="@_name" maxlength="100" required />
 				</div>
 			</div>
 			<div class="row mb-1 align-items-center">
-				<Label Class="col-sm-3" For="databasetype" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Label>
+				<Oqtane.Modules.Controls.Label Class="col-sm-3" For="databasetype" HelpText="Select the database type" ResourceKey="DatabaseType">Type: </Oqtane.Modules.Controls.Label>
 				<div class="col-sm-9">
 					@if (_databases != null)
 					{
@@ -70,7 +70,7 @@ else
 			else
 			{
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="connectionstring" HelpText="Enter a complete connection string including all parameters and delimiters" ResourceKey="ConnectionString">Settings:</Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="3"></textarea>
 					</div>
@@ -84,7 +84,7 @@ else
 			@if (_connection != "-")
 			{
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Label>
+                    <Oqtane.Modules.Controls.Label Class="col-sm-3" For="databasetype" HelpText="The database type" ResourceKey="DatabaseType">Type: </Oqtane.Modules.Controls.Label>
                     <div class="col-sm-9">
                         <input id="databasetype" class="form-control" @bind="@_databasetype" readonly />
                     </div>
@@ -92,14 +92,14 @@ else
                 @if (!string.IsNullOrEmpty(_tenant))
                 {
                     <div class="row mb-1 align-items-center">
-						<Label Class="col-sm-3" For="tenant" HelpText="The database using this connection" ResourceKey="Tenant">Database: </Label>
+						<Oqtane.Modules.Controls.Label Class="col-sm-3" For="tenant" HelpText="The database using this connection" ResourceKey="Tenant">Database: </Oqtane.Modules.Controls.Label>
 						<div class="col-sm-9">
 							<input id="tenant" class="form-control" @bind="@_tenant" readonly />
 						</div>
 					</div>
 				}
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="connectionstring" HelpText="The connection string" ResourceKey="ConnectionString">Settings: </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="connectionstring" HelpText="The connection string" ResourceKey="ConnectionString">Settings: </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<div class="input-group">
 							<input id="connectionstring" type="@_connectionstringtype" class="form-control" @bind="@_connectionstring" readonly />
@@ -108,7 +108,7 @@ else
 					</div>
 				</div>
 				<div class="row mb-1 align-items-center">
-					<Label Class="col-sm-3" For="sqlQuery" HelpText="Enter a valid SQL query for the database" ResourceKey="SqlQuery">SQL Query: </Label>
+					<Oqtane.Modules.Controls.Label Class="col-sm-3" For="sqlQuery" HelpText="Enter a valid SQL query for the database" ResourceKey="SqlQuery">SQL Query: </Oqtane.Modules.Controls.Label>
 					<div class="col-sm-9">
 						<textarea id="sqlQuery" class="form-control" @bind="@_sql" rows="3"></textarea>
 					</div>

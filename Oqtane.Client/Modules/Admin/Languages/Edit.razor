@@ -19,13 +19,13 @@ else
             <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
 				    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <input id="code" class="form-control" @bind="@_code" readonly/>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                        <Oqtane.Modules.Controls.Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Oqtane.Modules.Controls.Label>
                         <div class="col-sm-9">
                             <select id="default" class="form-select" @bind="@_default" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
