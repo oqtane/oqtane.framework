@@ -160,7 +160,9 @@ namespace Oqtane.Controllers
         [HttpPut("{id}")]
         public Setting Put(int id, [FromBody] Setting setting)
         {
-            if (ModelState.IsValid && setting.SettingId == id && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit, setting.SettingName))
+            var existing = _settings.GetSetting(setting.EntityName, id);
+            if (ModelState.IsValid && existing != null && IsAuthorized(existing.EntityName, existing.EntityId, PermissionNames.Edit, existing.SettingName) &&
+                setting.SettingId == existing.SettingId && setting.EntityName == existing.EntityName && setting.EntityId == existing.EntityId && setting.SettingName == existing.SettingName)
             {
                 setting = _settings.UpdateSetting(setting);
                 AddSyncEvent(setting.EntityName, setting.EntityId, setting.SettingId, SyncEventActions.Update);
