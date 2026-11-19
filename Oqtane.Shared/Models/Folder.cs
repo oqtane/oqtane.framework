@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Oqtane.Shared;
 
 namespace Oqtane.Models
 {
@@ -113,6 +114,29 @@ namespace Oqtane.Models
         [NotMapped]
         [JsonIgnore] // exclude from API payload
         public bool? IsDeleted { get; set; }
+
+        [Obsolete("The Type property is deprecated. Use StorageProviderType instead", false)]
+        [NotMapped]
+        public string Type
+        {
+            get
+            {
+                return StorageProviderType switch
+                {
+                    Constants.PublicStorageProvider => "Public",
+                    Constants.PrivateStorageProvider => "Private",
+                    _ => string.Empty
+                };
+            }
+            set
+            {
+                StorageProviderType = value?.ToLower() switch
+                {
+                    "public" => Constants.PublicStorageProvider,
+                    _ => Constants.PrivateStorageProvider // default to private storage provider
+                };
+            }
+        }
 
         #endregion
     }
