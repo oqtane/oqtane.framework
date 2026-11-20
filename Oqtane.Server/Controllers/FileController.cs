@@ -515,7 +515,7 @@ namespace Oqtane.Controllers
                         {
                             var folderPath = GetFolderPath(folder);
                             var fileInfo = new FileInfo(Path.Combine(tempFolder, upload));
-                            fileInfo.MoveTo(Path.Combine(folderPath, upload));
+                            fileInfo.MoveTo(Path.Combine(folderPath, upload), true);
                         }
                     }
                     
