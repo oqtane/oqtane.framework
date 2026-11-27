@@ -96,10 +96,10 @@ namespace Oqtane.Shared
         public const string DefaultTextEditor = "Oqtane.Modules.Controls.RadzenTextEditor, Oqtane.Client";
 
         // obtained from https://cdnjs.com/libraries/bootstrap
-        public const string BootstrapScriptUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js";
-        public const string BootstrapScriptIntegrity = "sha512-HvOjJrdwNpDbkGJIG2ZNqDlVqMo77qbs4Me4cah0HoDrfhrbA+8SBlZn1KrvAQw7cILLPFJvdwIgphzQmMm+Pw==";
-        public const string BootstrapStylesheetUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css";
-        public const string BootstrapStylesheetIntegrity = "sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==";
+        public const string BootstrapScriptUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.9/js/bootstrap.bundle.min.js";
+        public const string BootstrapScriptIntegrity = "sha512-e+7khtwPXnlvjbSjbxVllU8uzgqxAQhYZ1II5AyKC8G/IGlMsYo+YaUUea4Dnfv6adjq7+dOMPXFKOPTPfHJAQ==";
+        public const string BootstrapStylesheetUrl = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.9/css/bootstrap.min.css";
+        public const string BootstrapStylesheetIntegrity = "sha512-ZuV2yPmu5OcwTgfUHURSM2QYEMPA9UIPpMr/U9gJEdRB+1VcCJaUc/GJrO9WwZVNR3JB7mgzkRtRwor+BcaPAA==";
 
         public const string CookieConsentCookieName = "Oqtane.CookieConsent";
         public const string CookieConsentCookieValue = "yes";
