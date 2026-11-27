@@ -28,18 +28,18 @@
         <dependency id="Microsoft.Extensions.Caching.StackExchangeRedis" version="11.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" version="11.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Identity.Client" version="4.92.0" exclude="Build,Analyzers" />
-        <dependency id="SixLabors.ImageSharp" version="4.1.3" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.ImageSharp" version="4.1.4" exclude="Build,Analyzers" />
         <dependency id="HtmlAgilityPack" version="1.13.1" exclude="Build,Analyzers" />
-        <dependency id="Swashbuckle.AspNetCore" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore" version="11.0.1" exclude="Build,Analyzers" />
         <dependency id="MailKit" version="5.0.0" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache" version="2.9.0" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.9.0" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.9.0" exclude="Build,Analyzers" />
-        <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.9.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache" version="2.10.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Locking.Distributed.Redis" version="2.10.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" version="2.10.0" exclude="Build,Analyzers" />
+        <dependency id="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" version="2.10.0" exclude="Build,Analyzers" />
         <dependency id="MySql.Data" version="26.10.0" exclude="Build,Analyzers" />
         <dependency id="MySql.EntityFrameworkCore" version="11.0.0-preview" exclude="Build,Analyzers" />
-        <dependency id="EFCore.NamingConventions" version="10.0.1" exclude="Build,Analyzers" />
-        <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="11.0.0-rc.3" exclude="Build,Analyzers" />
+        <dependency id="EFCore.NamingConventions" version="11.0.0" exclude="Build,Analyzers" />
+        <dependency id="Npgsql.EntityFrameworkCore.PostgreSQL" version="11.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.Sqlite" version="11.0.0" exclude="Build,Analyzers" />
         <dependency id="SQLitePCLRaw.bundle_e_sqlite3" version="3.0.5" exclude="Build,Analyzers" />
         <dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="11.0.0" exclude="Build,Analyzers" />
