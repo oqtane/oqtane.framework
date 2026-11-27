@@ -23,7 +23,7 @@ namespace Oqtane.Infrastructure
                 var userManager = provider.GetRequiredService<IUserManager>();
 
                 var file = fileRepository.GetFile(fileId);
-                if (file != null)
+                if (file != null && file.Folder.SiteId == site.SiteId)
                 {
                     log += $"Importing Users From {file.Name}<br />";
                     var result = await userManager.ImportUsers(site.SiteId, file, notify);
@@ -38,7 +38,7 @@ namespace Oqtane.Infrastructure
                 }
                 else
                 {
-                    log += $"Import Users FileId {fileId} Does Not Exist<br />";
+                    log += $"Import Users FileId {fileId} Does Not Exist Or Does Not Belong To Site {site.SiteId}<br />";
                 }
             }
 
